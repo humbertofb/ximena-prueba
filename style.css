@@ -192,3 +192,33 @@ form#kdramaForm button {
   height: 200px;
   border-radius: 1rem;
 }
+
+.playlist-section {
+  margin-top: 2rem;
+}
+form#songForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+form#songForm input {
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+}
+form#songForm button {
+  background-color: #ce93d8;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+#playlist div {
+  margin-top: 0.5rem;
+  background: #fff0f5;
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+}
+
