@@ -69,3 +69,37 @@ nav#sidebar.show {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.category-select {
+  display: flex;
+  justify-content: space-around;
+  margin: 1rem 0;
+}
+.category-select button {
+  background: #f8bbd0;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #4a148c;
+  transition: transform 0.2s;
+}
+.category-select button:hover {
+  transform: scale(1.05);
+}
+.question-card {
+  background: white;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.reactions button {
+  font-size: 1.2rem;
+  margin: 0 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
