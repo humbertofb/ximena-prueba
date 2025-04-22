@@ -222,3 +222,28 @@ form#songForm button {
   border-radius: 0.7rem;
 }
 
+.videos-section {
+  margin-top: 2rem;
+}
+#videoForm input {
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+}
+#videoForm button {
+  background-color: #f48fb1;
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+#videosList > div {
+  margin-bottom: 1.5rem;
+  background: #fffafc;
+  padding: 1rem;
+  border-radius: 0.7rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
