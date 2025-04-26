@@ -67,3 +67,111 @@ logoutButton.addEventListener('click', e => {
 
 // Mensajes de error de autenticación en español
 function getAuthErrorMessage(errorCode) {
+    switch(errorCode) {
+        case 'auth/user-not-found':
+            return 'No existe una cuenta con este correo electrónico.';
+        case 'auth/wrong-password':
+            return 'Contraseña incorrecta. Inténtalo de nuevo.';
+        case 'auth/invalid-email':
+            return 'El formato del correo electrónico no es válido.';
+        case 'auth/user-disabled':
+            return 'Esta cuenta ha sido deshabilitada.';
+        case 'auth/too-many-requests':
+            return 'Demasiados intentos fallidos. Inténtalo más tarde.';
+        default:
+            return 'Error al iniciar sesión. Inténtalo de nuevo.';
+    }
+}
+
+// Cargar datos del usuario
+function loadUserData() {
+    const userId = auth.currentUser.uid;
+    
+    // Cargar datos personales desde Firestore
+    db.collection('users').doc(userId).get()
+        .then(doc => {
+            if (doc.exists) {
+                const userData = doc.data();
+                
+                // Actualizar contador de días si existe
+                if (userData.startDate) {
+                    updateDaysCounter(userData.startDate);
+                }
+                
+                // Cargar frases personalizadas si existen
+                if (userData.quotes && userData.quotes.length > 0) {
+                    updateCarouselQuotes(userData.quotes);
+                }
+            } else {
+                // Si es la primera vez que el usuario inicia sesión, crear su documento
+                const defaultData = {
+                    startDate: new Date().toISOString(),
+                    quotes: [
+                        "A veces, pequeños momentos se convierten en los mejores recuerdos.",
+                        "La distancia es solo una prueba para saber qué tan lejos puede viajar el amor.",
+                        "Cada día te elijo a ti."
+                    ],
+                    birthdayDate: "" // A configurar por el usuario
+                };
+                
+                db.collection('users').doc(userId).set(defaultData)
+                    .then(() => {
+                        updateDaysCounter(defaultData.startDate);
+                    })
+                    .catch(error => {
+                        console.error("Error al crear documento de usuario:", error);
+                    });
+            }
+        })
+        .catch(error => {
+            console.error("Error al cargar datos del usuario:", error);
+        });
+}
+
+// Actualizar contador de días
+function updateDaysCounter(startDateString) {
+    const startDate = new Date(startDateString);
+    const today = new Date();
+    const diffTime = Math.abs(today - startDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const daysCountElement = document.getElementById('days-count');
+    if (daysCountElement) {
+        daysCountElement.textContent = diffDays;
+    }
+}
+
+// Actualizar frases del carrusel
+function updateCarouselQuotes(quotes) {
+    const carousel = document.querySelector('.carousel');
+    if (!carousel) return;
+    
+    // Limpiar carrusel actual
+    carousel.innerHTML = '';
+    
+    // Añadir nuevas frases
+    quotes.forEach((quote, index) => {
+        const item = document.createElement('div');
+        item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+        
+        const card = document.createElement('div');
+        card.className = 'quote-card';
+        
+        const text = document.createElement('p');
+        text.textContent = `"${quote}"`;
+        
+        card.appendChild(text);
+        item.appendChild(card);
+        carousel.appendChild(item);
+    });
+    
+    // Añadir controles del carrusel
+    const controls = document.createElement('div');
+    controls.className = 'carousel-controls';
+    controls.innerHTML = `
+        <button class="carousel-control" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
+        <button class="carousel-control" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+    `;
+    
+    carousel.appendChild(controls);
+}
