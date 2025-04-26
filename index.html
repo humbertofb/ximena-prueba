@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Espacio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <!-- Overlay para cuando el menú está abierto -->
+    <div id="overlay" class="overlay"></div>
+    
+    <!-- Pantalla de login -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <h2>Bienvenido a Nuestro Espacio</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Correo Electrónico</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            <p id="login-error" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Contenido principal (visible después del login) -->
+    <div id="main-content" class="main-content hidden">
+        <!-- Botón de menú de hamburguesa -->
+        <div class="menu-button" id="menu-button">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="side-menu" id="side-menu">
+            <div class="menu-header">
+                <h2>Te Quiero ❤️</h2>
+            </div>
+            <nav class="menu-items">
+                <a href="index.html" class="active"><i class="fas fa-home"></i> Inicio</a>
+                <a href="pages/preguntas.html"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</a>
+                <a href="pages/frases.html"><i class="fas fa-quote-right"></i> Frases</a>
+                <a href="pages/kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
+                <a href="pages/calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a>
+                <a href="pages/notas-secretas.html"><i class="fas fa-lock"></i> Notas Secretas</a>
+                <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
+                <a href="#" id="theme-toggle"><i class="fas fa-moon"></i> Cambiar Tema</a>
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </nav>
+        </div>
+        
+        <!-- Contenido de la página principal -->
+        <main class="content">
+            <section class="welcome-section">
+                <h1>Bienvenido a Nuestro Espacio</h1>
+                <p class="subtitle">Un lugar solo para nosotros</p>
+                
+                <!-- Contador de días juntos -->
+                <div class="days-counter">
+                    <p>Días juntos: <span id="days-count">0</span></p>
+                </div>
+                
+                <!-- Carrusel de frases e imágenes -->
+                <div class="carousel">
+                    <div class="carousel-item active">
+                        <div class="quote-card">
+                            <p>"A veces, pequeños momentos se convierten en los mejores recuerdos."</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="quote-card">
+                            <p>"La distancia es solo una prueba para saber qué tan lejos puede viajar el amor."</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="quote-card">
+                            <p>"Cada día te elijo a ti."</p>
+                        </div>
+                    </div>
+                    <div class="carousel-controls">
+                        <button class="carousel-control" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
+                        <button class="carousel-control" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Botón "Estoy pensando en ti" -->
+                <button id="thinking-button" class="btn btn-highlight">
+                    <i class="fas fa-heart"></i> Estoy pensando en ti
+                </button>
+            </section>
+            
+            <!-- Sección de accesos rápidos -->
+            <section class="quick-access">
+                <h2>Accesos Rápidos</h2>
+                <div class="quick-access-grid">
+                    <a href="pages/preguntas.html" class="quick-access-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Preguntas</span>
+                    </a>
+                    <a href="pages/frases.html" class="quick-access-item">
+                        <i class="fas fa-quote-right"></i>
+                        <span>Frases</span>
+                    </a>
+                    <a href="pages/kdramas.html" class="quick-access-item">
+                        <i class="fas fa-tv"></i>
+                        <span>K-Dramas</span>
+                    </a>
+                    <a href="pages/calendario.html" class="quick-access-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Calendario</span>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="firebase/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/theme-switcher.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
