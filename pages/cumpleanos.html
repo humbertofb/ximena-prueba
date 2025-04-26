@@ -3,173 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Feliz Cumpleaños! - Nuestro Espacio</title>
+    <title>Feliz Cumpleaños - Web Romántica</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/themes.css">
     <link rel="stylesheet" href="../css/pages/cumpleanos.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <!-- Confetti Library -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <!-- Overlay para cuando el menú está abierto -->
-    <div id="overlay" class="overlay"></div>
-    
-    <!-- Pantalla de login -->
-    <div id="login-screen" class="login-screen">
-        <div class="login-container">
-            <h2>Bienvenido a Nuestro Espacio</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="email">Correo Electrónico</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-            </form>
-            <p id="login-error" class="error-message"></p>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="../index.html" class="logo">NuestroLugar<span>♥</span></a>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round"></div>
+                </label>
+                <em>Cambiar tema</em>
+            </div>
+            <div class="menu-toggle" id="menu-toggle">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="../pages/preguntas.html">Preguntas</a></li>
+                <li><a href="../pages/frases.html">Frases</a></li>
+                <li><a href="../pages/kdramas.html">K-Dramas</a></li>
+                <li><a href="../pages/calendario.html">Calendario</a></li>
+                <li><a href="../pages/notas-secretas.html">Notas</a></li>
+                <li><a href="../pages/trivias.html">Trivias</a></li>
+                <li><a href="../pages/cumpleanos.html" class="active">Cumpleaños</a></li>
+            </ul>
         </div>
-    </div>
+    </nav>
 
-    <!-- Contenido principal (visible después del login) -->
-    <div id="main-content" class="main-content hidden">
-        <!-- Botón de menú de hamburguesa -->
-        <div class="menu-button" id="menu-button">
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
+    <!-- Contenido principal -->
+    <main class="main-container birthday-container">
+        <h1>Feliz Cumpleaños, Mi Amor</h1>
         
-        <!-- Menú lateral -->
-        <div class="side-menu" id="side-menu">
-            <div class="menu-header">
-                <h2>Te Quiero ❤️</h2>
-            </div>
-            <nav class="menu-items">
-                <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
-                <a href="preguntas.html"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</a>
-                <a href="frases.html"><i class="fas fa-quote-right"></i> Frases</a>
-                <a href="kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
-                <a href="calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a>
-                <a href="notas-secretas.html"><i class="fas fa-lock"></i> Notas Secretas</a>
-                <a href="trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-                <a href="cumpleanos.html" class="active"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
-                <a href="#" id="theme-toggle"><i class="fas fa-moon"></i> Cambiar Tema</a>
-                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-            </nav>
-        </div>
-        
-        <!-- Contenido de la página de cumpleaños -->
-        <main class="content">
-            <!-- Sección de desbloqueo visual (mostrado al cargar) -->
-            <div id="unlock-animation" class="unlock-animation">
-                <div class="lock-icon">
-                    <i class="fas fa-lock"></i>
+        <!-- Sección de cuenta regresiva -->
+        <section class="countdown-container">
+            <h2>Faltan para tu cumpleaños:</h2>
+            <div class="countdown-wrapper">
+                <div class="countdown-item">
+                    <div class="countdown-value" id="countdown-days">0</div>
+                    <div class="countdown-label">Días</div>
                 </div>
-                <div class="unlock-text">
-                    <h2>Desbloqueando sorpresa especial...</h2>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="countdown-hours">0</div>
+                    <div class="countdown-label">Horas</div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="countdown-minutes">0</div>
+                    <div class="countdown-label">Minutos</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-value" id="countdown-seconds">0</div>
+                    <div class="countdown-label">Segundos</div>
                 </div>
             </div>
-            
-            <!-- Contenido del cumpleaños (oculto hasta que se desbloquee) -->
-            <div id="birthday-content" class="birthday-content hidden">
-                <!-- Botón para activar confeti y música -->
-                <div class="celebration-button-container">
-                    <button id="celebration-button" class="celebration-button">
-                        <i class="fas fa-crown"></i> ¡Presiona para Celebrar!
-                    </button>
+        </section>
+
+        <!-- Tarjeta de cumpleaños -->
+        <section class="birthday-card-container">
+            <div class="birthday-card">
+                <div class="card-page front-cover">
+                    <div class="heart-icon">❤️</div>
+                    <h2>¡Feliz Cumpleaños!</h2>
+                    <p>Toca para abrir</p>
                 </div>
-                
-                <audio id="birthday-song" src="../assets/sounds/happy-birthday.mp3" preload="auto"></audio>
-                
-                <!-- Carta digital interactiva -->
-                <div class="birthday-card-container">
-                    <div id="birthday-card" class="birthday-card">
-                        <div class="card-page front-cover">
-                            <div class="cover-content">
-                                <h2>¡Feliz Cumpleaños!</h2>
-                                <p class="tap-instruction">Toca para abrir</p>
-                            </div>
-                        </div>
-                        <div class="card-page inside-left">
-                            <div class="inside-content" data-animation="fade-in">
-                                <h3>En este día especial...</h3>
-                                <p>Quiero que sepas lo importante que eres para mí y lo mucho que valoro cada momento que compartimos juntos.</p>
-                            </div>
-                        </div>
-                        <div class="card-page inside-right">
-                            <div class="inside-content" data-animation="slide-up">
-                                <p>A pesar de la distancia, siempre estás presente en mis pensamientos y en mi corazón.</p>
-                                <p>Tu sonrisa, tu forma de ser, todo de ti me hace feliz cada día.</p>
-                            </div>
-                        </div>
-                        <div class="card-page back-cover">
-                            <div class="inside-content" data-animation="fade-slide">
-                                <p class="highlight-text">Te deseo el mejor de los cumpleaños y un año lleno de alegrías y momentos inolvidables.</p>
-                                <p class="signature">Con todo mi cariño</p>
-                            </div>
-                        </div>
+                <div class="card-page inside-left">
+                    <img src="../assets/images/couple-photo.jpg" alt="Nuestra foto">
+                    <div class="message-area">
+                        <h2>Para Mi Persona Favorita</h2>
+                        <p>En este día tan especial, quiero recordarte lo mucho que significas para mí.</p>
                     </div>
                 </div>
-                
-                <!-- Pastel virtual con velas -->
-                <div class="cake-container">
-                    <h3>¡Pide un deseo y sopla las velas!</h3>
-                    <div id="virtual-cake" class="virtual-cake">
-                        <div class="cake-base"></div>
-                        <div class="cake-middle"></div>
-                        <div class="cake-top"></div>
-                        <div id="candles-container" class="candles-container">
-                            <div class="candle">
-                                <div class="flame"></div>
-                                <div class="wax"></div>
-                            </div>
-                            <div class="candle">
-                                <div class="flame"></div>
-                                <div class="wax"></div>
-                            </div>
-                            <div class="candle">
-                                <div class="flame"></div>
-                                <div class="wax"></div>
-                            </div>
-                        </div>
+                <div class="card-page inside-right">
+                    <div class="gift-message">
+                        <h2>Mi Regalo Para Ti</h2>
+                        <p>En este cumpleaños quiero regalarte todo mi amor, mis mejores deseos y la promesa de estar siempre a tu lado.</p>
                     </div>
-                    <button id="blow-button" class="btn blow-button">
-                        <i class="fas fa-wind"></i> Soplar Velas
-                    </button>
-                    <p class="mic-instruction">O acércate al micrófono y sopla (permite el acceso)</p>
-                    <button id="mic-button" class="btn mic-button">
-                        <i class="fas fa-microphone"></i> Activar Micrófono
-                    </button>
+                    <button class="birthday-button" id="celebrate-btn">¡Celebremos!</button>
                 </div>
-                
-                <!-- Mensaje final -->
-                <div class="final-message">
-                    <h3>Gracias por ser parte de mi vida</h3>
-                    <p>Espero que este pequeño detalle virtual te haya sacado una sonrisa.</p>
-                    <p>¡Feliz cumpleaños!</p>
+                <div class="card-page back-cover">
+                    <p>Con todo mi amor ❤️</p>
                 </div>
             </div>
-        </main>
-    </div>
+        </section>
 
-    <script src="../firebase/config.js"></script>
-    <script src="../js/auth.js"></script>
+        <!-- Recuerdos -->
+        <section class="memories-section">
+            <h2>Nuestros Momentos Especiales</h2>
+            <div class="memories-slideshow">
+                <div class="memory-slide active" style="background-image: url('../assets/images/memory1.jpg')">
+                    <div class="memory-caption">Nuestro primer viaje juntos</div>
+                </div>
+                <div class="memory-slide" style="background-image: url('../assets/images/memory2.jpg')">
+                    <div class="memory-caption">Aquella cena romántica</div>
+                </div>
+                <div class="memory-slide" style="background-image: url('../assets/images/memory3.jpg')">
+                    <div class="memory-caption">La vez que vimos las estrellas</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de regalos -->
+        <section class="gifts-section">
+            <h2>Regalos Virtuales</h2>
+            <div class="gift-list">
+                <div class="gift-item" data-gift="message">
+                    <div class="gift-icon">✉️</div>
+                    <div class="gift-title">Mensaje Especial</div>
+                    <div class="gift-description">Un mensaje directo al corazón</div>
+                </div>
+                <div class="gift-item" data-gift="playlist">
+                    <div class="gift-icon">🎵</div>
+                    <div class="gift-title">Playlist</div>
+                    <div class="gift-description">Canciones que me recuerdan a ti</div>
+                </div>
+                <div class="gift-item" data-gift="poem">
+                    <div class="gift-icon">📝</div>
+                    <div class="gift-title">Poema</div>
+                    <div class="gift-description">Palabras desde mi corazón</div>
+                </div>
+                <div class="gift-item" data-gift="date">
+                    <div class="gift-icon">🎭</div>
+                    <div class="gift-title">Cita Virtual</div>
+                    <div class="gift-description">Una cita especial</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contenedor para confeti -->
+        <div class="confetti-container" id="confetti-container"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 NuestroLugar - Creado con mucho amor ❤️</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="../js/menu.js"></script>
     <script src="../js/theme-switcher.js"></script>
+    <script src="../firebase/config.js"></script>
+    <script src="../js/auth.js"></script>
     <script src="../js/pages/cumpleanos.js"></script>
 </body>
 </html>
