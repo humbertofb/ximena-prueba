@@ -1,0 +1,53 @@
+/* Tema Claro (por defecto) */
+:root {
+    --primary-color: #8a2be2; /* Morado */
+    --secondary-color: #ff3b3b; /* Rojo */
+    --accent-color: #3a86ff; /* Azul */
+    --text-color: #333333;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e1e1e1;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Tema Oscuro */
+.dark-theme {
+    --primary-color: #b469ff; /* Morado más claro */
+    --secondary-color: #ff6b6b; /* Rojo más claro */
+    --accent-color: #64a4ff; /* Azul más claro */
+    --text-color: #f0f0f0;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #383838;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes específicos para modo oscuro */
+.dark-theme .quote-card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .login-container,
+.dark-theme .quick-access-item,
+.dark-theme .days-counter {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme .menu-items a:hover, 
+.dark-theme .menu-items a.active {
+    background-color: rgba(180, 105, 255, 0.15);
+}
+
+/* Tema para el menú en modo oscuro */
+.dark-theme .menu-header {
+    background: linear-gradient(135deg, #8a2be2 0%, #2c2c2c 100%);
+}
+
+/* Animación de transición entre temas */
+body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.card, .menu-items a, .quote-card, .days-counter, .login-container, .quick-access-item {
+    transition: background-color 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
+}
