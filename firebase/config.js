@@ -2,12 +2,12 @@
 const firebaseConfig = {
     // Aquí debes insertar la configuración de Firebase de tu proyecto
     // Puedes obtener esta información en la consola de Firebase después de crear un proyecto
-    apiKey: "TU_API_KEY",
-    authDomain: "tu-proyecto.firebaseapp.com",
-    projectId: "tu-proyecto",
-    storageBucket: "tu-proyecto.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
+    apiKey: "AIzaSyBtf--tWrqRVItAGJGQ6hEk81iggP4I-SU",
+    authDomain: "my-humber-project-319815.firebaseapp.com",
+    projectId: "my-humber-project-319815",
+    storageBucket: "my-humber-project-319815.firebasestorage.app",
+    messagingSenderId: "110994378936",
+    appId: "1:110994378936:web:60b20c16ce5f40b47e644d"
 };
 
 // Inicializar Firebase
