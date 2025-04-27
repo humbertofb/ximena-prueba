@@ -538,3 +538,101 @@ body {
   margin-top: 10px;
   font-size: 14px;
 }
+
+/* Estilos para la sección de postales */
+.love-postcards {
+  padding: 30px 0;
+}
+
+.love-postcards h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+}
+
+.postcards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.postcard {
+  width: 300px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Aplicamos fondos diferentes a cada postal */
+.postcard:nth-child(1) {
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.postcard:nth-child(2) {
+  background-image: linear-gradient(to top, #fdcbf1 0%, #fdcbf1 1%, #e6dee9 100%);
+}
+
+.postcard:nth-child(3) {
+  background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+.postcard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
+}
+
+.postcard-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  transition: background-color 0.3s ease;
+}
+
+.postcard:hover .postcard-content {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.postcard-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-style: italic;
+}
+
+/* Agregar un pequeño icono decorativo */
+.postcard-text::before, .postcard-text::after {
+  content: '❤️';
+  font-size: 14px;
+  margin: 0 5px;
+  vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .postcards-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .postcard {
+    width: 90%;
+    max-width: 300px;
+  }
+}
