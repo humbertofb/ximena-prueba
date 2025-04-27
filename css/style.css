@@ -662,7 +662,7 @@ body {
 .gallery-slide-container {
   width: 100%;
   height: 0;
-  padding-bottom: 56.25%; /* Relación de aspecto 16:9 */
+  padding-bottom: 75%; /* Relación de aspecto 4:3 */
   position: relative;
   overflow: hidden;
 }
@@ -802,9 +802,9 @@ body {
 }
 
 /* Responsive para la galería */
-@media (max-width: 768px) {
-  .gallery-container {
-    border-radius: 10px;
+@media (max-width: 480px) {
+  .gallery-slide-container {
+    padding-bottom: 85%;
   }
   
   .placeholder-text {
