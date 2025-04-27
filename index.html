@@ -22,11 +22,7 @@
         <div class="login-container">
             <h2>Bienvenido a Nuestro Espacio</h2>
             
-            <!-- Tabs de Login/Registro -->
-            <div class="auth-tabs">
-                <button id="login-tab" class="auth-tab active">Iniciar Sesión</button>
-                <button id="register-tab" class="auth-tab">Crear Cuenta</button>
-            </div>
+            <!-- Se eliminaron los tabs de Login/Registro para evitar duplicidad -->
             
             <!-- Formulario de login -->
             <form id="login-form">
@@ -75,6 +71,17 @@
             </div>
         </div>
         
+        <!-- Botón de usuario en la parte superior derecha -->
+        <div class="user-menu-container">
+            <button id="user-menu-button" class="user-menu-button">
+                <i class="fas fa-user"></i>
+            </button>
+            <div id="user-dropdown" class="user-dropdown hidden">
+                <a href="#" id="theme-toggle-dropdown"><i class="fas fa-moon"></i> Cambiar Tema</a>
+                <a href="#" id="logout-button-dropdown"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </div>
+        </div>
+        
         <!-- Menú lateral -->
         <div class="side-menu" id="side-menu">
             <div class="menu-header">
@@ -88,8 +95,7 @@
                 <a href="pages/calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a>
                 <a href="pages/notas-secretas.html"><i class="fas fa-lock"></i> Notas Secretas</a>
                 <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-                <a href="#" id="theme-toggle"><i class="fas fa-moon"></i> Cambiar Tema</a>
-                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="pages/cumpleanos.html"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
             </nav>
         </div>
         
@@ -133,26 +139,31 @@
                 </button>
             </section>
             
-            <!-- Sección de accesos rápidos -->
-            <section class="quick-access">
-                <h2>Accesos Rápidos</h2>
-                <div class="quick-access-grid">
-                    <a href="pages/preguntas.html" class="quick-access-item">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Preguntas</span>
-                    </a>
-                    <a href="pages/frases.html" class="quick-access-item">
-                        <i class="fas fa-quote-right"></i>
-                        <span>Frases</span>
-                    </a>
-                    <a href="pages/kdramas.html" class="quick-access-item">
-                        <i class="fas fa-tv"></i>
-                        <span>K-Dramas</span>
-                    </a>
-                    <a href="pages/calendario.html" class="quick-access-item">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Calendario</span>
-                    </a>
+            <!-- Sección de postales con frases -->
+            <section class="love-postcards">
+                <h2>Nuestros Momentos</h2>
+                <div class="postcards-container">
+                    <div class="postcard">
+                        <div class="postcard-content">
+                            <p class="postcard-text">
+                                "Lo mejor que me ha pasado es encontrarte en este universo tan grande."
+                            </p>
+                        </div>
+                    </div>
+                    <div class="postcard">
+                        <div class="postcard-content">
+                            <p class="postcard-text">
+                                "Contigo, los días grises se llenan de colores."
+                            </p>
+                        </div>
+                    </div>
+                    <div class="postcard">
+                        <div class="postcard-content">
+                            <p class="postcard-text">
+                                "Eres mi lugar favorito para perderme y encontrarme."
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
