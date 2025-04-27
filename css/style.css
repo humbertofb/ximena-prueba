@@ -636,3 +636,183 @@ body {
     max-width: 300px;
   }
 }
+
+/* Estilos para la galería de imágenes */
+.image-gallery {
+  padding: 30px 0;
+}
+
+.image-gallery h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+}
+
+.gallery-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-slide-container {
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* Relación de aspecto 16:9 */
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-slides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gallery-slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.gallery-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.placeholder-text {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Estilos para el sistema de notificaciones */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  transform: translateY(20px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.notification.hidden {
+  transform: translateY(20px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.notification:not(.hidden) {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.notification-content {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+}
+
+.notification-icon {
+  color: #ff4757;
+  font-size: 24px;
+  margin-right: 15px;
+}
+
+.notification-content p {
+  margin: 0;
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.close-notification {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  margin-left: 10px;
+  transition: color 0.2s;
+}
+
+.close-notification:hover {
+  color: #333;
+}
+
+/* Animación para el botón "Estoy pensando en ti" */
+.btn-highlight {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-highlight.thinking-sent:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 300px;
+  height: 300px;
+  background-color: rgba(255, 71, 87, 0.3);
+  border-radius: 50%;
+  animation: pulse 1s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Responsive para la galería */
+@media (max-width: 768px) {
+  .gallery-container {
+    border-radius: 10px;
+  }
+  
+  .placeholder-text {
+    font-size: 1.2rem;
+  }
+  
+  .notification-content {
+    min-width: auto;
+    width: calc(100vw - 40px);
+  }
+}
