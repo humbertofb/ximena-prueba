@@ -18,30 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('login-tab').classList.remove('active');
-        document.getElementById('register-tab').classList.add('active');
     });
 
     document.getElementById('show-login').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('register-form').classList.add('hidden');
         document.getElementById('login-form').classList.remove('hidden');
-        document.getElementById('register-tab').classList.remove('active');
-        document.getElementById('login-tab').classList.add('active');
-    });
-
-    document.getElementById('login-tab').addEventListener('click', function() {
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('login-form').classList.remove('hidden');
-        document.getElementById('register-tab').classList.remove('active');
-        document.getElementById('login-tab').classList.add('active');
-    });
-
-    document.getElementById('register-tab').addEventListener('click', function() {
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('login-tab').classList.remove('active');
-        document.getElementById('register-tab').classList.add('active');
     });
 
     // Manejar formulario de inicio de sesión
@@ -132,8 +114,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
+    // Manejar menú de usuario
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userDropdown = document.getElementById('user-dropdown');
+    
+    if (userMenuButton) {
+        userMenuButton.addEventListener('click', function() {
+            userDropdown.classList.toggle('hidden');
+        });
+        
+        // Cerrar el menú al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
     // Manejar cierre de sesión
-    document.getElementById('logout-button').addEventListener('click', function(e) {
+    document.getElementById('logout-button-dropdown').addEventListener('click', function(e) {
         e.preventDefault();
         
         firebase.auth().signOut().then(() => {
@@ -141,5 +140,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }).catch((error) => {
             console.error("Error al cerrar sesión:", error);
         });
+    });
+    
+    // Cambiar tema desde el dropdown
+    document.getElementById('theme-toggle-dropdown').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Asumiendo que tienes una función para cambiar el tema
+        toggleTheme();
+        
+        // Cerrar el dropdown después de cambiar el tema
+        userDropdown.classList.add('hidden');
     });
 });
