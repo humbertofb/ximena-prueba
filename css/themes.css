@@ -11,15 +11,55 @@
 }
 
 /* Tema Oscuro */
-.dark-theme {
-    --primary-color: #b469ff; /* Morado más claro */
-    --secondary-color: #ff6b6b; /* Rojo más claro */
-    --accent-color: #64a4ff; /* Azul más claro */
-    --text-color: #f0f0f0;
-    --bg-color: #121212;
-    --card-bg: #1e1e1e;
-    --border-color: #383838;
-    --shadow-color: rgba(0, 0, 0, 0.3);
+/* Añadir a themes.css */
+.dark-theme .notification-content {
+    background-color: #333;
+    color: #f0f0f0;
+}
+
+.dark-theme .notification-icon {
+    color: #ff6b6b; /* Versión más clara del rojo */
+}
+
+.dark-theme .close-notification {
+    color: #f0f0f0;
+}
+
+.dark-theme .close-notification:hover {
+    color: #fff;
+}
+
+/* Mejorar contraste de las ventanas emergentes */
+.dark-theme .user-dropdown {
+    background-color: #333;
+    border: 1px solid #444;
+}
+
+.dark-theme .user-dropdown a {
+    color: #f0f0f0;
+}
+
+.dark-theme .user-dropdown a:hover {
+    background-color: #444;
+    color: var(--primary-color);
+}
+
+/* Añadir estilo para el contador en el menú de usuario */
+.user-stat {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+.user-stat i {
+    margin-right: 10px;
+    color: var(--secondary-color);
+}
+
+.dark-theme .user-stat {
+    color: #f0f0f0;
+    border-bottom-color: #444;
 }
 
 /* Ajustes específicos para modo oscuro */
