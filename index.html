@@ -12,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 </head>
 <body>
     <!-- Overlay para cuando el menú está abierto -->
@@ -92,8 +93,6 @@
                 <a href="pages/preguntas.html"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</a>
                 <a href="pages/frases.html"><i class="fas fa-quote-right"></i> Frases</a>
                 <a href="pages/kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
-                <a href="pages/calendario.html"><i class="fas fa-calendar-alt"></i> Calendario</a>
-                <a href="pages/notas-secretas.html"><i class="fas fa-lock"></i> Notas Secretas</a>
                 <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
                 <a href="pages/cumpleanos.html"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
             </nav>
@@ -104,11 +103,6 @@
             <section class="welcome-section">
                 <h1>Bienvenido a Nuestro Espacio</h1>
                 <p class="subtitle">Un lugar solo para nosotros</p>
-                
-                <!-- Contador de días juntos -->
-                <div class="days-counter">
-                    <p>Días juntos: <span id="days-count">0</span></p>
-                </div>
                 
                 <!-- Carrusel de frases e imágenes -->
                 <div class="carousel">
@@ -133,35 +127,28 @@
                     </div>
                 </div>
                 
-                <!-- Botón "Estoy pensando en ti" -->
+                <!-- Botón "Estoy pensando en ti" con notificación -->
                 <button id="thinking-button" class="btn btn-highlight">
                     <i class="fas fa-heart"></i> Estoy pensando en ti
                 </button>
+                
+                <!-- Contenedor para la notificación de pensamiento -->
+                <div id="thinking-notification" class="notification hidden">
+                    <div class="notification-content">
+                        <i class="fas fa-heart notification-icon"></i>
+                        <p>¡Alguien está pensando en ti!</p>
+                        <button class="close-notification"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
             </section>
             
-            <!-- Sección de postales con frases -->
-            <section class="love-postcards">
-                <h2>Nuestros Momentos</h2>
-                <div class="postcards-container">
-                    <div class="postcard">
-                        <div class="postcard-content">
-                            <p class="postcard-text">
-                                "Lo mejor que me ha pasado es encontrarte en este universo tan grande."
-                            </p>
-                        </div>
-                    </div>
-                    <div class="postcard">
-                        <div class="postcard-content">
-                            <p class="postcard-text">
-                                "Contigo, los días grises se llenan de colores."
-                            </p>
-                        </div>
-                    </div>
-                    <div class="postcard">
-                        <div class="postcard-content">
-                            <p class="postcard-text">
-                                "Eres mi lugar favorito para perderme y encontrarme."
-                            </p>
+            <!-- Sección de galería de imágenes -->
+            <section class="image-gallery">
+                <h2>Nuestra Galería</h2>
+                <div class="gallery-container">
+                    <div class="gallery-slide-container">
+                        <div class="gallery-slides">
+                            <!-- Aquí se cargarán las imágenes con JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -174,5 +161,7 @@
     <script src="js/menu.js"></script>
     <script src="js/theme-switcher.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 </html>
