@@ -52,7 +52,7 @@ function requestNotificationPermission() {
     const messaging = firebase.messaging();
     
     return messaging.getToken({ 
-        vapidKey: 'TU_CLAVE_VAPID_PUBLICA' // Reemplaza con tu clave pública VAPID
+        vapidKey: 'BHlfWqSQGpmKTv16TMF_L2riUUL3ZkDdY3vJtoTSTg93Hh1MxZwi7YzozLObSXRJNxxyvLpsKhfusjpW8oWRjLw' // Reemplaza con tu clave pública VAPID
     })
     .then((token) => {
         console.log("Token FCM obtenido:", token);
