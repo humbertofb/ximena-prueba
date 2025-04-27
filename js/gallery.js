@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configuración de la galería
     const galleryConfig = {
         images: [
-            { src: 'images/gallery/gallery1.jpg', alt: 'Recuerdo especial 1' },
-            { src: 'images/gallery/gallery2.jpg', alt: 'Recuerdo especial 2' },
-            { src: 'images/gallery/gallery3.jpg', alt: 'Recuerdo especial 3' },
-            { src: 'images/gallery/gallery4.jpg', alt: 'Recuerdo especial 4' },
-            { src: 'images/gallery/gallery5.jpg', alt: 'Recuerdo especial 5' }
+            { src: 'imágenes/frases.jpg', alt: 'Recuerdo especial 1' },
+            { src: 'imágenes/Alguien especial.jpg', alt: 'Recuerdo especial 2' },
+            { src: 'imágenes/No dejemos de serlo.jpg', alt: 'Recuerdo especial 3' },
+            { src: 'imágenes/Sonreír.jpg', alt: 'Recuerdo especial 4' },
+            { src: 'imágenes/frases-de-amor.jpg', alt: 'Recuerdo especial 5' }
         ],
         // Si no hay imágenes reales todavía, usa imágenes de placeholder
         placeholders: [
