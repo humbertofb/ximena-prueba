@@ -160,3 +160,112 @@ function showBirthdayNotification() {
         notification.classList.add('active');
     }, 1000);
 }
+
+// Agregar a main.js
+// Configurar botón "Estoy pensando en ti" con contador
+function setupThinkingButton() {
+    const thinkingButton = document.getElementById('thinking-button');
+    if (!thinkingButton) return;
+    
+    // Obtener contador desde Firestore
+    function updateThinkingCounter() {
+        if (!auth.currentUser) return;
+        
+        db.collection('thinking_counts').doc(auth.currentUser.uid).get()
+            .then((doc) => {
+                const count = doc.exists ? doc.data().count : 0;
+                // Actualizar contador en el menú de usuario si existe
+                const counterElement = document.getElementById('thinking-counter');
+                if (counterElement) {
+                    counterElement.textContent = count;
+                }
+            })
+            .catch(error => {
+                console.error("Error al obtener contador:", error);
+            });
+    }
+    
+    // Ejecutar al cargar
+    updateThinkingCounter();
+    
+    thinkingButton.addEventListener('click', () => {
+        // Verificar que hay un usuario autenticado
+        if (!auth.currentUser) return;
+        
+        // Mensajes aleatorios
+        const messages = [
+            "Estoy pensando en ti ahora mismo ❤️",
+            "Te extraño mucho 💕",
+            "Espero que tengas un día maravilloso ✨",
+            "Eres lo mejor que me ha pasado 💫",
+            "Recordando tu sonrisa 😊",
+            "Contando los días para verte 📆"
+        ];
+        
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        
+        // Incrementar contador en Firestore
+        const userRef = db.collection('thinking_counts').doc(auth.currentUser.uid);
+        
+        userRef.get().then((doc) => {
+            let newCount = 1;
+            if (doc.exists) {
+                newCount = (doc.data().count || 0) + 1;
+            }
+            
+            // Actualizar contador
+            userRef.set({
+                userId: auth.currentUser.uid,
+                userEmail: auth.currentUser.email,
+                count: newCount,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Obtener tokens FCM de la persona destinataria
+            db.collection('users').doc(auth.currentUser.partnerUid || 'partnerUid').get()
+                .then(doc => {
+                    if (doc.exists && doc.data().fcmToken) {
+                        // Enviar notificación a través de Cloud Functions (necesitarás configurar esto)
+                        const notificationData = {
+                            token: doc.data().fcmToken,
+                            message: randomMessage,
+                            senderId: auth.currentUser.uid,
+                            senderEmail: auth.currentUser.email
+                        };
+                        
+                        // Almacenar la notificación en Firestore
+                        db.collection('notifications').add({
+                            senderId: auth.currentUser.uid,
+                            senderEmail: auth.currentUser.email,
+                            recipientId: auth.currentUser.partnerUid || 'partnerUid',
+                            message: randomMessage,
+                            read: false,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Actual envío de la notificación (requiere configuración en Firebase Cloud Functions)
+                        // firebase.functions().httpsCallable('sendNotification')(notificationData);
+                    }
+                });
+            
+            // Mostrar confirmación al usuario
+            const originalText = thinkingButton.innerHTML;
+            thinkingButton.innerHTML = '<i class="fas fa-check"></i> ¡Enviado!';
+            thinkingButton.disabled = true;
+            thinkingButton.classList.add('thinking-sent');
+            
+            // Actualizar el contador en la UI
+            updateThinkingCounter();
+            
+            // Restaurar botón después de 3 segundos
+            setTimeout(() => {
+                thinkingButton.innerHTML = originalText;
+                thinkingButton.disabled = false;
+                thinkingButton.classList.remove('thinking-sent');
+            }, 3000);
+        })
+        .catch(error => {
+            console.error("Error al actualizar contador:", error);
+        });
+    });
+}
