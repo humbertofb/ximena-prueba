@@ -1,4 +1,4 @@
-// Theme Switcher
+// Theme Switcher arreglado
 document.addEventListener('DOMContentLoaded', function() {
     // Función para cambiar el tema
     window.toggleTheme = function() {
@@ -9,21 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
         // Cambiar la clase en el body
-        body.classList.remove(currentTheme + '-theme');
+        body.classList.remove('light-theme', 'dark-theme');
         body.classList.add(newTheme + '-theme');
         
-        // Actualizar icono si existe
+        // Actualizar icono
         const themeButton = document.getElementById('theme-toggle-dropdown');
         if (themeButton) {
             const themeIcon = themeButton.querySelector('i');
             if (themeIcon) {
-                themeIcon.classList.remove(newTheme === 'light' ? 'fa-sun' : 'fa-moon');
+                // Eliminar las clases antiguas
+                themeIcon.classList.remove('fa-moon', 'fa-sun');
+                // Añadir el icono correspondiente
                 themeIcon.classList.add(newTheme === 'light' ? 'fa-moon' : 'fa-sun');
             }
         }
         
         // Guardar preferencia
         localStorage.setItem('theme', newTheme);
+        
+        console.log('Tema cambiado a:', newTheme); // Depuración
     };
     
     // Configurar evento para el botón de cambio de tema
@@ -40,12 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.add(savedTheme + '-theme');
     
     // Actualizar el icono según el tema actual
-    const themeButton = document.getElementById('theme-toggle-dropdown');
-    if (themeButton && savedTheme === 'dark') {
-        const themeIcon = themeButton.querySelector('i');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        }
+    const themeIcon = document.querySelector('#theme-toggle-dropdown i');
+    if (themeIcon && savedTheme === 'dark') {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
     }
 });
