@@ -244,7 +244,7 @@ function setupThinkingButton() {
                         });
                         
                         // Actual envío de la notificación (requiere configuración en Firebase Cloud Functions)
-                        // firebase.functions().httpsCallable('sendNotification')(notificationData);
+                        firebase.functions().httpsCallable('sendNotification')(notificationData);
                     }
                 });
             
