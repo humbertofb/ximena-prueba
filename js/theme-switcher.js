@@ -1,4 +1,4 @@
-// Theme Switcher arreglado
+// Versión corregida
 document.addEventListener('DOMContentLoaded', function() {
     // Función para cambiar el tema
     window.toggleTheme = function() {
@@ -9,25 +9,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
         // Cambiar la clase en el body
-        body.classList.remove('light-theme', 'dark-theme');
-        body.classList.add(newTheme + '-theme');
+        body.classList.toggle('dark-theme', newTheme === 'dark');
         
         // Actualizar icono
         const themeButton = document.getElementById('theme-toggle-dropdown');
         if (themeButton) {
             const themeIcon = themeButton.querySelector('i');
             if (themeIcon) {
-                // Eliminar las clases antiguas
                 themeIcon.classList.remove('fa-moon', 'fa-sun');
-                // Añadir el icono correspondiente
                 themeIcon.classList.add(newTheme === 'light' ? 'fa-moon' : 'fa-sun');
             }
         }
         
         // Guardar preferencia
         localStorage.setItem('theme', newTheme);
-        
-        console.log('Tema cambiado a:', newTheme); // Depuración
     };
     
     // Configurar evento para el botón de cambio de tema
@@ -36,12 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
         themeToggle.addEventListener('click', function(e) {
             e.preventDefault();
             toggleTheme();
+            
+            // Cerrar el dropdown después de cambiar el tema
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
         });
     }
     
     // Aplicar tema guardado al cargar
     const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.classList.add(savedTheme + '-theme');
+    document.body.classList.toggle('dark-theme', savedTheme === 'dark');
     
     // Actualizar el icono según el tema actual
     const themeIcon = document.querySelector('#theme-toggle-dropdown i');
