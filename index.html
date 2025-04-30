@@ -148,5 +148,166 @@
     <script src="js/theme-switcher.js"></script>
     <script src="js/main.js"></script>
     <script src="js/gallery.js"></script>
+    <style>
+/* Pegar aquí el contenido de theme-debug-inline.css */
+        /* Estilos para probar directamente */
+/* Añadir esto en un <style> al final de tu HTML o en un nuevo archivo CSS */
+
+/* Reset explícito para asegurar que las propiedades de tema claro sean las predeterminadas */
+body, html {
+    background-color: #f8f9fa;
+    color: #333333;
+}
+
+/* Estilos explícitos para el tema oscuro */
+body.dark-theme,
+html.dark-theme {
+    background-color: #1a1a1a !important;
+    color: #f0f0f0 !important;
+}
+
+.dark-theme .card,
+.dark-theme .quote-card,
+.dark-theme .login-container, 
+.dark-theme .quick-access-item {
+    background-color: #2c2c2c !important;
+    color: #f0f0f0 !important;
+    border-color: #444444 !important;
+}
+
+.dark-theme .user-dropdown {
+    background-color: #333 !important;
+    border: 1px solid #444 !important;
+    color: #f0f0f0 !important;
+}
+
+.dark-theme .user-dropdown a {
+    color: #f0f0f0 !important;
+}
+
+/* Clase para verificar visualmente si el tema está cambiando */
+.theme-indicator {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border-radius: 4px;
+    z-index: 9999;
+    font-size: 12px;
+}
+
+/* Para verificar que las clases se estén aplicando correctamente */
+.dark-theme .theme-indicator::after {
+    content: "TEMA OSCURO ACTIVO";
+}
+
+.light-theme .theme-indicator::after {
+    content: "TEMA CLARO ACTIVO";
+}
+</style>
+    <script>
+/* Pegar aquí el contenido de verificacion-tema.js */
+        // Añadir este script al final de tu HTML para verificar el cambio de tema
+document.addEventListener('DOMContentLoaded', function() {
+    // Crear un indicador visual para el tema actual
+    const indicator = document.createElement('div');
+    indicator.className = 'theme-indicator';
+    document.body.appendChild(indicator);
+    
+    // Función para probar directamente el cambio de tema 
+    window.testTheme = function() {
+        console.log("=== TEST DE TEMA ===");
+        console.log("Classes actuales en body:", document.body.className);
+        
+        // Test de cambio directo a oscuro
+        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark-theme');
+        console.log("Classes después de añadir dark-theme:", document.body.className);
+        console.log("Color de fondo:", getComputedStyle(document.body).backgroundColor);
+        console.log("Color de texto:", getComputedStyle(document.body).color);
+        
+        // Verificar si alguna regla CSS está sobreescribiendo nuestros estilos
+        setTimeout(() => {
+            console.log("Color de fondo después de timeout:", getComputedStyle(document.body).backgroundColor);
+            // Listar todas las reglas CSS que afectan al body
+            listConflictingRules();
+        }, 500);
+    };
+    
+    // Función para encontrar reglas CSS conflictivas
+    function listConflictingRules() {
+        console.log("Buscando reglas CSS que podrían estar causando conflictos...");
+        const allStyleSheets = [...document.styleSheets];
+        
+        try {
+            allStyleSheets.forEach((sheet, sheetIndex) => {
+                try {
+                    const rules = [...sheet.cssRules];
+                    rules.forEach((rule, ruleIndex) => {
+                        if (rule.selectorText && 
+                            (rule.selectorText.includes('body') || 
+                             rule.selectorText.includes('.dark-theme') || 
+                             rule.selectorText.includes(':root'))) {
+                            console.log(`[Hoja ${sheetIndex}] Regla ${ruleIndex}: ${rule.selectorText}`);
+                            console.log(' - ' + rule.cssText);
+                        }
+                    });
+                } catch (e) {
+                    console.log(`No se puede acceder a la hoja de estilo ${sheetIndex}: ${e.message}`);
+                }
+            });
+        } catch (e) {
+            console.log("Error al analizar hojas de estilo:", e);
+        }
+    }
+    
+    // Añadir botón de prueba para cambiar forzadamente el tema
+    const testButton = document.createElement('button');
+    testButton.innerText = "Forzar Tema Oscuro";
+    testButton.style.position = "fixed";
+    testButton.style.bottom = "10px";
+    testButton.style.right = "10px";
+    testButton.style.zIndex = "9999";
+    testButton.style.padding = "10px";
+    testButton.onclick = function() {
+        const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        console.log("Tema actual:", currentTheme);
+        
+        if (currentTheme === 'light') {
+            // Cambiar a oscuro
+            document.body.style.backgroundColor = '#1a1a1a';
+            document.body.style.color = '#f0f0f0';
+            document.body.classList.add('dark-theme');
+            document.documentElement.classList.add('dark-theme');
+            this.innerText = "Forzar Tema Claro";
+        } else {
+            // Cambiar a claro
+            document.body.style.backgroundColor = '';
+            document.body.style.color = '';
+            document.body.classList.remove('dark-theme');
+            document.documentElement.classList.remove('dark-theme');
+            this.innerText = "Forzar Tema Oscuro";
+        }
+    };
+    document.body.appendChild(testButton);
+    
+    // Detectar cambios en las clases del body
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                console.log('Classes del body cambiadas a:', document.body.className);
+            }
+        });
+    });
+    
+    observer.observe(document.body, { attributes: true });
+    
+    // Imprimir estado inicial
+    console.log("Estado inicial - Classes en body:", document.body.className);
+    console.log("Estado inicial - Color de fondo:", getComputedStyle(document.body).backgroundColor);
+});
+</script>
 </body>
 </html>
