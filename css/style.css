@@ -271,26 +271,6 @@ body {
     margin-bottom: 2rem;
 }
 
-/* Contador de días */
-.days-counter {
-    background-color: var(--card-bg);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    display: inline-block;
-}
-
-.days-counter p {
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-#days-count {
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
 /* Carrusel */
 .carousel {
     position: relative;
@@ -358,72 +338,6 @@ body {
     background-color: rgba(138, 43, 226, 0.1);
 }
 
-/* Botón "Estoy pensando en ti" */
-.btn-highlight {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    margin: 1rem 0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border-radius: 30px;
-}
-
-.btn-highlight:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 10%, var(--primary-color) 90%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-}
-
-.btn-highlight i {
-    margin-right: 0.5rem;
-}
-
-/* Sección de accesos rápidos */
-.quick-access {
-    margin-top: 3rem;
-}
-
-.quick-access h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
-}
-
-.quick-access-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-.quick-access-item {
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-color);
-    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.quick-access-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.quick-access-item i {
-    font-size: 2rem;
-    margin-bottom: 0.8rem;
-    color: var(--primary-color);
-}
-
-.quick-access-item span {
-    font-weight: 500;
-}
-
 /* Responsive */
 @media (min-width: 768px) {
     .quick-access-grid {
@@ -459,360 +373,161 @@ body {
 }
 
 /* Estilos para el menú de usuario */
-.user-menu-container {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 1000;
-}
-
 .user-menu-button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
 }
 
-.user-menu-button:hover {
-  background-color: var(--primary-color-dark);
-  transform: scale(1.05);
+.user-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.user-button:hover {
+    background-color: #7823c9;
+    transform: scale(1.05);
 }
 
 .user-dropdown {
-  position: absolute;
-  top: 50px;
-  right: 0;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  min-width: 200px;
-  z-index: 1001;
-  overflow: hidden;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: var(--card-bg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    min-width: 200px;
+    z-index: 1001;
+    overflow: hidden;
 }
 
 .user-dropdown a {
-  display: block;
-  padding: 12px 15px;
-  color: #333;
-  text-decoration: none;
-  transition: all 0.2s ease;
+    display: block;
+    padding: 12px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 .user-dropdown a:hover {
-  background-color: #f5f5f5;
-  color: var(--primary-color);
+    background-color: rgba(138, 43, 226, 0.1);
+    color: var(--primary-color);
 }
 
 .form-switch {
-  text-align: center;
-  margin-top: 15px;
-  font-size: 14px;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
 }
 
 .form-switch a {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
 }
 
 .form-switch a:hover {
-  text-decoration: underline;
-}
-
-.hidden {
-  display: none;
+    text-decoration: underline;
 }
 
 .error-message {
-  color: #e74c3c;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 14px;
+    color: #e74c3c;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
 }
 
-/* Estilos para la sección de postales */
-.love-postcards {
-  padding: 30px 0;
-}
-
-.love-postcards h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: var(--primary-color);
-  font-size: 1.8rem;
-}
-
-.postcards-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
-}
-
-.postcard {
-  width: 300px;
-  height: 200px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  position: relative;
-  transition: all 0.3s ease;
-  background-size: cover;
-  background-position: center;
-}
-
-/* Aplicamos fondos diferentes a cada postal */
-.postcard:nth-child(1) {
-  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-.postcard:nth-child(2) {
-  background-image: linear-gradient(to top, #fdcbf1 0%, #fdcbf1 1%, #e6dee9 100%);
-}
-
-.postcard:nth-child(3) {
-  background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
-}
-
-.postcard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
-}
-
-.postcard-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
-  background-color: rgba(255, 255, 255, 0.85);
-  transition: background-color 0.3s ease;
-}
-
-.postcard:hover .postcard-content {
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-.postcard-text {
-  font-size: 18px;
-  font-weight: 500;
-  color: #333;
-  line-height: 1.5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-style: italic;
-}
-
-/* Agregar un pequeño icono decorativo */
-.postcard-text::before, .postcard-text::after {
-  content: '❤️';
-  font-size: 14px;
-  margin: 0 5px;
-  vertical-align: middle;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .postcards-container {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .postcard {
-    width: 90%;
-    max-width: 300px;
-  }
-}
-
-/* Estilos para la galería de imágenes */
+/* Estilos para la sección de galería de imágenes */
 .image-gallery {
-  padding: 30px 0;
+    padding: 30px 0;
 }
 
 .image-gallery h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: var(--primary-color);
-  font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+    font-size: 1.8rem;
 }
 
 .gallery-container {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .gallery-slide-container {
-  width: 100%;
-  height: 0;
-  padding-bottom: 75%; /* Relación de aspecto 4:3 */
-  position: relative;
-  overflow: hidden;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%; /* Relación de aspecto 4:3 */
+    position: relative;
+    overflow: hidden;
 }
 
 .gallery-slides {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .gallery-slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .gallery-slide.active {
-  opacity: 1;
-  z-index: 1;
+    opacity: 1;
+    z-index: 1;
 }
 
 .gallery-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .placeholder-text {
-  color: rgba(0, 0, 0, 0.7);
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  padding: 20px;
-}
-
-/* Estilos para el sistema de notificaciones */
-.notification {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  transform: translateY(20px);
-  opacity: 0;
-  visibility: hidden;
-}
-
-.notification.hidden {
-  transform: translateY(20px);
-  opacity: 0;
-  visibility: hidden;
-}
-
-.notification:not(.hidden) {
-  transform: translateY(0);
-  opacity: 1;
-  visibility: visible;
-}
-
-.notification-content {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  min-width: 300px;
-}
-
-.notification-icon {
-  color: #ff4757;
-  font-size: 24px;
-  margin-right: 15px;
-}
-
-.notification-content p {
-  margin: 0;
-  flex-grow: 1;
-  font-size: 16px;
-}
-
-.close-notification {
-  background: none;
-  border: none;
-  color: #777;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
-  margin-left: 10px;
-  transition: color 0.2s;
-}
-
-.close-notification:hover {
-  color: #333;
-}
-
-/* Animación para el botón "Estoy pensando en ti" */
-.btn-highlight {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.btn-highlight.thinking-sent:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 300px;
-  height: 300px;
-  background-color: rgba(255, 71, 87, 0.3);
-  border-radius: 50%;
-  animation: pulse 1s ease-out;
-}
-
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(3);
-    opacity: 0;
-  }
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
 }
 
 /* Responsive para la galería */
 @media (max-width: 480px) {
-  .gallery-slide-container {
-    padding-bottom: 85%;
-  }
-  
-  .placeholder-text {
-    font-size: 1.2rem;
-  }
-  
-  .notification-content {
-    min-width: auto;
-    width: calc(100vw - 40px);
-  }
+    .gallery-slide-container {
+        padding-bottom: 85%;
+    }
+    
+    .placeholder-text {
+        font-size: 1.2rem;
+    }
 }
