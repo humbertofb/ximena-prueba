@@ -10,8 +10,34 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Tema Oscuro */
-/* Añadir a themes.css */
+/* Tema Oscuro - Definición base */
+:root.dark-theme,
+.dark-theme {
+    --primary-color: #b069ff; /* Morado más claro para mejor contraste */
+    --secondary-color: #ff6b6b; /* Rojo más claro */
+    --accent-color: #6ba5ff; /* Azul más claro */
+    --text-color: #f0f0f0;
+    --bg-color: #1a1a1a;
+    --card-bg: #2c2c2c;
+    --border-color: #444444;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Aplicación de colores base cuando el tema oscuro está activo */
+.dark-theme {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.dark-theme .card,
+.dark-theme .quote-card,
+.dark-theme .login-container,
+.dark-theme .quick-access-item {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Tema Oscuro - Elementos específicos */
 .dark-theme .notification-content {
     background-color: #333;
     color: #f0f0f0;
@@ -84,10 +110,10 @@
 }
 
 /* Animación de transición entre temas */
-body {
+body, html {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-.card, .menu-items a, .quote-card, .days-counter, .login-container, .quick-access-item {
+.card, .menu-items a, .quote-card, .days-counter, .login-container, .quick-access-item, .user-dropdown {
     transition: background-color 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
 }
