@@ -86,6 +86,22 @@
                 <a href="pages/cumpleanos.html"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
             </nav>
         </div>
+
+        <!-- Botón de usuario con icono para desplegar el menú -->
+<div id="user-menu" class="user-menu">
+    <button id="theme-toggle-button" class="user-button">
+        <i class="fas fa-user-circle"></i>
+    </button>
+
+    <!-- Menú desplegable del usuario -->
+    <div id="user-dropdown" class="user-dropdown hidden">
+        <div class="user-stat">
+            <i class="fas fa-heart"></i> Pensamientos enviados: <span id="thinking-counter">0</span>
+        </div>
+        <a href="#" id="theme-toggle-dropdown"><i class="fas fa-moon"></i> Cambiar Tema</a>
+        <a href="#" id="logout-button-dropdown"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </div>
+</div>
         
         <!-- Contenido de la página principal -->
         <main class="content">
@@ -120,15 +136,6 @@
                 <button id="thinking-button" class="btn btn-highlight">
                     <i class="fas fa-heart"></i> Estoy pensando en ti
                 </button>
-                
-                <!-- Añadir al dropdown del usuario en index.html -->
-<div id="user-dropdown" class="user-dropdown hidden">
-    <div class="user-stat">
-        <i class="fas fa-heart"></i> Pensamientos enviados: <span id="thinking-counter">0</span>
-    </div>
-    <a href="#" id="theme-toggle-dropdown"><i class="fas fa-moon"></i> Cambiar Tema</a>
-    <a href="#" id="logout-button-dropdown"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-</div>
             
             <!-- Sección de galería de imágenes -->
             <section class="image-gallery">
