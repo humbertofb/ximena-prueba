@@ -94,6 +94,8 @@ function setupThemeToggle() {
             // Actualizar el texto del tema
             updateThemeText();
         });
+        // Marcar que ya tiene el listener para evitar duplicados
+        themeToggleDropdown._hasClickListener = true;
     }
     
     // Manejar botón para abrir/cerrar menú
@@ -123,9 +125,9 @@ function updateThemeText() {
     if (themeToggleDropdown) {
         const isDarkTheme = document.documentElement.classList.contains('dark-theme');
         if (isDarkTheme) {
-            themeToggleDropdown.textContent = 'Cambiar a tema claro';
+            themeToggleDropdown.innerHTML = 'Cambiar a tema claro';
         } else {
-            themeToggleDropdown.textContent = 'Cambiar a tema oscuro';
+            themeToggleDropdown.innerHTML = 'Cambiar a tema oscuro';
         }
     }
 }
