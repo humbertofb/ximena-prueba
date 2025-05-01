@@ -4,22 +4,50 @@
 window.toggleTheme = function() {
     console.log("Función toggleTheme llamada");
     
-    // Alternar tema
-    if (document.documentElement.classList.contains('dark-theme')) {
-        document.documentElement.classList.remove('dark-theme');
-        localStorage.setItem('theme', 'light');
-        console.log("Cambiado a tema claro");
-    } else {
-        document.documentElement.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark');
-        console.log("Cambiado a tema oscuro");
+    try {
+        // Alternar tema
+        if (document.documentElement.classList.contains('dark-theme')) {
+            document.documentElement.classList.remove('dark-theme');
+            localStorage.setItem('theme', 'light');
+            console.log("Cambiado a tema claro");
+        } else {
+            document.documentElement.classList.add('dark-theme');
+            localStorage.setItem('theme', 'dark');
+            console.log("Cambiado a tema oscuro");
+        }
+        
+        // Añadir una alerta visual temporal para móvil (se eliminará automáticamente después de 1.5 segundos)
+        const feedbackElement = document.createElement('div');
+        feedbackElement.style.position = 'fixed';
+        feedbackElement.style.top = '20px';
+        feedbackElement.style.left = '50%';
+        feedbackElement.style.transform = 'translateX(-50%)';
+        feedbackElement.style.padding = '10px 20px';
+        feedbackElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        feedbackElement.style.color = 'white';
+        feedbackElement.style.borderRadius = '5px';
+        feedbackElement.style.zIndex = '9999';
+        feedbackElement.textContent = document.documentElement.classList.contains('dark-theme') ? 
+                                      '🌙 Tema oscuro activado' : '☀️ Tema claro activado';
+        document.body.appendChild(feedbackElement);
+        
+        // Eliminar el elemento después de 1.5 segundos
+        setTimeout(function() {
+            if (document.body.contains(feedbackElement)) {
+                document.body.removeChild(feedbackElement);
+            }
+        }, 1500);
+        
+        // Actualizar el icono después de cambiar el tema
+        updateThemeIcon();
+        
+        // Cerrar el menú desplegable explícitamente
+        hideUserDropdown();
+    } catch (error) {
+        console.error("Error en toggleTheme:", error);
+        // Intento de recuperación en caso de error
+        document.location.reload();
     }
-    
-    // Actualizar el icono después de cambiar el tema
-    updateThemeIcon();
-    
-    // Cerrar el menú desplegable explícitamente
-    hideUserDropdown();
 };
 
 // Función para mostrar/ocultar el menú desplegable
@@ -87,11 +115,14 @@ function setupThemeToggle() {
     
     // Configurar el botón principal de cambio de tema (el botón que abre el menú)
     if (themeToggleButton) {
-        themeToggleButton.addEventListener('click', function(event) {
-            console.log("Clic en botón de usuario detectado");
-            event.preventDefault();
-            event.stopPropagation();
-            toggleUserDropdown();
+        // Añadir listeners tanto para click como para touchstart (dispositivos móviles)
+        ['click', 'touchstart'].forEach(function(eventType) {
+            themeToggleButton.addEventListener(eventType, function(event) {
+                console.log(eventType + " en botón de usuario detectado");
+                event.preventDefault();
+                event.stopPropagation();
+                toggleUserDropdown();
+            });
         });
     } else {
         console.error("No se encontró el botón theme-toggle-button");
@@ -102,14 +133,16 @@ function setupThemeToggle() {
         // Actualizar icono según el tema actual
         updateThemeIcon();
         
-        // Añadir listener que usa la función global toggleTheme
-        themeToggleDropdown.addEventListener('click', function(event) {
-            console.log("Clic en 'Cambiar tema' detectado");
-            event.preventDefault();
-            event.stopPropagation(); // Detener propagación del evento
-            
-            // Usar la función global toggleTheme
-            window.toggleTheme();
+        // Añadir listeners tanto para click como para touchstart (dispositivos móviles)
+        ['click', 'touchstart'].forEach(function(eventType) {
+            themeToggleDropdown.addEventListener(eventType, function(event) {
+                console.log(eventType + " en 'Cambiar tema' detectado");
+                event.preventDefault();
+                event.stopPropagation(); // Detener propagación del evento
+                
+                // Usar la función global toggleTheme
+                window.toggleTheme();
+            });
         });
     } else {
         console.error("No se encontró el elemento theme-toggle-dropdown");
@@ -161,6 +194,41 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Evento DOMContentLoaded disparado en theme-switcher.js");
     applyInitialTheme();
     setupThemeToggle();
+    
+    // Añadir un clic directo para móviles
+    // Esto es una solución alternativa que permite cambiar el tema con un clic en cualquier parte específica
+    const alternativeToggleArea = document.createElement('div');
+    alternativeToggleArea.id = 'alternative-theme-toggle';
+    alternativeToggleArea.style.position = 'fixed';
+    alternativeToggleArea.style.bottom = '20px';
+    alternativeToggleArea.style.right = '20px';
+    alternativeToggleArea.style.width = '50px';
+    alternativeToggleArea.style.height = '50px';
+    alternativeToggleArea.style.borderRadius = '50%';
+    alternativeToggleArea.style.backgroundColor = 'rgba(0,0,0,0.1)';
+    alternativeToggleArea.style.display = 'flex';
+    alternativeToggleArea.style.alignItems = 'center';
+    alternativeToggleArea.style.justifyContent = 'center';
+    alternativeToggleArea.style.zIndex = '999';
+    alternativeToggleArea.style.cursor = 'pointer';
+    alternativeToggleArea.innerHTML = document.documentElement.classList.contains('dark-theme') ?
+                                     '<span style="font-size:24px">☀️</span>' : 
+                                     '<span style="font-size:24px">🌙</span>';
+    
+    // Añadir un listener de clic para cambiar el tema directamente
+    ['click', 'touchstart'].forEach(function(eventType) {
+        alternativeToggleArea.addEventListener(eventType, function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.toggleTheme();
+            // Actualizar el icono después de cambiar
+            this.innerHTML = document.documentElement.classList.contains('dark-theme') ?
+                           '<span style="font-size:24px">☀️</span>' : 
+                           '<span style="font-size:24px">🌙</span>';
+        });
+    });
+    
+    document.body.appendChild(alternativeToggleArea);
 });
 
 // También ejecutar en window.onload para mayor compatibilidad
