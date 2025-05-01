@@ -1,5 +1,4 @@
-// theme-switcher.js mejorado
-console.log("Script theme-switcher.js cargado");
+// theme-switcher.js - Versión simplificada y funcional
 
 // Definir la función toggleTheme para que esté disponible globalmente
 window.toggleTheme = function() {
@@ -24,20 +23,8 @@ window.toggleTheme = function() {
     }
 };
 
-// Configuración al cargar el DOM
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Evento DOMContentLoaded disparado");
-    
-    // Obtener referencias a elementos
-    const themeToggleButton = document.getElementById('theme-toggle-button');
-    console.log("Botón de usuario:", themeToggleButton);
-    
-    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
-    console.log("Enlace cambio tema:", themeToggleDropdown);
-    
-    const userDropdown = document.getElementById('user-dropdown');
-    console.log("Menú desplegable:", userDropdown);
-    
+// Función para aplicar el tema inicial
+function applyInitialTheme() {
     // Verificar el tema actual
     const currentTheme = localStorage.getItem('theme');
     console.log("Tema actual guardado:", currentTheme);
@@ -60,20 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Tema claro aplicado según hora");
         }
     }
+}
+
+// Configurar el evento de clic para el botón de cambio de tema
+function setupThemeToggle() {
+    // Obtener referencias a elementos
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    const userDropdown = document.getElementById('user-dropdown');
     
     // Configurar el enlace de cambio de tema
     if (themeToggleDropdown) {
         themeToggleDropdown.innerHTML = '<i class="fas fa-palette"></i> Cambiar tema';
-        console.log("Texto del enlace establecido a 'Cambiar tema'");
         
         // Añadir listener que usa la función global toggleTheme
         themeToggleDropdown.addEventListener('click', function(event) {
             console.log("Clic en 'Cambiar tema' detectado");
             event.preventDefault();
-            toggleTheme();
+            // Usar la función global toggleTheme
+            window.toggleTheme();
         });
-    } else {
-        console.error("No se encontró el elemento con ID 'theme-toggle-dropdown'");
     }
     
     // Manejar botón para abrir/cerrar menú
@@ -83,10 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             event.stopPropagation();
             userDropdown.classList.toggle('hidden');
-            console.log("Alternado visibilidad del menú desplegable");
         });
-    } else {
-        console.error("No se encontró el botón de usuario o el menú desplegable");
     }
     
     // Cerrar menú al hacer clic fuera
@@ -98,11 +88,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+}
+
+// Ejecutar al cargar el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Evento DOMContentLoaded disparado en theme-switcher.js");
+    applyInitialTheme();
+    setupThemeToggle();
 });
 
-// Mantener también el listener en window.onload para máxima compatibilidad
+// También ejecutar en window.onload para mayor compatibilidad
 window.onload = function() {
-    console.log("DOM completamente cargado (window.onload)");
-    // No es necesario duplicar la lógica, ya que toggleTheme ahora es global
-    // y el listener de DOMContentLoaded ya estableció todo
+    console.log("Window onload disparado en theme-switcher.js");
+    // Solo verificar los elementos, la lógica principal está en DOMContentLoaded
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    if (!themeToggleDropdown) {
+        console.warn("No se encontró el elemento theme-toggle-dropdown");
+    }
 };
