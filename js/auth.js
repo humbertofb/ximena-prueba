@@ -142,14 +142,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Cambiar tema desde el dropdown
+    // Cambiar tema desde el dropdown - CORREGIDO
     document.getElementById('theme-toggle-dropdown').addEventListener('click', function(e) {
         e.preventDefault();
         
-        // Asumiendo que tienes una función para cambiar el tema
-        toggleTheme();
-        
-        // Cerrar el dropdown después de cambiar el tema
-        userDropdown.classList.add('hidden');
+        // Ahora llamamos a la función global definida en theme-switcher.js
+        if (typeof window.toggleTheme === 'function') {
+            window.toggleTheme();
+        } else {
+            console.error("La función toggleTheme no está definida. Asegúrate de que theme-switcher.js se carga antes que auth.js");
+            
+            // Implementación alternativa en caso de que no esté disponible la función
+            if (document.documentElement.classList.contains('dark-theme')) {
+                document.documentElement.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+            
+            // Cerrar el dropdown después de cambiar el tema
+            userDropdown.classList.add('hidden');
+        }
     });
 });
