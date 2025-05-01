@@ -1,70 +1,104 @@
-// theme-switcher.js simplificado
-document.addEventListener('DOMContentLoaded', function() {
-    // Referencias a elementos del DOM
-    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
-    const userDropdown = document.getElementById('user-dropdown');
+// theme-switcher.js con depuración extensa
+console.log("Script theme-switcher.js cargado"); // Verificar que el script se carga
+
+// Esperar a que el DOM esté completamente cargado
+window.onload = function() {
+    console.log("DOM completamente cargado");
     
-    // Cargar tema guardado
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
+    // Obtener referencias a elementos con logging
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    console.log("Botón de usuario:", themeToggleButton);
+    
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    console.log("Enlace cambio tema:", themeToggleDropdown);
+    
+    const userDropdown = document.getElementById('user-dropdown');
+    console.log("Menú desplegable:", userDropdown);
+    
+    // Verificar el tema actual
+    const currentTheme = localStorage.getItem('theme');
+    console.log("Tema actual guardado:", currentTheme);
+    
+    // Aplicar tema guardado
+    if (currentTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
+        console.log("Tema oscuro aplicado desde localStorage");
     }
     
-    // Función para cambiar tema según la hora
-    function setThemeByTime() {
+    // Cambiar tema según hora si no hay preferencia guardada
+    if (!currentTheme) {
         const hour = new Date().getHours();
+        console.log("Hora actual:", hour);
+        
         if (hour >= 19 || hour < 7) {
             document.documentElement.classList.add('dark-theme');
+            console.log("Tema oscuro aplicado según hora");
+        } else {
+            console.log("Tema claro aplicado según hora");
         }
     }
     
-    // Si no hay tema guardado, usar hora
-    if (!savedTheme) {
-        setThemeByTime();
-    }
-    
-    // Establecer texto fijo
+    // Establecer texto fijo para el enlace de cambio de tema
     if (themeToggleDropdown) {
         themeToggleDropdown.innerHTML = '<i class="fas fa-palette"></i> Cambiar tema';
+        console.log("Texto del enlace establecido a 'Cambiar tema'");
         
-        // Event listener para cambio de tema
+        // Añadir listener con depuración
         themeToggleDropdown.addEventListener('click', function(event) {
+            console.log("Clic en 'Cambiar tema' detectado");
             event.preventDefault();
             
-            // Cambiar tema
+            // Alternar tema
             if (document.documentElement.classList.contains('dark-theme')) {
                 document.documentElement.classList.remove('dark-theme');
                 localStorage.setItem('theme', 'light');
+                console.log("Cambiado a tema claro");
             } else {
                 document.documentElement.classList.add('dark-theme');
                 localStorage.setItem('theme', 'dark');
+                console.log("Cambiado a tema oscuro");
             }
             
-            // Cerrar menú desplegable
+            // Intentar cerrar el menú desplegable
             if (userDropdown) {
+                console.log("Intentando cerrar menú desplegable");
                 userDropdown.classList.add('hidden');
+                console.log("Clase 'hidden' añadida al menú");
             }
-            
-            console.log('Tema cambiado'); // Para depuración
         });
+    } else {
+        console.error("No se encontró el elemento con ID 'theme-toggle-dropdown'");
     }
     
-    // Event listener para abrir/cerrar menú de usuario
-    const userMenuButton = document.getElementById('user-menu-button');
-    if (userMenuButton && userDropdown) {
-        userMenuButton.addEventListener('click', function(event) {
+    // Manejar botón para abrir/cerrar menú
+    if (themeToggleButton && userDropdown) {
+        themeToggleButton.addEventListener('click', function(event) {
+            console.log("Clic en botón de usuario detectado");
             event.preventDefault();
             event.stopPropagation();
             userDropdown.classList.toggle('hidden');
+            console.log("Alternado visibilidad del menú desplegable");
         });
+    } else {
+        console.error("No se encontró el botón de usuario o el menú desplegable");
     }
     
     // Cerrar menú al hacer clic fuera
     document.addEventListener('click', function(event) {
         if (userDropdown && !userDropdown.classList.contains('hidden')) {
-            if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+            if (themeToggleButton && !themeToggleButton.contains(event.target) && !userDropdown.contains(event.target)) {
                 userDropdown.classList.add('hidden');
+                console.log("Menú cerrado por clic externo");
             }
         }
     });
+};
+
+// También agregar listener en DOMContentLoaded para mayor compatibilidad
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Evento DOMContentLoaded disparado");
+    
+    // Verificar si los elementos ya están disponibles en este punto
+    const checkButton = document.getElementById('theme-toggle-dropdown');
+    console.log("¿Enlace disponible en DOMContentLoaded?", checkButton !== null);
 });
