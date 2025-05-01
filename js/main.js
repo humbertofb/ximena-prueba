@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar carrusel
     initCarousel();
     
-    // Configurar botón "Estoy pensando en ti"
-    setupThinkingButton();
-    
     // Verificar si es el día de cumpleaños
     checkBirthdaySection();
     
