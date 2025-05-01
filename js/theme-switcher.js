@@ -1,68 +1,99 @@
-// Reemplaza completamente tu archivo theme-switcher.js con esto
+// Archivo theme-switcher.js mejorado
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos que necesitaremos
-    const themeToggleBtn = document.getElementById('theme-toggle-dropdown');
-    const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('i') : null;
+    // Referencias a elementos del DOM
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    const userDropdown = document.getElementById('user-dropdown');
     
-    // Función simplificada para cambiar el tema
-    function toggleTheme() {
-        // 1. Verificar el tema actual
-        const isDarkTheme = document.body.classList.contains('dark-theme');
-        console.log('Tema actual:', isDarkTheme ? 'oscuro' : 'claro');
-        
-        // 2. Aplicar el tema contrario
-        if (isDarkTheme) {
-            // Cambiar a tema claro
-            document.body.classList.remove('dark-theme');
-            document.documentElement.classList.remove('dark-theme');
-            localStorage.setItem('theme', 'light');
-            console.log('Cambiado a tema claro');
-            
-            // Cambiar icono a luna (tema claro)
-            if (themeIcon) {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-            }
-        } else {
-            // Cambiar a tema oscuro
-            document.body.classList.add('dark-theme');
-            document.documentElement.classList.add('dark-theme');
-            localStorage.setItem('theme', 'dark');
-            console.log('Cambiado a tema oscuro');
-            
-            // Cambiar icono a sol (tema oscuro)
-            if (themeIcon) {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-            }
-        }
-        
-        // 3. Cerrar el menú desplegable
-        const dropdown = document.getElementById('user-dropdown');
-        if (dropdown) dropdown.classList.add('hidden');
-    }
-    
-    // Inicializar tema según localStorage
+    // Verifica si hay un tema guardado en localStorage
     const savedTheme = localStorage.getItem('theme');
-    console.log('Tema guardado:', savedTheme);
     
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
+    // Función para aplicar el tema oscuro
+    function enableDarkTheme() {
         document.documentElement.classList.add('dark-theme');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
+        // Cambiar el ícono en el menú desplegable
+        if (themeToggleDropdown) {
+            themeToggleDropdown.innerHTML = '<i class="fas fa-sun"></i> Cambiar a Tema Claro';
+        }
+        // Guardar preferencia en localStorage
+        localStorage.setItem('theme', 'dark');
+    }
+    
+    // Función para aplicar el tema claro
+    function enableLightTheme() {
+        document.documentElement.classList.remove('dark-theme');
+        // Cambiar el ícono en el menú desplegable
+        if (themeToggleDropdown) {
+            themeToggleDropdown.innerHTML = '<i class="fas fa-moon"></i> Cambiar a Tema Oscuro';
+        }
+        // Guardar preferencia en localStorage
+        localStorage.setItem('theme', 'light');
+    }
+    
+    // Función para alternar el tema
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark-theme')) {
+            enableLightTheme();
+        } else {
+            enableDarkTheme();
         }
     }
     
-    // Asignar evento al botón de tema
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', function(e) {
+    // Función para cambiar el tema según la hora del día
+    function setThemeByTime() {
+        const currentHour = new Date().getHours();
+        // Tema oscuro entre las 19:00 y las 7:00
+        if (currentHour >= 19 || currentHour < 7) {
+            enableDarkTheme();
+        } else {
+            enableLightTheme();
+        }
+    }
+    
+    // Aplicar tema guardado o configurar por hora si es la primera visita
+    if (savedTheme) {
+        if (savedTheme === 'dark') {
+            enableDarkTheme();
+        } else {
+            enableLightTheme();
+        }
+    } else {
+        // Si no hay tema guardado, establecer según la hora
+        setThemeByTime();
+    }
+    
+    // Event listener para el botón de cambio de tema en el menú desplegable
+    if (themeToggleDropdown) {
+        themeToggleDropdown.addEventListener('click', function(e) {
             e.preventDefault();
             toggleTheme();
+            
+            // Cerrar el menú desplegable automáticamente
+            if (userDropdown) {
+                userDropdown.classList.add('hidden');
+            }
         });
-        console.log('Evento asignado al botón de tema');
-    } else {
-        console.error('No se encontró el botón de tema (#theme-toggle-dropdown)');
     }
+    
+    // Event listener para el botón de usuario que abre/cierra el menú desplegable
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (userDropdown) {
+                userDropdown.classList.toggle('hidden');
+            }
+        });
+    }
+    
+    // Cerrar el menú desplegable al hacer clic fuera de él
+    document.addEventListener('click', function(e) {
+        if (userDropdown && !userDropdown.classList.contains('hidden') && 
+            !themeToggleButton.contains(e.target) && 
+            !userDropdown.contains(e.target)) {
+            userDropdown.classList.add('hidden');
+        }
+    });
 });
