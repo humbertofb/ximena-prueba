@@ -1,4 +1,4 @@
-// Funciones globales y comportamiento general
+// Funciones globales y comportamiento general - Sin Firebase Messaging
 
 // Variables globales
 let currentUser = null;
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkBirthdaySection();
     
     // Verificar estado de autenticación
-    auth.onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             currentUser = user;
             onUserSignIn();
@@ -39,43 +39,8 @@ function initFirebasePersistence() {
         });
 }
 
-// Función para solicitar permiso de notificaciones
-function requestNotificationPermission() {
-    if (!firebase.messaging.isSupported()) {
-        console.warn("Las notificaciones no son soportadas en este navegador");
-        return Promise.reject("Navegador no soportado");
-    }
-    
-    const messaging = firebase.messaging();
-    
-    return messaging.getToken({ 
-        vapidKey: 'BHlfWqSQGpmKTv16TMF_L2riUUL3ZkDdY3vJtoTSTg93Hh1MxZwi7YzozLObSXRJNxxyvLpsKhfusjpW8oWRjLw' // Reemplaza con tu clave pública VAPID
-    })
-    .then((token) => {
-        console.log("Token FCM obtenido:", token);
-        
-        // Guardar el token en Firestore para el usuario actual
-        if (auth.currentUser) {
-            return db.collection('users').doc(auth.currentUser.uid).update({
-                fcmToken: token,
-                lastTokenUpdate: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-    })
-    .catch((err) => {
-        console.error("Error al obtener token de notificaciones:", err);
-        // Si el error es de permiso, podemos mostrar un mensaje al usuario
-        if (Notification.permission === 'denied') {
-            alert("Para recibir notificaciones, debes permitir el acceso en la configuración de tu navegador");
-        }
-    });
-}
-
 // Cuando el usuario inicia sesión
 function onUserSignIn() {
-    // Solicitar permiso de notificaciones
-    requestNotificationPermission();
-    
     // Actualizar UI con información del usuario
     updateUserUI();
     
@@ -86,6 +51,7 @@ function onUserSignIn() {
 // Actualizar UI con información del usuario
 function updateUserUI() {
     // Implementa según tu diseño
+    console.log("Usuario autenticado:", currentUser?.email);
 }
 
 // Funciones para el carrusel de frases
@@ -139,7 +105,7 @@ function setupThinkingButton() {
     
     thinkingButton.addEventListener('click', () => {
         // Verificar que hay un usuario autenticado
-        if (!auth.currentUser) {
+        if (!firebase.auth().currentUser) {
             alert("Debes iniciar sesión para usar esta función");
             return;
         }
@@ -157,7 +123,7 @@ function setupThinkingButton() {
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         
         // Incrementar contador en Firestore
-        const userRef = db.collection('thinking_counts').doc(auth.currentUser.uid);
+        const userRef = firebase.firestore().collection('thinking_counts').doc(firebase.auth().currentUser.uid);
         
         userRef.get().then((doc) => {
             let newCount = 1;
@@ -167,37 +133,26 @@ function setupThinkingButton() {
             
             // Actualizar contador
             userRef.set({
-                userId: auth.currentUser.uid,
-                userEmail: auth.currentUser.email,
+                userId: firebase.auth().currentUser.uid,
+                userEmail: firebase.auth().currentUser.email,
                 count: newCount,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true })
             .then(() => {
                 // Obtener tokens FCM de la persona destinataria
-                return db.collection('users').doc(auth.currentUser.partnerUid || 'partnerUid').get();
+                return firebase.firestore().collection('users').doc(firebase.auth().currentUser.partnerUid || 'partnerUid').get();
             })
             .then(doc => {
-                if (doc.exists && doc.data().fcmToken) {
-                    // Enviar notificación a través de Cloud Functions
-                    const notificationData = {
-                        token: doc.data().fcmToken,
-                        message: randomMessage,
-                        senderId: auth.currentUser.uid,
-                        senderEmail: auth.currentUser.email
-                    };
-                    
+                if (doc.exists) {
                     // Almacenar la notificación en Firestore
-                    db.collection('notifications').add({
-                        senderId: auth.currentUser.uid,
-                        senderEmail: auth.currentUser.email,
-                        recipientId: auth.currentUser.partnerUid || 'partnerUid',
+                    firebase.firestore().collection('notifications').add({
+                        senderId: firebase.auth().currentUser.uid,
+                        senderEmail: firebase.auth().currentUser.email,
+                        recipientId: firebase.auth().currentUser.partnerUid || 'partnerUid',
                         message: randomMessage,
                         read: false,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    
-                    // Llamar a la función Cloud para enviar la notificación
-                    return firebase.functions().httpsCallable('sendNotification')(notificationData);
                 }
             })
             .then(() => {
@@ -240,9 +195,9 @@ function setupThinkingButton() {
 
 // Obtener contador desde Firestore
 function updateThinkingCounter() {
-    if (!auth.currentUser) return;
+    if (!firebase.auth().currentUser) return;
     
-    db.collection('thinking_counts').doc(auth.currentUser.uid).get()
+    firebase.firestore().collection('thinking_counts').doc(firebase.auth().currentUser.uid).get()
         .then((doc) => {
             const count = doc.exists ? doc.data().count : 0;
             // Actualizar contador en el menú de usuario si existe
@@ -263,10 +218,10 @@ function updateThinkingCounter() {
 // Verificar si es el día del cumpleaños
 function checkBirthdaySection() {
     // Verificar que hay un usuario autenticado
-    if (!auth.currentUser) return;
+    if (!firebase.auth().currentUser) return;
     
     // Obtener la fecha del cumpleaños desde Firestore
-    db.collection('users').doc(auth.currentUser.uid).get()
+    firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get()
         .then(doc => {
             if (doc.exists && doc.data().birthdayDate) {
                 const birthdayDate = new Date(doc.data().birthdayDate);
@@ -313,3 +268,7 @@ function showBirthdayNotification() {
         notification.classList.add('active');
     }, 1000);
 }
+
+// Funciones para compatibilidad global con navegación
+window.nextSlide = nextSlide;
+window.prevSlide = prevSlide;
