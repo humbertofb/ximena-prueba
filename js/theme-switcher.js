@@ -12,10 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para aplicar el tema oscuro
     function enableDarkTheme() {
         document.documentElement.classList.add('dark-theme');
-        // Cambiar el ícono en el menú desplegable
-        if (themeToggleDropdown) {
-            themeToggleDropdown.innerHTML = '<i class="fas fa-sun"></i> Cambiar a Tema Claro';
-        }
         // Guardar preferencia en localStorage
         localStorage.setItem('theme', 'dark');
     }
@@ -23,10 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para aplicar el tema claro
     function enableLightTheme() {
         document.documentElement.classList.remove('dark-theme');
-        // Cambiar el ícono en el menú desplegable
-        if (themeToggleDropdown) {
-            themeToggleDropdown.innerHTML = '<i class="fas fa-moon"></i> Cambiar a Tema Oscuro';
-        }
         // Guardar preferencia en localStorage
         localStorage.setItem('theme', 'light');
     }
