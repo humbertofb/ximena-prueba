@@ -1,43 +1,20 @@
-// theme-switcher.js - Versión sin iconos
+// theme-switcher.js - Versión sin iconos en el menú desplegable
+console.log("Script theme-switcher.js cargado"); 
 
-// Definir la función toggleTheme para que esté disponible globalmente
-window.toggleTheme = function() {
-    console.log("Función toggleTheme llamada");
+// Esperar a que el DOM esté completamente cargado
+window.onload = function() {
+    console.log("DOM completamente cargado");
     
-    // Alternar tema
-    if (document.documentElement.classList.contains('dark-theme')) {
-        document.documentElement.classList.remove('dark-theme');
-        localStorage.setItem('theme', 'light');
-        console.log("Cambiado a tema claro");
-    } else {
-        document.documentElement.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark');
-        console.log("Cambiado a tema oscuro");
-    }
+    // Obtener referencias a elementos con logging
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    console.log("Botón de usuario:", themeToggleButton);
     
-    // Cerrar el menú desplegable explícitamente
-    hideUserDropdown();
-};
-
-// Función para mostrar/ocultar el menú desplegable
-function toggleUserDropdown() {
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    console.log("Enlace cambio tema:", themeToggleDropdown);
+    
     const userDropdown = document.getElementById('user-dropdown');
-    if (userDropdown) {
-        userDropdown.classList.toggle('hidden');
-    }
-}
-
-// Función para ocultar el menú desplegable
-function hideUserDropdown() {
-    const userDropdown = document.getElementById('user-dropdown');
-    if (userDropdown) {
-        userDropdown.classList.add('hidden');
-        console.log("Menú cerrado después de cambiar tema");
-    }
-}
-
-// Función para aplicar el tema inicial
-function applyInitialTheme() {
+    console.log("Menú desplegable:", userDropdown);
+    
     // Verificar el tema actual
     const currentTheme = localStorage.getItem('theme');
     console.log("Tema actual guardado:", currentTheme);
@@ -46,127 +23,94 @@ function applyInitialTheme() {
     if (currentTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
         console.log("Tema oscuro aplicado desde localStorage");
-    } else if (currentTheme === 'light') {
-        document.documentElement.classList.remove('dark-theme');
-        console.log("Tema claro aplicado desde localStorage");
-    } else {
-        // Cambiar tema según hora si no hay preferencia guardada
+    }
+    
+    // Cambiar tema según hora si no hay preferencia guardada
+    if (!currentTheme) {
         const hour = new Date().getHours();
         console.log("Hora actual:", hour);
         
         if (hour >= 19 || hour < 7) {
             document.documentElement.classList.add('dark-theme');
-            localStorage.setItem('theme', 'dark');
             console.log("Tema oscuro aplicado según hora");
         } else {
-            document.documentElement.classList.remove('dark-theme');
-            localStorage.setItem('theme', 'light');
             console.log("Tema claro aplicado según hora");
         }
     }
-}
-
-// Configurar el evento de clic para el botón de cambio de tema
-function setupThemeToggle() {
-    // Obtener referencias a elementos
-    const themeToggleButton = document.getElementById('theme-toggle-button');
-    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
-    const userDropdown = document.getElementById('user-dropdown');
     
-    console.log("Configurando toggles de tema. Botón:", themeToggleButton ? "encontrado" : "no encontrado", 
-                "Enlace:", themeToggleDropdown ? "encontrado" : "no encontrado", 
-                "Menú:", userDropdown ? "encontrado" : "no encontrado");
-    
-    // Configurar el enlace de cambio de tema
+    // *** MODIFICACIÓN PRINCIPAL: Eliminar el icono del enlace de cambio de tema ***
     if (themeToggleDropdown) {
-        // Actualizar texto según el tema actual
-        updateThemeText();
+        // Verificar si el tema es oscuro o claro actualmente
+        const isDarkTheme = document.documentElement.classList.contains('dark-theme');
         
-        // Añadir listener que usa la función global toggleTheme
+        // Establecer solo el texto sin icono
+        themeToggleDropdown.textContent = isDarkTheme ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+        console.log("Icono eliminado y texto del enlace establecido a:", themeToggleDropdown.textContent);
+        
+        // Añadir listener con depuración
         themeToggleDropdown.addEventListener('click', function(event) {
             console.log("Clic en 'Cambiar tema' detectado");
             event.preventDefault();
-            event.stopPropagation(); // Detener propagación del evento
             
-            // Usar la función global toggleTheme
-            window.toggleTheme();
+            // Alternar tema
+            if (document.documentElement.classList.contains('dark-theme')) {
+                document.documentElement.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                console.log("Cambiado a tema claro");
+                themeToggleDropdown.textContent = 'Cambiar a tema oscuro';
+            } else {
+                document.documentElement.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                console.log("Cambiado a tema oscuro");
+                themeToggleDropdown.textContent = 'Cambiar a tema claro';
+            }
             
-            // Actualizar el texto del tema
-            updateThemeText();
+            // Intentar cerrar el menú desplegable
+            if (userDropdown) {
+                console.log("Intentando cerrar menú desplegable");
+                userDropdown.classList.add('hidden');
+                console.log("Clase 'hidden' añadida al menú");
+            }
         });
-        // Marcar que ya tiene el listener para evitar duplicados
-        themeToggleDropdown._hasClickListener = true;
+    } else {
+        console.error("No se encontró el elemento con ID 'theme-toggle-dropdown'");
     }
     
     // Manejar botón para abrir/cerrar menú
-    if (themeToggleButton) {
+    if (themeToggleButton && userDropdown) {
         themeToggleButton.addEventListener('click', function(event) {
             console.log("Clic en botón de usuario detectado");
             event.preventDefault();
             event.stopPropagation();
-            toggleUserDropdown();
+            userDropdown.classList.toggle('hidden');
+            console.log("Alternado visibilidad del menú desplegable");
         });
+    } else {
+        console.error("No se encontró el botón de usuario o el menú desplegable");
     }
     
     // Cerrar menú al hacer clic fuera
     document.addEventListener('click', function(event) {
         if (userDropdown && !userDropdown.classList.contains('hidden')) {
             if (themeToggleButton && !themeToggleButton.contains(event.target) && !userDropdown.contains(event.target)) {
-                hideUserDropdown();
+                userDropdown.classList.add('hidden');
                 console.log("Menú cerrado por clic externo");
             }
         }
     });
-}
+};
 
-// Función para actualizar el texto del tema según el tema actual (sin iconos)
-function updateThemeText() {
+// También agregar listener en DOMContentLoaded para mayor compatibilidad
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Evento DOMContentLoaded disparado");
+    
+    // Intentamos establecer el texto sin icono lo antes posible
     const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
     if (themeToggleDropdown) {
         const isDarkTheme = document.documentElement.classList.contains('dark-theme');
-        if (isDarkTheme) {
-            themeToggleDropdown.innerHTML = 'Cambiar a tema claro';
-        } else {
-            themeToggleDropdown.innerHTML = 'Cambiar a tema oscuro';
-        }
-    }
-}
-
-// Ejecutar al cargar el DOM
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Evento DOMContentLoaded disparado en theme-switcher.js");
-    applyInitialTheme();
-    setupThemeToggle();
-});
-
-// También ejecutar en window.onload para mayor compatibilidad
-window.onload = function() {
-    console.log("Window onload disparado en theme-switcher.js");
-    
-    // Verificar que los elementos existan
-    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
-    const userDropdown = document.getElementById('user-dropdown');
-    
-    if (!themeToggleDropdown) {
-        console.warn("No se encontró el elemento theme-toggle-dropdown");
-    }
-    
-    if (!userDropdown) {
-        console.warn("No se encontró el elemento user-dropdown");
+        themeToggleDropdown.textContent = isDarkTheme ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+        console.log("Texto establecido tempranamente en DOMContentLoaded");
     } else {
-        // Verificar si la clase hidden está funcionando correctamente
-        if (userDropdown.classList.contains('hidden')) {
-            const computedStyle = window.getComputedStyle(userDropdown);
-            if (computedStyle.display !== 'none') {
-                console.warn("La clase 'hidden' no está ocultando el elemento correctamente");
-            }
-        }
+        console.log("Enlace no disponible todavía en DOMContentLoaded");
     }
-    
-    // Actualizar el texto según el tema actual
-    updateThemeText();
-    
-    // Verificar la aplicación del tema
-    const isDarkTheme = document.documentElement.classList.contains('dark-theme');
-    console.log("Tema actual aplicado:", isDarkTheme ? "oscuro" : "claro");
-};
+});
