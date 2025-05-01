@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { color: '#D7C5F8', text: 'Día especial' },
             { color: '#FFE9AE', text: 'Sonrisas juntos' }
         ],
-        autoplaySpeed: 3000, // Intervalo de reproducción automática en ms
+        autoplaySpeed: 4000, // Intervalo de reproducción automática en ms
     };
 
     // Función para inicializar la galería
