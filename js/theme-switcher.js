@@ -1,103 +1,70 @@
-// Archivo theme-switcher.js completamente reescrito
-
+// theme-switcher.js simplificado
 document.addEventListener('DOMContentLoaded', function() {
     // Referencias a elementos del DOM
-    const themeToggleButton = document.getElementById('theme-toggle-button');
     const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
     const userDropdown = document.getElementById('user-dropdown');
-    const userMenuButton = document.getElementById('user-menu-button');
     
-    // Verifica si hay un tema guardado en localStorage
+    // Cargar tema guardado
     const savedTheme = localStorage.getItem('theme');
-    
-    // Función para aplicar el tema oscuro
-    function enableDarkTheme() {
+    if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark');
     }
     
-    // Función para aplicar el tema claro
-    function enableLightTheme() {
-        document.documentElement.classList.remove('dark-theme');
-        localStorage.setItem('theme', 'light');
-    }
-    
-    // Función para alternar el tema
-    function toggleTheme() {
-        if (document.documentElement.classList.contains('dark-theme')) {
-            enableLightTheme();
-        } else {
-            enableDarkTheme();
-        }
-    }
-    
-    // Función para cambiar el tema según la hora del día
+    // Función para cambiar tema según la hora
     function setThemeByTime() {
-        const currentHour = new Date().getHours();
-        // Tema oscuro entre las 19:00 y las 7:00
-        if (currentHour >= 19 || currentHour < 7) {
-            enableDarkTheme();
-        } else {
-            enableLightTheme();
+        const hour = new Date().getHours();
+        if (hour >= 19 || hour < 7) {
+            document.documentElement.classList.add('dark-theme');
         }
     }
     
-    // Aplicar tema guardado o configurar por hora si es la primera visita
-    if (savedTheme) {
-        if (savedTheme === 'dark') {
-            enableDarkTheme();
-        } else {
-            enableLightTheme();
-        }
-    } else {
-        // Si no hay tema guardado, establecer según la hora
+    // Si no hay tema guardado, usar hora
+    if (!savedTheme) {
         setThemeByTime();
     }
     
-    // Asegurarse de que el texto del menú desplegable es siempre "Cambiar tema"
+    // Establecer texto fijo
     if (themeToggleDropdown) {
         themeToggleDropdown.innerHTML = '<i class="fas fa-palette"></i> Cambiar tema';
-    }
-    
-    // Event listener para el botón de cambio de tema en el menú desplegable
-    if (themeToggleDropdown) {
-        themeToggleDropdown.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleTheme();
+        
+        // Event listener para cambio de tema
+        themeToggleDropdown.addEventListener('click', function(event) {
+            event.preventDefault();
             
-            // Cerrar el menú desplegable después de cambiar el tema
+            // Cambiar tema
+            if (document.documentElement.classList.contains('dark-theme')) {
+                document.documentElement.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+            
+            // Cerrar menú desplegable
             if (userDropdown) {
                 userDropdown.classList.add('hidden');
-                
-                // Solución adicional: force el cierre usando display none
-                userDropdown.style.display = 'none';
-                
-                // Restaurar el display después de un breve retraso
-                setTimeout(function() {
-                    userDropdown.style.display = '';
-                }, 100);
             }
-        });
-    }
-    
-    // Botón de usuario que muestra/oculta el menú desplegable
-    if (userMenuButton) {
-        userMenuButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
             
-            if (userDropdown) {
-                userDropdown.classList.toggle('hidden');
-            }
+            console.log('Tema cambiado'); // Para depuración
         });
     }
     
-    // Cerrar el menú desplegable al hacer clic fuera de él
-    document.addEventListener('click', function(e) {
-        if (userDropdown && !userDropdown.classList.contains('hidden') && 
-            !userMenuButton.contains(e.target) && 
-            !userDropdown.contains(e.target)) {
-            userDropdown.classList.add('hidden');
+    // Event listener para abrir/cerrar menú de usuario
+    const userMenuButton = document.getElementById('user-menu-button');
+    if (userMenuButton && userDropdown) {
+        userMenuButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+        });
+    }
+    
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        if (userDropdown && !userDropdown.classList.contains('hidden')) {
+            if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+                userDropdown.classList.add('hidden');
+            }
         }
     });
 });
