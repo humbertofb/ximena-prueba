@@ -15,6 +15,9 @@ window.toggleTheme = function() {
         console.log("Cambiado a tema oscuro");
     }
     
+    // Actualizar el icono después de cambiar el tema
+    updateThemeIcon();
+    
     // Cerrar el menú desplegable explícitamente
     hideUserDropdown();
 };
@@ -24,6 +27,9 @@ function toggleUserDropdown() {
     const userDropdown = document.getElementById('user-dropdown');
     if (userDropdown) {
         userDropdown.classList.toggle('hidden');
+        console.log("Menú de usuario alternado");
+    } else {
+        console.error("Elemento user-dropdown no encontrado");
     }
 }
 
@@ -33,6 +39,8 @@ function hideUserDropdown() {
     if (userDropdown) {
         userDropdown.classList.add('hidden');
         console.log("Menú cerrado después de cambiar tema");
+    } else {
+        console.error("Elemento user-dropdown no encontrado");
     }
 }
 
@@ -77,7 +85,19 @@ function setupThemeToggle() {
                 "Enlace:", themeToggleDropdown ? "encontrado" : "no encontrado", 
                 "Menú:", userDropdown ? "encontrado" : "no encontrado");
     
-    // Configurar el enlace de cambio de tema
+    // Configurar el botón principal de cambio de tema (el botón que abre el menú)
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', function(event) {
+            console.log("Clic en botón de usuario detectado");
+            event.preventDefault();
+            event.stopPropagation();
+            toggleUserDropdown();
+        });
+    } else {
+        console.error("No se encontró el botón theme-toggle-button");
+    }
+    
+    // Configurar el enlace de cambio de tema dentro del menú desplegable
     if (themeToggleDropdown) {
         // Actualizar icono según el tema actual
         updateThemeIcon();
@@ -90,20 +110,9 @@ function setupThemeToggle() {
             
             // Usar la función global toggleTheme
             window.toggleTheme();
-            
-            // Actualizar el icono del tema
-            updateThemeIcon();
         });
-    }
-    
-    // Manejar botón para abrir/cerrar menú
-    if (themeToggleButton) {
-        themeToggleButton.addEventListener('click', function(event) {
-            console.log("Clic en botón de usuario detectado");
-            event.preventDefault();
-            event.stopPropagation();
-            toggleUserDropdown();
-        });
+    } else {
+        console.error("No se encontró el elemento theme-toggle-dropdown");
     }
     
     // Cerrar menú al hacer clic fuera
@@ -120,12 +129,29 @@ function setupThemeToggle() {
 // Función para actualizar el icono del tema según el tema actual
 function updateThemeIcon() {
     const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    
+    const isDarkTheme = document.documentElement.classList.contains('dark-theme');
+    
+    // Actualizar el texto e icono en el menú desplegable
     if (themeToggleDropdown) {
-        const isDarkTheme = document.documentElement.classList.contains('dark-theme');
         if (isDarkTheme) {
             themeToggleDropdown.innerHTML = '<i class="fas fa-sun"></i> Cambiar a tema claro';
         } else {
             themeToggleDropdown.innerHTML = '<i class="fas fa-moon"></i> Cambiar a tema oscuro';
+        }
+    }
+    
+    // Actualizar también el icono del botón principal (opcional)
+    if (themeToggleButton) {
+        // Buscar un elemento icon dentro del botón
+        const buttonIcon = themeToggleButton.querySelector('i');
+        if (buttonIcon) {
+            if (isDarkTheme) {
+                buttonIcon.className = buttonIcon.className.replace(/fa-moon/g, 'fa-sun');
+            } else {
+                buttonIcon.className = buttonIcon.className.replace(/fa-sun/g, 'fa-moon');
+            }
         }
     }
 }
@@ -142,15 +168,21 @@ window.onload = function() {
     console.log("Window onload disparado en theme-switcher.js");
     
     // Verificar que los elementos existan
+    const themeToggleButton = document.getElementById('theme-toggle-button');
     const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
     const userDropdown = document.getElementById('user-dropdown');
     
+    console.log("Verificando elementos en window.onload:");
+    if (!themeToggleButton) {
+        console.error("No se encontró el elemento theme-toggle-button");
+    }
+    
     if (!themeToggleDropdown) {
-        console.warn("No se encontró el elemento theme-toggle-dropdown");
+        console.error("No se encontró el elemento theme-toggle-dropdown");
     }
     
     if (!userDropdown) {
-        console.warn("No se encontró el elemento user-dropdown");
+        console.error("No se encontró el elemento user-dropdown");
     } else {
         // Verificar si la clase hidden está funcionando correctamente
         if (userDropdown.classList.contains('hidden')) {
@@ -161,10 +193,40 @@ window.onload = function() {
         }
     }
     
+    // Si los elementos existen pero los listeners no se configuraron correctamente, intentar configurarlos de nuevo
+    if (themeToggleButton && themeToggleDropdown) {
+        setupThemeToggle();
+    }
+    
     // Actualizar el icono según el tema actual
     updateThemeIcon();
     
     // Verificar la aplicación del tema
     const isDarkTheme = document.documentElement.classList.contains('dark-theme');
     console.log("Tema actual aplicado:", isDarkTheme ? "oscuro" : "claro");
+};
+
+// Agregar una función para depuración que se pueda llamar desde la consola
+window.debugThemeSwitcher = function() {
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+    const userDropdown = document.getElementById('user-dropdown');
+    const isDarkTheme = document.documentElement.classList.contains('dark-theme');
+    
+    console.group("Debug Theme Switcher");
+    console.log("Estado actual del tema:", isDarkTheme ? "oscuro" : "claro");
+    console.log("localStorage theme:", localStorage.getItem('theme'));
+    console.log("Elemento theme-toggle-button:", themeToggleButton);
+    console.log("Elemento theme-toggle-dropdown:", themeToggleDropdown);
+    console.log("Elemento user-dropdown:", userDropdown);
+    console.log("user-dropdown tiene clase hidden:", userDropdown ? userDropdown.classList.contains('hidden') : "N/A");
+    console.groupEnd();
+    
+    return {
+        themeToggleButton,
+        themeToggleDropdown,
+        userDropdown,
+        isDarkTheme,
+        localStorageTheme: localStorage.getItem('theme')
+    };
 };
