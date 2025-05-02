@@ -14,28 +14,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Remover íconos y establecer solo texto
+    // Mostrar texto con emoji de paleta 🎨
     if (themeToggleDropdown) {
-        themeToggleDropdown.textContent = 'Cambiar Tema';
+        themeToggleDropdown.textContent = '🎨 Cambiar Tema';
 
         themeToggleDropdown.addEventListener('click', function (e) {
             e.preventDefault();
-            if (document.documentElement.classList.contains('dark-theme')) {
-                document.documentElement.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-            }
 
-            // Cerrar el menú
+            // Alternar tema
+            const isDark = document.documentElement.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            // Cerrar el menú desplegable
             if (userDropdown) {
                 userDropdown.classList.add('hidden');
             }
         });
     }
 
-    // Abrir/cerrar menú al hacer clic en el botón de usuario
+    // Botón de usuario que abre/cierra el menú
     if (themeToggleButton && userDropdown) {
         themeToggleButton.addEventListener('click', function (e) {
             e.preventDefault();
