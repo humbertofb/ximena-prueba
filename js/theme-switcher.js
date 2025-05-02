@@ -14,14 +14,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Mostrar texto con emoji de paleta 🎨
+    // Establecer ícono y texto "Cambiar Tema"
     if (themeToggleDropdown) {
-        themeToggleDropdown.textContent = '🎨 Cambiar Tema';
+        themeToggleDropdown.innerHTML = '<i class="fas fa-palette"></i> Cambiar Tema';
 
         themeToggleDropdown.addEventListener('click', function (e) {
             e.preventDefault();
+            e.stopPropagation(); // ✅ evita que se cierre antes de tiempo
 
-            // Alternar tema
+            // Cambiar el tema
             const isDark = document.documentElement.classList.toggle('dark-theme');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Botón de usuario que abre/cierra el menú
+    // Botón que abre/cierra el menú
     if (themeToggleButton && userDropdown) {
         themeToggleButton.addEventListener('click', function (e) {
             e.preventDefault();
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Cerrar menú al hacer clic fuera
+    // Cerrar el menú si haces clic fuera
     document.addEventListener('click', function (e) {
         if (
             userDropdown &&
