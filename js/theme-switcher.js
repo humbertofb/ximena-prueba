@@ -1,6 +1,42 @@
 // theme-switcher.js - Versión sin iconos en el menú desplegable
 console.log("Script theme-switcher.js cargado"); 
 
+// Definir la función toggleTheme para que esté disponible globalmente
+// Esta función es requerida por auth.js según el mensaje de error
+window.toggleTheme = function() {
+    console.log("Función global toggleTheme llamada");
+    
+    // Alternar tema
+    if (document.documentElement.classList.contains('dark-theme')) {
+        document.documentElement.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+        console.log("Cambiado a tema claro desde función global");
+        
+        // Actualizar texto si el elemento existe
+        const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+        if (themeToggleDropdown) {
+            themeToggleDropdown.textContent = 'Cambiar a tema oscuro';
+        }
+    } else {
+        document.documentElement.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+        console.log("Cambiado a tema oscuro desde función global");
+        
+        // Actualizar texto si el elemento existe
+        const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
+        if (themeToggleDropdown) {
+            themeToggleDropdown.textContent = 'Cambiar a tema claro';
+        }
+    }
+    
+    // Cerrar el menú desplegable explícitamente
+    const userDropdown = document.getElementById('user-dropdown');
+    if (userDropdown) {
+        userDropdown.classList.add('hidden');
+        console.log("Menú cerrado después de cambiar tema (desde función global)");
+    }
+};
+
 // Esperar a que el DOM esté completamente cargado
 window.onload = function() {
     console.log("DOM completamente cargado");
@@ -52,25 +88,8 @@ window.onload = function() {
             console.log("Clic en 'Cambiar tema' detectado");
             event.preventDefault();
             
-            // Alternar tema
-            if (document.documentElement.classList.contains('dark-theme')) {
-                document.documentElement.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-                console.log("Cambiado a tema claro");
-                themeToggleDropdown.textContent = 'Cambiar a tema oscuro';
-            } else {
-                document.documentElement.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-                console.log("Cambiado a tema oscuro");
-                themeToggleDropdown.textContent = 'Cambiar a tema claro';
-            }
-            
-            // Intentar cerrar el menú desplegable
-            if (userDropdown) {
-                console.log("Intentando cerrar menú desplegable");
-                userDropdown.classList.add('hidden');
-                console.log("Clase 'hidden' añadida al menú");
-            }
+            // Usar la función global toggleTheme para mantener consistencia
+            window.toggleTheme();
         });
     } else {
         console.error("No se encontró el elemento con ID 'theme-toggle-dropdown'");
