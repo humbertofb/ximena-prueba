@@ -1,109 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cumpleaños Especial</title>
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/themes.css" />
-  <link rel="stylesheet" href="../css/pages/cumpleanos.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎂 Feliz Cumple 🎉</title>
+  <link rel="stylesheet" href="../css/pages/cumpleanos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-  <!-- Overlay -->
-  <div id="overlay" class="overlay"></div>
-
-  <!-- Contenido principal -->
-  <div id="main-content" class="main-content">
-    <!-- Botón del menú hamburguesa -->
-    <div class="menu-button" id="menu-button">
-      <div class="hamburger"><span></span><span></span><span></span></div>
+  <!-- Overlay y menú hamburguesa -->
+  <div class="menu-button" id="menu-button">
+    <div class="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-
-    <!-- Menú lateral -->
-    <div class="side-menu" id="side-menu">
-      <div class="menu-header"><h2>Te Quiero ❤️</h2></div>
-      <nav class="menu-items">
-        <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
-        <a href="preguntas.html"><i class="fas fa-question-circle"></i> Preguntas</a>
-        <a href="frases.html"><i class="fas fa-quote-right"></i> Frases</a>
-        <a href="kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
-        <a href="trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-        <a href="cumpleanos.html" class="active"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
-      </nav>
-    </div>
-
-    <!-- Botón de usuario -->
-    <div id="user-menu-button" class="user-menu-button">
-      <button id="theme-toggle-button" class="user-button">
-        <i class="fas fa-user-circle"></i>
-      </button>
-      <div id="user-dropdown" class="user-dropdown hidden">
-        <a href="#" id="theme-toggle-dropdown"><i class="fas fa-palette"></i> Cambiar Tema</a>
-        <a href="#" id="logout-button-dropdown"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-      </div>
-    </div>
-
-    <!-- Contenido de cumpleaños -->
-    <main class="content cumpleanos-content">
-      <h1>🎂 ¡Feliz Cumpleaños, mi persona especial! 🎉</h1>
-      <p class="cumple-subtitle">Hoy celebramos tu existencia, que es un regalo para el mundo y para mí 💖</p>
-
-      <!-- Cuenta regresiva -->
-      <div class="countdown-container">
-        <h3>⏳ Faltan:</h3>
-        <div id="countdown" class="countdown">Cargando...</div>
-      </div>
-
-      <!-- Regalos interactivos -->
-      <div class="gift-section">
-        <h3>🎁 Tus regalitos virtuales:</h3>
-        <div class="gift-cards">
-          <div class="gift" onclick="openGift('mensaje')">
-            <i class="fas fa-envelope"></i>
-            <span>Un Mensaje</span>
-          </div>
-          <div class="gift" onclick="openGift('playlist')">
-            <i class="fas fa-music"></i>
-            <span>Playlist</span>
-          </div>
-          <div class="gift" onclick="openGift('poema')">
-            <i class="fas fa-heart"></i>
-            <span>Poema</span>
-          </div>
-          <div class="gift" onclick="openGift('cita')">
-            <i class="fas fa-star"></i>
-            <span>Cita Especial</span>
-          </div>
-        </div>
-        <div id="gift-content" class="gift-content"></div>
-      </div>
-
-      <!-- Slideshow de recuerdos -->
-      <div class="slideshow-container">
-        <h3>📸 Nuestros Recuerdos</h3>
-        <div class="slideshow">
-          <img src="../img/recuerdo1.jpg" class="slide active" alt="Recuerdo 1" />
-          <img src="../img/recuerdo2.jpg" class="slide" alt="Recuerdo 2" />
-          <img src="../img/recuerdo3.jpg" class="slide" alt="Recuerdo 3" />
-        </div>
-      </div>
-    </main>
   </div>
 
-  <!-- Scripts -->
-  <script src="../firebase/config.js"></script>
-  <script src="../js/menu.js"></script>
-  <script src="../js/theme-switcher.js"></script>
-  <script src="../js/auth.js"></script>
+  <div class="side-menu" id="side-menu">
+    <div class="menu-header">
+      <h2>Te Quiero ❤️</h2>
+    </div>
+    <nav class="menu-items">
+      <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
+      <a href="preguntas.html"><i class="fas fa-question-circle"></i> Preguntas</a>
+      <a href="frases.html"><i class="fas fa-quote-right"></i> Frases</a>
+      <a href="kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
+      <a href="trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
+      <a href="cumpleanos.html" class="active"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
+    </nav>
+  </div>
+
+  <!-- Contenido de la página -->
+  <main class="cumple-content">
+    <h1>🎉 ¡Feliz Cumpleaños, Amor! 🎂</h1>
+    <p class="mensaje-principal">Hoy celebramos tu vida, tu alegría, tu luz. Este espacio es solo para ti.</p>
+
+    <div class="regalos">
+      <div class="regalo" onclick="mostrarMensaje('Te escribí algo bonito solo para ti... 💌')">
+        <i class="fas fa-envelope"></i>
+        <p>Mensaje</p>
+      </div>
+      <div class="regalo" onclick="mostrarMensaje('Nuestra playlist especial para ti 🎶')">
+        <i class="fas fa-music"></i>
+        <p>Playlist</p>
+      </div>
+      <div class="regalo" onclick="mostrarMensaje('Un poema que me salió del corazón ✨')">
+        <i class="fas fa-heart"></i>
+        <p>Poema</p>
+      </div>
+      <div class="regalo" onclick="mostrarMensaje('Una cita virtual sorpresa 💻❤️')">
+        <i class="fas fa-video"></i>
+        <p>Cita</p>
+      </div>
+    </div>
+
+    <!-- Slideshow de recuerdos -->
+    <section class="recuerdos">
+      <h2>✨ Nuestros Recuerdos ✨</h2>
+      <div class="slideshow-container">
+        <div class="slide fade">
+          <img src="../assets/recuerdo1.jpg" alt="Recuerdo 1">
+          <p class="caption">Nuestro primer momento juntos</p>
+        </div>
+        <div class="slide fade">
+          <img src="../assets/recuerdo2.jpg" alt="Recuerdo 2">
+          <p class="caption">Esa risa tuya que me encanta</p>
+        </div>
+        <div class="slide fade">
+          <img src="../assets/recuerdo3.jpg" alt="Recuerdo 3">
+          <p class="caption">Un instante para siempre</p>
+        </div>
+      </div>
+      <div class="dots">
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+      </div>
+    </section>
+  </main>
+
+  <canvas id="confetti"></canvas>
+
   <script src="../js/pages/cumpleanos.js"></script>
 </body>
 </html>
