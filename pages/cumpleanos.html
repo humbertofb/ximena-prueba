@@ -1,159 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feliz Cumpleaños - Web Romántica</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/themes.css">
-    <link rel="stylesheet" href="../css/pages/cumpleanos.css">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feliz Cumple 🎂</title>
+  <link rel="stylesheet" href="cumple.css" />
+  <script defer src="cumple.js"></script>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="../index.html" class="logo">NuestroLugar<span>♥</span></a>
-            <div class="theme-switch-wrapper">
-                <label class="theme-switch" for="checkbox">
-                    <input type="checkbox" id="checkbox" />
-                    <div class="slider round"></div>
-                </label>
-                <em>Cambiar tema</em>
-            </div>
-            <div class="menu-toggle" id="menu-toggle">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="../index.html">Inicio</a></li>
-                <li><a href="../pages/preguntas.html">Preguntas</a></li>
-                <li><a href="../pages/frases.html">Frases</a></li>
-                <li><a href="../pages/kdramas.html">K-Dramas</a></li>
-                <li><a href="../pages/calendario.html">Calendario</a></li>
-                <li><a href="../pages/notas-secretas.html">Notas</a></li>
-                <li><a href="../pages/trivias.html">Trivias</a></li>
-                <li><a href="../pages/cumpleanos.html" class="active">Cumpleaños</a></li>
-            </ul>
+  <div class="card">
+    <h1>🎉 ¡Feliz cumpleaños, hermosa! 🎂</h1>
+    <p id="countdown"></p>
+    <div class="confetti" id="confetti-container"></div>
+
+    <div class="regalos">
+      <button onclick="mostrarMensaje()">💌 Mensaje especial</button>
+      <button onclick="mostrarPlaylist()">🎶 Playlist</button>
+      <button onclick="mostrarPoema()">📜 Poema</button>
+      <button onclick="mostrarCita()">🌟 Cita</button>
+    </div>
+
+    <div id="sorpresa-texto"></div>
+
+    <div class="recuerdos">
+      <h2>📸 Recuerdos</h2>
+      <div class="slideshow-container">
+        <div class="mySlides fade">
+          <img src="https://i.imgur.com/V6KxvA9.jpg" alt="Recuerdo 1"/>
         </div>
-    </nav>
-
-    <!-- Contenido principal -->
-    <main class="main-container birthday-container">
-        <h1>Feliz Cumpleaños, Mi Amor</h1>
-        
-        <!-- Sección de cuenta regresiva -->
-        <section class="countdown-container">
-            <h2>Faltan para tu cumpleaños:</h2>
-            <div class="countdown-wrapper">
-                <div class="countdown-item">
-                    <div class="countdown-value" id="countdown-days">1</div>
-                    <div class="countdown-label">Días</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="countdown-hours">15</div>
-                    <div class="countdown-label">Horas</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="countdown-minutes">30</div>
-                    <div class="countdown-label">Minutos</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="countdown-seconds">0</div>
-                    <div class="countdown-label">Segundos</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tarjeta de cumpleaños -->
-        <section class="birthday-card-container">
-            <div class="birthday-card">
-                <div class="card-page front-cover">
-                    <div class="heart-icon">❤️</div>
-                    <h2>¡Feliz Cumpleaños!</h2>
-                    <p>Toca para abrir</p>
-                </div>
-                <div class="card-page inside-left">
-                    <img src="../assets/images/couple-photo.jpg" alt="Nuestra foto">
-                    <div class="message-area">
-                        <h2>Para Mi Persona Favorita</h2>
-                        <p>En este día tan especial, quiero recordarte lo mucho que significas para mí.</p>
-                    </div>
-                </div>
-                <div class="card-page inside-right">
-                    <div class="gift-message">
-                        <h2>Mi Regalo Para Ti</h2>
-                        <p>En este cumpleaños quiero regalarte todo mi amor, mis mejores deseos y la promesa de estar siempre a tu lado.</p>
-                    </div>
-                    <button class="birthday-button" id="celebrate-btn">¡Celebremos!</button>
-                </div>
-                <div class="card-page back-cover">
-                    <p>Con todo mi amor ❤️</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recuerdos -->
-        <section class="memories-section">
-            <h2>Nuestros Momentos Especiales</h2>
-            <div class="memories-slideshow">
-                <div class="memory-slide active" style="background-image: url('../assets/images/memory1.jpg')">
-                    <div class="memory-caption">Nuestro primer viaje juntos</div>
-                </div>
-                <div class="memory-slide" style="background-image: url('../assets/images/memory2.jpg')">
-                    <div class="memory-caption">Aquella cena romántica</div>
-                </div>
-                <div class="memory-slide" style="background-image: url('../assets/images/memory3.jpg')">
-                    <div class="memory-caption">La vez que vimos las estrellas</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Lista de regalos -->
-        <section class="gifts-section">
-            <h2>Regalos Virtuales</h2>
-            <div class="gift-list">
-                <div class="gift-item" data-gift="message">
-                    <div class="gift-icon">✉️</div>
-                    <div class="gift-title">Mensaje Especial</div>
-                    <div class="gift-description">Un mensaje directo al corazón</div>
-                </div>
-                <div class="gift-item" data-gift="playlist">
-                    <div class="gift-icon">🎵</div>
-                    <div class="gift-title">Playlist</div>
-                    <div class="gift-description">Canciones que me recuerdan a ti</div>
-                </div>
-                <div class="gift-item" data-gift="poem">
-                    <div class="gift-icon">📝</div>
-                    <div class="gift-title">Poema</div>
-                    <div class="gift-description">Palabras desde mi corazón</div>
-                </div>
-                <div class="gift-item" data-gift="date">
-                    <div class="gift-icon">🎭</div>
-                    <div class="gift-title">Cita Virtual</div>
-                    <div class="gift-description">Una cita especial</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contenedor para confeti -->
-        <div class="confetti-container" id="confetti-container"></div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2025 NuestroLugar - Creado con mucho amor ❤️</p>
+        <div class="mySlides fade">
+          <img src="https://i.imgur.com/m1fpzGp.jpg" alt="Recuerdo 2"/>
         </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="../js/menu.js"></script>
-    <script src="../js/theme-switcher.js"></script>
-    <script src="../firebase/config.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/pages/cumpleanos.js"></script>
+        <div class="mySlides fade">
+          <img src="https://i.imgur.com/XSEHXZc.jpg" alt="Recuerdo 3"/>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
