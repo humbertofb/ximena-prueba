@@ -3,67 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎂 ¡Feliz Cumpleaños! 🎉</title>
-  <link rel="stylesheet" href="../css/pages/cumpleanos.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <title>Cumpleaños Especial</title>
+  <link rel="stylesheet" href="../css/pages/cumpleanos.css">
+  <link rel="stylesheet" href="../css/main.css">
 </head>
-<body>
-  <!-- Menú hamburguesa -->
-  <div class="menu-button" id="menu-button">
+<body class="main-content">
+  <!-- Botón del menú -->
+  <div class="menu-button" id="menuButton">
     <div class="hamburger">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </div>
   </div>
 
-  <!-- Menú lateral -->
-  <div class="side-menu" id="side-menu">
-    <div class="menu-header">
-      <h2>Te Quiero ❤️</h2>
+  <div class="card-container">
+    <div class="card" id="birthdayCard">
+      <div class="card-front">
+        <div class="heart">❤️</div>
+        <h2>Te quiero</h2>
+        <button class="btn btn-primary" id="openCardBtn">Abrir</button>
+      </div>
+      <div class="card-inside" id="cardInside">
+        <p class="poem">
+          En tu día especial, mi deseo sincero,<br>
+          que cada sonrisa sea un lucero.<br>
+          Te celebro con cariño y emoción,<br>
+          eres mi alegría, mi inspiración. 💜
+        </p>
+        <button class="btn btn-primary" id="playSongBtn">🎵 Escuchar canción</button>
+      </div>
     </div>
-    <nav class="menu-items">
-      <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
-      <a href="preguntas.html"><i class="fas fa-question-circle"></i> Preguntas</a>
-      <a href="frases.html"><i class="fas fa-quote-right"></i> Frases</a>
-      <a href="kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
-      <a href="trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-      <a href="cumpleanos.html" class="active"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
-    </nav>
   </div>
 
-  <!-- Contenido principal -->
-  <main class="birthday-content">
-    <h1>🎉 ¡Feliz Cumpleaños, mi persona especial! 🎂</h1>
-    <p class="message">Hoy celebramos el día en que llegaste al mundo y le diste sentido al mío. 💖</p>
-
-    <!-- Regalos interactivos -->
-    <section class="regalos">
-      <h2>Regalos para ti 🎁</h2>
-      <div class="gift-buttons">
-        <button onclick="mostrarMensaje()">💌 Mensaje</button>
-        <button onclick="mostrarPlaylist()">🎶 Playlist</button>
-        <button onclick="mostrarPoema()">📜 Poema</button>
-        <button onclick="mostrarCita()">📅 Cita especial</button>
-      </div>
-      <div id="gift-result" class="gift-result"></div>
-    </section>
-
-    <!-- Slideshow de recuerdos -->
-    <section class="recuerdos">
-      <h2>📸 Nuestros Recuerdos</h2>
-      <div class="slideshow">
-        <img id="slideshow-img" src="../assets/recuerdo1.jpg" alt="Recuerdo" />
-        <div class="slideshow-controls">
-          <button onclick="prevFoto()"><i class="fas fa-chevron-left"></i></button>
-          <button onclick="nextFoto()"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Lienzo de confeti -->
-  <canvas id="confetti-canvas"></canvas>
+  <canvas id="confettiCanvas"></canvas>
 
   <script src="../js/pages/cumpleanos.js"></script>
 </body>
