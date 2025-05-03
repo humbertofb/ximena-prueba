@@ -1,98 +1,157 @@
+/* css/pages/cumpleanos.css */
+
 body {
   margin: 0;
   font-family: 'Quicksand', sans-serif;
-  background: linear-gradient(to right, #ffe1ec, #ffeaf7);
+  background: linear-gradient(to right, #ffe0ec, #fce4ec);
+  color: #333;
+  overflow-x: hidden;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #d81b60;
+  margin-bottom: 10px;
+}
+
+.message {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #6a1b9a;
+}
+
+.birthday-content {
+  padding: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.regalos {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.gift-buttons button {
+  background-color: #f06292;
+  border: none;
+  color: white;
+  padding: 12px 18px;
+  margin: 8px;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.gift-buttons button:hover {
+  background-color: #ec407a;
+}
+
+.gift-result {
+  margin-top: 20px;
+  background: #fff0f5;
+  padding: 1rem;
+  border-radius: 15px;
+  font-style: italic;
+  color: #880e4f;
+}
+
+.recuerdos {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.slideshow {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.slideshow img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.slideshow-controls {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-.card {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-}
-
-h1 {
-  font-size: 1.8em;
-  color: #ff69b4;
-}
-
-#countdown {
-  font-size: 1.2em;
-  color: #888;
-  margin: 10px 0;
-}
-
-.regalos button {
-  margin: 10px;
-  background-color: #ffb6c1;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.regalos button:hover {
-  background-color: #ff69b4;
-}
-
-#sorpresa-texto {
-  margin-top: 20px;
-  font-size: 1.1em;
-  color: #5f5f5f;
-}
-
-.recuerdos h2 {
-  margin-top: 30px;
-  color: #d95c90;
-}
-
-.slideshow-container {
-  max-width: 100%;
-  position: relative;
   margin-top: 10px;
 }
 
-.mySlides {
-  display: none;
+.slideshow-controls button {
+  background-color: #f8bbd0;
+  border: none;
+  padding: 10px;
+  margin: 0 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #d81b60;
 }
 
-.mySlides img {
-  width: 100%;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-/* Confetti */
-.confetti {
-  position: absolute;
+canvas#confetti-canvas {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-.confetti span {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: pink;
-  animation: fall 3s linear infinite;
-  opacity: 0.8;
-  border-radius: 50%;
+  z-index: 1000;
 }
 
-@keyframes fall {
-  0% { transform: translateY(0) rotate(0); }
-  100% { transform: translateY(100vh) rotate(360deg); }
+/* Menú */
+.menu-button {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 2000;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  width: 30px;
+  height: 4px;
+  margin: 5px;
+  background: #d81b60;
+  border-radius: 2px;
+  transition: 0.4s;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background-color: #fce4ec;
+  padding: 1rem;
+  transition: left 0.4s ease;
+  z-index: 1500;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.menu-header h2 {
+  color: #c2185b;
+  margin-top: 0;
+}
+
+.menu-items a {
+  display: block;
+  margin: 1rem 0;
+  color: #6a1b9a;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.menu-items a.active {
+  color: #d81b60;
 }
