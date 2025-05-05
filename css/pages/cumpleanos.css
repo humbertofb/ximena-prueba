@@ -1,69 +1,122 @@
-/* Estilo caja regalo */
-.gift-box {
-  background-color: #fff;
-  border: 2px solid var(--primary-color);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 12px;
+body.light {
+  background: #fff0f5;
+  color: #333;
+}
+body.dark {
+  background: #1a1a2e;
+  color: #f9f9f9;
+}
+
+/* Menú hamburguesa */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--main-color, #f78fb3);
+  color: white;
+}
+.menu-icon {
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: transform 0.3s ease;
-  max-width: 300px;
-  margin: 6rem auto 2rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
-
-.gift-box:hover {
-  transform: scale(1.05);
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 40%;
+  height: 100%;
+  background: #ffe6f0;
+  padding: 2rem;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
-
-.gift-box .heart {
-  font-size: 2.5rem;
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar ul li a {
   display: block;
-  margin-bottom: 0.5rem;
+  margin: 1rem 0;
+  text-decoration: none;
+  color: #d6336c;
+}
+.sidebar.active {
+  display: block;
 }
 
-.gift-box .text {
-  font-size: 1.3rem;
-  color: var(--primary-color);
-  font-weight: bold;
-}
-
-.mensaje-container {
+/* Regalo */
+.gift-container {
   text-align: center;
+  margin-top: 5rem;
+}
+.gift-box {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+.lid {
+  width: 100%;
+  height: 40%;
+  background: #d6336c;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 1s ease;
+  transform-origin: top;
+  z-index: 2;
+}
+.base {
+  width: 100%;
+  height: 100%;
+  background: #ffb3c1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+.gift-box button {
+  position: absolute;
+  bottom: -3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d6336c;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  z-index: 3;
+}
+
+/* Animación mensaje */
+.birthday-message {
   margin-top: 2rem;
   opacity: 0;
-  transform: scale(0.9);
-  transition: all 0.5s ease;
+  transform: translateY(20px);
+  transition: all 1s ease;
 }
-
-.mensaje-container.show {
+.birthday-message.show {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(0);
 }
-
-.mensaje-bonito {
-  font-size: 1.2rem;
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-}
-
 .hidden {
   display: none;
 }
 
-/* Toggle musical de Uiverse */
+/* Toggle botón audio */
 .toggle-cont {
   width: 100px;
   height: 50px;
   border-radius: 9999px;
-  margin: 0 auto;
+  margin: 1rem auto;
 }
-
-.toggle-cont .toggle-input {
+.toggle-input {
   display: none;
 }
-
-.toggle-cont .toggle-label {
+.toggle-label {
   cursor: pointer;
   position: relative;
   display: inline-block;
@@ -72,11 +125,9 @@
   height: 100%;
   background: #272727;
   border-radius: 9999px;
-  box-sizing: content-box;
   box-shadow: 0px 0px 16px -8px #fefefe;
 }
-
-.toggle-cont .toggle-label .cont-label-play {
+.cont-label-play {
   position: relative;
   width: 50px;
   aspect-ratio: 1 / 1;
@@ -84,13 +135,11 @@
   border-radius: 9999px;
   transition: all 0.5s cubic-bezier(1, 0, 0, 1);
 }
-
-.toggle-cont .toggle-input:checked + .toggle-label .cont-label-play {
+.toggle-input:checked + .toggle-label .cont-label-play {
   background: #f43f5e;
   transform: translateX(50px);
 }
-
-.toggle-cont .toggle-label .label-play {
+.label-play {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -103,8 +152,52 @@
   clip-path: polygon(25% 0, 75% 50%, 25% 100%, 25% 51%);
   transition: all 0.5s cubic-bezier(1, 0, 0, 1);
 }
-
-.toggle-cont .toggle-input:checked + .toggle-label .label-play {
+.toggle-input:checked + .toggle-label .label-play {
   width: 20px;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Tema switch */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 3.5em;
+  height: 2em;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  --background: #28096b;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--background);
+  transition: .5s;
+  border-radius: 30px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.4em;
+  width: 1.4em;
+  border-radius: 50%;
+  left: 10%;
+  bottom: 15%;
+  box-shadow: inset 8px -4px 0px 0px #fff000;
+  background: var(--background);
+  transition: .5s;
+}
+input:checked + .slider {
+  background-color: #522ba7;
+}
+input:checked + .slider:before {
+  transform: translateX(100%);
+  box-shadow: inset 15px -4px 0px 15px #fff000;
 }
