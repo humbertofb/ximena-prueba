@@ -2,31 +2,55 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cumpleaños Especial</title>
-  <link rel="stylesheet" href="/css/pages/cumpleanos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feliz Cumpleaños</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/pages/cumpleanos.css" />
+  <script src="https://kit.fontawesome.com/4d3c2d5ba6.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <div class="card-container">
-    <div class="card" id="birthdayCard">
-      <div class="card-front">
-        <div class="heart">❤️</div>
-        <h2>Te quiero</h2>
-        <button class="btn btn-primary" id="openCardBtn">Abrir</button>
-      </div>
-      <div class="card-inside" id="cardInside">
-        <p class="poem">
-          En tu día especial, mi deseo sincero,<br />
-          que cada sonrisa sea un lucero.<br />
-          Te celebro con cariño y emoción,<br />
-          eres mi alegría, mi inspiración. 💜
-        </p>
-        <button class="btn btn-primary" id="playSongBtn">🎵 Escuchar canción</button>
-      </div>
+
+  <!-- Menú hamburguesa -->
+  <div class="menu-button" onclick="toggleMenu()">
+    <div class="hamburger">
+      <span></span><span></span><span></span>
     </div>
   </div>
 
-  <canvas id="confettiCanvas"></canvas>
+  <!-- Menú lateral -->
+  <div class="side-menu">
+    <div class="menu-header">Menú</div>
+    <div class="menu-items">
+      <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
+    </div>
+  </div>
+  <div class="overlay" onclick="toggleMenu()"></div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <div class="gift-box" onclick="abrirRegalo()">
+      <span class="heart">🎁</span>
+      <span class="text">Abrir</span>
+    </div>
+
+    <div class="mensaje-container hidden">
+      <p class="mensaje-bonito">Eres el regalo más lindo que me dio la vida. Gracias por existir.</p>
+
+      <!-- Botón toggle de Uiverse para música -->
+      <div class="toggle-cont">
+        <input class="toggle-input" id="toggle" name="toggle" type="checkbox" />
+        <label class="toggle-label" for="toggle">
+          <div class="cont-label-play">
+            <span class="label-play"></span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Canción -->
+    <audio id="audio" src="../assets/audio/cancion.mp3"></audio>
+  </div>
 
   <script src="../js/pages/cumpleanos.js"></script>
 </body>
