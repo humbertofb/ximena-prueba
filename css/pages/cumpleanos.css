@@ -1,71 +1,110 @@
-body {
-  background: linear-gradient(135deg, #fbeffb, #f7d9fc);
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  overflow-x: hidden;
-}
-
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.card {
-  background-color: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 300px;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  transition: transform 0.8s;
-  position: relative;
-}
-
-.card.opened {
-  transform: rotateY(180deg);
-}
-
-.card-front, .card-inside {
-  backface-visibility: hidden;
-  position: absolute;
-  width: 100%;
-  height: 100%;
+/* Estilo caja regalo */
+.gift-box {
+  background-color: #fff;
+  border: 2px solid var(--primary-color);
   padding: 2rem;
-  box-sizing: border-box;
   text-align: center;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  max-width: 300px;
+  margin: 6rem auto 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.card-front {
-  background-color: var(--card-bg);
+.gift-box:hover {
+  transform: scale(1.05);
 }
 
-.heart {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+.gift-box .heart {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
-.card-inside {
-  background-color: #fff0fa;
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.gift-box .text {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  font-weight: bold;
 }
 
-.poem {
-  font-size: 1.1rem;
+.mensaje-container {
+  text-align: center;
+  margin-top: 2rem;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.5s ease;
+}
+
+.mensaje-container.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.mensaje-bonito {
+  font-size: 1.2rem;
+  color: var(--text-color);
   margin-bottom: 1.5rem;
-  color: #7823c9;
 }
 
-#confettiCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
+.hidden {
+  display: none;
+}
+
+/* Toggle musical de Uiverse */
+.toggle-cont {
+  width: 100px;
+  height: 50px;
+  border-radius: 9999px;
+  margin: 0 auto;
+}
+
+.toggle-cont .toggle-input {
+  display: none;
+}
+
+.toggle-cont .toggle-label {
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  padding: 6px;
   width: 100%;
   height: 100%;
+  background: #272727;
+  border-radius: 9999px;
+  box-sizing: content-box;
+  box-shadow: 0px 0px 16px -8px #fefefe;
+}
+
+.toggle-cont .toggle-label .cont-label-play {
+  position: relative;
+  width: 50px;
+  aspect-ratio: 1 / 1;
+  background: #5e5e5e;
+  border-radius: 9999px;
+  transition: all 0.5s cubic-bezier(1, 0, 0, 1);
+}
+
+.toggle-cont .toggle-input:checked + .toggle-label .cont-label-play {
+  background: #f43f5e;
+  transform: translateX(50px);
+}
+
+.toggle-cont .toggle-label .label-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  width: 24px;
+  aspect-ratio: 1 / 1;
+  background: #fefefe;
+  border-radius: 4px;
+  clip-path: polygon(25% 0, 75% 50%, 25% 100%, 25% 51%);
+  transition: all 0.5s cubic-bezier(1, 0, 0, 1);
+}
+
+.toggle-cont .toggle-input:checked + .toggle-label .label-play {
+  width: 20px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
