@@ -1,32 +1,37 @@
-function toggleMenu() {
-  document.body.classList.toggle("menu-open");
-}
+// Menú hamburguesa
+const menuToggle = document.getElementById('menu-toggle');
+const sidebar = document.getElementById('sidebar');
+menuToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+});
 
-function abrirRegalo() {
-  const mensaje = document.querySelector('.mensaje-container');
-  mensaje.classList.remove('hidden');
-  setTimeout(() => mensaje.classList.add('show'), 100);
+// Regalo y mensaje
+const openBtn = document.getElementById('openGift');
+const lid = document.querySelector('.lid');
+const message = document.getElementById('message');
 
-  // Confeti animado
-  confetti({
-    particleCount: 150,
-    spread: 100,
-    origin: { y: 0.6 }
-  });
+openBtn.addEventListener('click', () => {
+  lid.style.transform = 'rotateX(120deg)';
+  setTimeout(() => {
+    message.classList.remove('hidden');
+    message.classList.add('show');
+  }, 800);
+});
 
-  // Desplaza hacia el mensaje
-  mensaje.scrollIntoView({ behavior: 'smooth' });
-}
+// Botón música
+const toggle = document.getElementById('toggle-audio');
+const audio = document.getElementById('birthday-audio');
+toggle.addEventListener('change', () => {
+  if (toggle.checked) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+});
 
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("toggle");
-  const audio = document.getElementById("audio");
-
-  toggle.addEventListener("change", () => {
-    if (toggle.checked) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  });
+// Tema claro/oscuro
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark');
+  document.body.classList.toggle('light');
 });
