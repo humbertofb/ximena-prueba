@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas y Respuestas - Nuestro Espacio</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/boton.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <!-- Overlay para cuando el menú está abierto -->
+    <div id="overlay" class="overlay"></div>
+    
+    <!-- Contenido principal (visible después del login) -->
+    <div id="main-content" class="main-content">
+        <!-- Botón de menú de hamburguesa -->
+        <div class="menu-button" id="menu-button">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="side-menu" id="side-menu">
+            <div class="menu-header">
+                <h2>Te Quiero ❤️</h2>
+            </div>
+            <nav class="menu-items">
+                <a href="../index.html"><i class="fas fa-home"></i> Inicio</a>
+                <a href="preguntas.html" class="active"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</a>
+                <a href="frases.html"><i class="fas fa-quote-right"></i> Frases</a>
+                <a href="kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
+                <a href="trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            </nav>
+        </div>
+
+        <!-- Nuevo botón para el switcher de tema -->
+        <div class="theme-switch-wrapper">
+            <label for="switch" class="switch">
+                <input id="switch" type="checkbox" />
+                <span class="slider"></span>
+                <span class="decoration"></span>
+            </label>
+        </div>
+        
+        <!-- Contenido de la página principal -->
+        <main class="content">
+            <section class="preguntas-container">
+                <h1>Preguntas y Respuestas</h1>
+                <p class="subtitle">Un espacio para conocernos mejor</p>
+                
+                <!-- Sección de pregunta aleatoria -->
+                <div class="pregunta-aleatoria">
+                    <button id="random-btn" class="pregunta-random-btn">
+                        <i class="fas fa-random"></i> Pregunta aleatoria
+                    </button>
+                    <div id="pregunta-random-content" class="pregunta-random-content">
+                        <!-- Aquí se insertará la pregunta aleatoria -->
+                    </div>
+                </div>
+                
+                <!-- Categorías de preguntas -->
+                <div class="categorias-list">
+                    <!-- Categoría: Para conocernos mejor -->
+                    <div class="categoria" id="cat-conocernos">
+                        <div class="categoria-header">
+                            <h3>Para conocernos mejor</h3>
+                            <div class="categoria-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="categoria-content">
+                            <!-- Pregunta 1 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Cuál es tu recuerdo más preciado de la infancia?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 2 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Qué cualidad aprecias más en una relación?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 3 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Cuál es tu mayor sueño para el futuro?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Categoría: Momentos Especiales -->
+                    <div class="categoria" id="cat-momentos">
+                        <div class="categoria-header">
+                            <h3>Momentos Especiales</h3>
+                            <div class="categoria-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="categoria-content">
+                            <!-- Pregunta 1 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Cuál es tu recuerdo favorito de nosotros juntos?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 2 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Qué momento te hizo darte cuenta de lo especial que era nuestra relación?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 3 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Cuál ha sido la sorpresa más bonita que has recibido?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Categoría: Divertidas -->
+                    <div class="categoria" id="cat-divertidas">
+                        <div class="categoria-header">
+                            <h3>Preguntas Divertidas</h3>
+                            <div class="categoria-icon">
+                                <i class="fas fa-laugh"></i>
+                            </div>
+                        </div>
+                        <div class="categoria-content">
+                            <!-- Pregunta 1 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Quién es más probable que se quede dormido durante una película?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 2 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">Si fueras un personaje de ficción, ¿quién serías y por qué?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pregunta 3 -->
+                            <div class="pregunta-card">
+                                <div class="pregunta-texto">¿Cuál es la manía más extraña que tienes?</div>
+                                <div class="respuestas">
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Tu respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                    <div class="respuesta">
+                                        <span class="respuesta-label">Mi respuesta:</span>
+                                        <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../firebase/config.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/theme-switcher.js"></script>
+    <script src="../js/auth.js"></script>
+    
+    <script>
+        // Código para la funcionalidad de la página de preguntas
+        document.addEventListener('DOMContentLoaded', function() {
+            // Abrir/cerrar categorías
+            const categorias = document.querySelectorAll('.categoria');
+            categorias.forEach(categoria => {
+                const header = categoria.querySelector('.categoria-header');
+                header.addEventListener('click', () => {
+                    categoria.classList.toggle('active');
+                });
+            });
+            
+            // Base de datos de preguntas para la selección aleatoria
+            const todasLasPreguntas = [
+                "¿Cuál es tu mayor miedo?",
+                "¿Qué te hace sentir más agradecido/a?",
+                "¿Cuál ha sido el mejor consejo que has recibido?",
+                "¿Qué actividad te gustaría que hiciéramos juntos?",
+                "¿Cuál es tu lugar favorito para escapar del mundo?",
+                "¿Qué pequeñas cosas te hacen sonreír a diario?",
+                "¿Qué película podías ver una y otra vez sin cansarte?",
+                "Si pudieras viajar a cualquier lugar, ¿dónde irías y por qué?",
+                "¿Cuál es tu recuerdo más embarazoso?",
+                "¿Qué tres cosas llevarías a una isla desierta?",
+                "¿Cuál es tu tradición familiar favorita?",
+                "¿Qué habilidad te gustaría dominar?",
+                "¿Cuál es la cosa más valiente que has hecho?",
+                "¿Qué cosa pequeña aprecias mucho de mí?",
+                "¿Cuál fue tu sueño de la infancia?",
+                "¿Qué comida no podrías vivir sin probar?",
+                "¿Qué te gustaría aprender juntos?",
+                "¿Cuál es tu forma ideal de pasar un domingo?",
+                "¿Qué canción te recuerda a un momento especial entre nosotros?",
+                "¿Cuál es tu manera favorita de recibir afecto?"
+            ];
+            
+            // Funcionalidad del botón de pregunta aleatoria
+            const randomBtn = document.getElementById('random-btn');
+            const randomContent = document.getElementById('pregunta-random-content');
+            
+            randomBtn.addEventListener('click', () => {
+                // Seleccionar una pregunta aleatoria
+                const preguntaAleatoria = todasLasPreguntas[Math.floor(Math.random() * todasLasPreguntas.length)];
+                
+                // Crear el contenido HTML para la pregunta aleatoria
+                randomContent.innerHTML = `
+                    <div class="pregunta-card">
+                        <div class="pregunta-texto">${preguntaAleatoria}</div>
+                        <div class="respuestas">
+                            <div class="respuesta">
+                                <span class="respuesta-label">Tu respuesta:</span>
+                                <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                            </div>
+                            <div class="respuesta">
+                                <span class="respuesta-label">Mi respuesta:</span>
+                                <textarea class="respuesta-input" placeholder="Escribe tu respuesta aquí..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Mostrar el contenido con animación
+                randomContent.classList.add('visible');
+            });
+            
+            // Guardar respuestas en localStorage
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('respuesta-input')) {
+                    // Identificar la pregunta y el tipo de respuesta (tú/yo)
+                    const preguntaCard = e.target.closest('.pregunta-card');
+                    const preguntaTexto = preguntaCard.querySelector('.pregunta-texto').textContent;
+                    const esTuRespuesta = e.target.closest('.respuesta').querySelector('.respuesta-label').textContent.includes('Tu');
+                    
+                    // Crear una clave única para esta respuesta
+                    const key = `respuesta_${btoa(preguntaTexto)}_${esTuRespuesta ? 'tu' : 'mi'}`;
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem(key, e.target.value);
+                }
+            });
+            
+            // Cargar respuestas guardadas
+            document.querySelectorAll('.pregunta-card').forEach(card => {
+                const preguntaTexto = card.querySelector('.pregunta-texto').textContent;
+                const respuestas = card.querySelectorAll('.respuesta');
+                
+                respuestas.forEach((respuesta, index) => {
+                    const input = respuesta.querySelector('.respuesta-input');
+                    const esTuRespuesta = index === 0; // El primer textarea es "Tu respuesta"
+                    const key = `respuesta_${btoa(preguntaTexto)}_${esTuRespuesta ? 'tu' : 'mi'}`;
+                    
+                    const valorGuardado = localStorage.getItem(key);
+                    if (valorGuardado) {
+                        input.value = valorGuardado;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
