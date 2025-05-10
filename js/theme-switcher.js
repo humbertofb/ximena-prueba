@@ -1,56 +1,38 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const themeToggleDropdown = document.getElementById('theme-toggle-dropdown');
-    const themeToggleButton = document.getElementById('theme-toggle-button');
-    const userDropdown = document.getElementById('user-dropdown');
-
-    // Aplicar tema guardado o según la hora
-    const currentTheme = localStorage.getItem('theme');
-    if (currentTheme === 'dark') {
-        document.documentElement.classList.add('dark-theme');
-    } else if (!currentTheme) {
-        const hour = new Date().getHours();
-        if (hour >= 19 || hour < 7) {
-            document.documentElement.classList.add('dark-theme');
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar preferencia de tema en localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('switch').checked = true;
     }
 
-    // Establecer ícono y texto "Cambiar Tema"
-    if (themeToggleDropdown) {
-        themeToggleDropdown.innerHTML = '<i class="fas fa-palette"></i> Cambiar Tema';
-
-        themeToggleDropdown.addEventListener('click', function (e) {
+    // Evento para cambiar tema desde el menú hamburguesa
+    const themeToggleLink = document.getElementById('theme-toggle');
+    if (themeToggleLink) {
+        themeToggleLink.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // ✅ evita que se cierre antes de tiempo
-
-            // Cambiar el tema
-            const isDark = document.documentElement.classList.toggle('dark-theme');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-            // Cerrar el menú desplegable
-            if (userDropdown) {
-                userDropdown.classList.add('hidden');
-            }
+            toggleTheme();
         });
     }
 
-    // Botón que abre/cierra el menú
-    if (themeToggleButton && userDropdown) {
-        themeToggleButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
+    // Evento para el nuevo switch de tema
+    const themeSwitch = document.getElementById('switch');
+    if (themeSwitch) {
+        themeSwitch.addEventListener('change', function() {
+            toggleTheme();
         });
     }
 
-    // Cerrar el menú si haces clic fuera
-    document.addEventListener('click', function (e) {
-        if (
-            userDropdown &&
-            !userDropdown.classList.contains('hidden') &&
-            !userDropdown.contains(e.target) &&
-            !themeToggleButton.contains(e.target)
-        ) {
-            userDropdown.classList.add('hidden');
+    // Función para cambiar el tema
+    function toggleTheme() {
+        const isDarkTheme = document.body.classList.toggle('dark-theme');
+        
+        // Actualizar el estado del switch
+        if (themeSwitch) {
+            themeSwitch.checked = isDarkTheme;
         }
-    });
+        
+        // Guardar preferencia en localStorage
+        localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+    }
 });
