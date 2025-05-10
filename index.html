@@ -6,6 +6,7 @@
     <title>Nuestro Espacio</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/boton.css"> <!-- Nuevo CSS para el botón -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -82,21 +83,19 @@
                 <a href="pages/frases.html"><i class="fas fa-quote-right"></i> Frases</a>
                 <a href="pages/kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
                 <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-                <a href="pages/cumpleanos.html"><i class="fas fa-birthday-cake"></i> Cumpleaños</a>
+                <!-- Se eliminó la sección de cumpleaños -->
+                <a href="#" id="theme-toggle"><i class="fas fa-palette"></i> Cambiar Tema</a>
+                <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
             </nav>
         </div>
 
-        <!-- Botón de usuario con icono para desplegar el menú -->
-        <div id="user-menu-button" class="user-menu-button">
-            <button id="theme-toggle-button" class="user-button">
-                <i class="fas fa-user-circle"></i>
-            </button>
-
-            <!-- Menú desplegable del usuario -->
-            <div id="user-dropdown" class="user-dropdown hidden">
-                <a href="#" id="theme-toggle-dropdown"><i class="fas fa-palette"></i> Cambiar Tema</a>
-                <a href="#" id="logout-button-dropdown"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-            </div>
+        <!-- Nuevo botón para el switcher de tema (reemplazando el botón de usuario) -->
+        <div class="theme-switch-wrapper">
+            <label for="switch" class="switch">
+                <input id="switch" type="checkbox" />
+                <span class="slider"></span>
+                <span class="decoration"></span>
+            </label>
         </div>
         
         <!-- Contenido de la página principal -->
