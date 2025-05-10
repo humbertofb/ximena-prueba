@@ -6,14 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('switch').checked = true;
     }
 
-    // Evento para cambiar tema desde el menú hamburguesa
-    const themeToggleLink = document.getElementById('theme-toggle');
-    if (themeToggleLink) {
-        themeToggleLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleTheme();
-        });
-    }
+    // Ya no necesitamos el evento para cambiar tema desde el menú hamburguesa
+    // porque eliminamos ese enlace
 
     // Evento para el nuevo switch de tema
     const themeSwitch = document.getElementById('switch');
