@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const respuestasContainer = document.getElementById('respuestas-container');
     const nuevaPreguntaBtn = document.getElementById('nueva-pregunta-btn');
     
+    // Definición de reacciones disponibles
+    const reacciones = [
+        { emoji: '💛', nombre: 'corazon_amarillo' },
+        { emoji: '🖤', nombre: 'corazon_negro' },
+        { emoji: '🙈', nombre: 'mono_ojos' },
+        { emoji: '🥲', nombre: 'lagrima' },
+        { emoji: '😂', nombre: 'risa' }
+    ];
+    
     // Variables globales
     let preguntaActiva = null;
     
@@ -22,8 +31,24 @@ document.addEventListener('DOMContentLoaded', function() {
             if (nuevaPreguntaBtn) {
                 nuevaPreguntaBtn.addEventListener('click', mostrarModalNuevaPregunta);
             }
+            
+            // Arreglar problema de deslizamiento en móvil
+            corregirDeslizamientoMovil();
         }
     });
+    
+    // Función para corregir el problema de deslizamiento en móvil
+    function corregirDeslizamientoMovil() {
+        // Prevenir el comportamiento de retorno al principio
+        document.addEventListener('scroll', function(e) {
+            // Este bloque se asegura de que el scroll funcione correctamente
+            // sin el comportamiento indeseado en dispositivos móviles
+            if (document.documentElement.scrollHeight - window.innerHeight <= window.scrollY + 1) {
+                // Estamos en el fondo de la página, prevenir comportamiento extraño
+                e.preventDefault();
+            }
+        }, { passive: true });
+    }
     
     // Función para cargar la pregunta del día
     function cargarPreguntaDelDia() {
@@ -225,6 +250,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const usuario = firebase.auth().currentUser;
         const esCreador = usuario && respuesta.usuarioId === usuario.uid;
         
+        // Preparar los botones de reacción
+        let reaccionesBotones = '';
+        reacciones.forEach(reaccion => {
+            // Obtener el contador de esta reacción (si existe)
+            const contadorReaccion = respuesta.reacciones && respuesta.reacciones[reaccion.nombre] ? 
+                Object.keys(respuesta.reacciones[reaccion.nombre]).length : 0;
+            
+            // Comprobar si el usuario actual ha reaccionado
+            const usuarioHaReaccionado = usuario && respuesta.reacciones && 
+                respuesta.reacciones[reaccion.nombre] && 
+                respuesta.reacciones[reaccion.nombre][usuario.uid];
+            
+            // Crear el botón con la clase activa si el usuario ya ha reaccionado
+            reaccionesBotones += `
+                <button class="btn-reaccion ${usuarioHaReaccionado ? 'active' : ''}" 
+                    data-reaccion="${reaccion.nombre}" data-respuesta-id="${respuesta.id}">
+                    <span class="reaccion-emoji">${reaccion.emoji}</span>
+                    <span class="reaccion-count">${contadorReaccion > 0 ? contadorReaccion : ''}</span>
+                </button>
+            `;
+        });
+        
         return `
             <div class="respuesta-item" data-id="${respuesta.id}">
                 <div class="respuesta-header">
@@ -232,21 +279,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="respuesta-fecha">${formatearFecha(respuesta.fechaCreacion)}</div>
                 </div>
                 <div class="respuesta-contenido">${respuesta.texto}</div>
-                ${esCreador ? `
-                    <div class="respuesta-acciones">
-                        <div class="reacciones">
-                            <!-- Aquí puedes añadir botones de reacción si lo deseas -->
-                        </div>
-                        <div class="respuesta-admin">
-                            <button class="btn-editar-respuesta" title="Editar respuesta">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-eliminar-respuesta" title="Eliminar respuesta">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                <div class="respuesta-acciones">
+                    <div class="reacciones">
+                        <div class="reacciones-botones">
+                            ${reaccionesBotones}
                         </div>
                     </div>
-                ` : ''}
+                    ${esCreador ? `
+                        <div class="respuesta-admin">
+                            <button class="btn-editar-respuesta" title="Editar respuesta">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-eliminar-respuesta" title="Eliminar respuesta">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
         `;
     }
@@ -259,6 +308,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const usuario = firebase.auth().currentUser;
         const esCreador = usuario && respuesta.usuarioId === usuario.uid;
         
+        // Configurar botones de reacción
+        const botonesReaccion = respuestaElement.querySelectorAll('.btn-reaccion');
+        botonesReaccion.forEach(boton => {
+            boton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!usuario) {
+                    mostrarNotificacion('Debes iniciar sesión para reaccionar', 'error');
+                    return;
+                }
+                
+                const reaccionNombre = boton.getAttribute('data-reaccion');
+                const respuestaId = boton.getAttribute('data-respuesta-id');
+                toggleReaccion(respuestaId, reaccionNombre);
+            });
+        });
+        
+        // Configurar botones de editar y eliminar si el usuario es el creador
         if (esCreador) {
             const btnEditar = respuestaElement.querySelector('.btn-editar-respuesta');
             if (btnEditar) {
@@ -274,6 +340,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }
+    }
+    
+    // Función para activar/desactivar una reacción
+    function toggleReaccion(respuestaId, reaccionNombre) {
+        const usuario = firebase.auth().currentUser;
+        if (!usuario) return;
+        
+        const respuestaRef = db.collection('respuestas').doc(respuestaId);
+        
+        db.runTransaction(transaction => {
+            return transaction.get(respuestaRef).then(doc => {
+                if (!doc.exists) {
+                    throw new Error('El documento no existe!');
+                }
+                
+                const data = doc.data();
+                const reacciones = data.reacciones || {};
+                const reaccion = reacciones[reaccionNombre] || {};
+                
+                // Verificar si el usuario ya ha reaccionado
+                if (reaccion[usuario.uid]) {
+                    // Si ya existe, quitar la reacción
+                    delete reaccion[usuario.uid];
+                } else {
+                    // Si no existe, añadir la reacción
+                    reaccion[usuario.uid] = true;
+                }
+                
+                // Actualizar el objeto de reacciones
+                reacciones[reaccionNombre] = reaccion;
+                
+                // Actualizar el documento
+                transaction.update(respuestaRef, { reacciones });
+                
+                return reacciones;
+            });
+        })
+        .then(() => {
+            console.log('Reacción actualizada correctamente');
+        })
+        .catch(error => {
+            console.error('Error al actualizar la reacción:', error);
+            mostrarNotificacion('Error al guardar la reacción', 'error');
+        });
     }
     
     // Función para guardar una respuesta
@@ -296,7 +406,8 @@ document.addEventListener('DOMContentLoaded', function() {
             texto: textoRespuesta.value.trim(),
             usuarioId: usuario.uid,
             nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
-            fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+            fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
+            reacciones: {} // Inicializamos el objeto de reacciones vacío
         };
         
         db.collection('respuestas').add(nuevaRespuesta)
@@ -627,30 +738,200 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return fecha.toLocaleDateString('es-ES', opciones);
     }
+
+                          // Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Eliminar notificaciones existentes
+    const notificacionesExistentes = document.querySelectorAll('.notification');
+    notificacionesExistentes.forEach(notificacion => {
+        notificacion.remove();
+    });
     
-    // Función para mostrar notificaciones
-    function mostrarNotificacion(mensaje, tipo = 'info') {
-        // Crear el elemento de notificación si no existe
-        let notificacion = document.querySelector('.notification');
+    // Crear la nueva notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `notification ${tipo}`;
+    notificacion.textContent = mensaje;
+    
+    // Añadir la notificación al DOM
+    document.body.appendChild(notificacion);
+    
+    // Mostrar la notificación
+    setTimeout(() => {
+        notificacion.classList.add('show');
+    }, 100);
+    
+    // Ocultar la notificación después de 3 segundos
+    setTimeout(() => {
+        notificacion.classList.remove('show');
         
-        if (!notificacion) {
-            notificacion = document.createElement('div');
-            notificacion.className = 'notification';
-            document.body.appendChild(notificacion);
+        // Eliminar del DOM después de la animación
+        setTimeout(() => {
+            notificacion.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Crear el observer para animar las entradas de respuestas
+function configurarAnimacionesEntrada() {
+    // Configuramos un IntersectionObserver para animar elementos cuando entren en la vista
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeIn 0.6s ease forwards';
+                // Desconectar el observer después de aplicar la animación
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1 // Se activa cuando el 10% del elemento es visible
+    });
+    
+    // Observar las respuestas existentes
+    document.querySelectorAll('.respuesta-item').forEach(item => {
+        observer.observe(item);
+    });
+    
+    // Crear un MutationObserver para detectar cuando se añaden nuevas respuestas
+    const mutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.classList.contains('respuesta-item')) {
+                        observer.observe(node);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Observar el contenedor de respuestas para detectar cambios
+    if (respuestasContainer) {
+        mutationObserver.observe(respuestasContainer, { childList: true, subtree: true });
+    }
+}
+
+// Función para mejorar la accesibilidad
+function mejorarAccesibilidad() {
+    // Añadir atributos ARIA donde sea necesario
+    document.querySelectorAll('button').forEach(button => {
+        if (!button.getAttribute('aria-label') && button.title) {
+            button.setAttribute('aria-label', button.title);
+        }
+    });
+    
+    // Añadir roles donde sea necesario
+    document.querySelectorAll('.respuesta-item').forEach(item => {
+        item.setAttribute('role', 'article');
+    });
+    
+    // Añadir índice de tabulación a elementos interactivos
+    document.querySelectorAll('.respuesta-input, .btn-guardar-respuesta, .btn-reaccion').forEach((el, index) => {
+        el.setAttribute('tabindex', index + 1);
+    });
+}
+
+// Función para optimizar el rendimiento en dispositivos móviles
+function optimizarRendimientoMovil() {
+    // Detectar si es un dispositivo móvil
+    const esMovil = window.innerWidth <= 768;
+    
+    if (esMovil) {
+        // Limitar el número de respuestas que se cargan inicialmente
+        const respuestasVisibles = document.querySelectorAll('.respuesta-item');
+        if (respuestasVisibles.length > 5) {
+            for (let i = 5; i < respuestasVisibles.length; i++) {
+                respuestasVisibles[i].style.display = 'none';
+            }
+            
+            // Añadir un botón para cargar más respuestas
+            const botonCargarMas = document.createElement('button');
+            botonCargarMas.className = 'btn-cargar-mas';
+            botonCargarMas.innerHTML = 'Cargar más respuestas <i class="fas fa-chevron-down"></i>';
+            respuestasContainer.appendChild(botonCargarMas);
+            
+            // Configurar evento para cargar más respuestas
+            botonCargarMas.addEventListener('click', () => {
+                const respuestasOcultas = document.querySelectorAll('.respuesta-item[style="display: none;"]');
+                const limite = Math.min(5, respuestasOcultas.length);
+                
+                for (let i = 0; i < limite; i++) {
+                    respuestasOcultas[i].style.display = '';
+                    observer.observe(respuestasOcultas[i]);
+                }
+                
+                if (limite < respuestasOcultas.length) {
+                    // Actualizar el texto del botón
+                    botonCargarMas.innerHTML = `Cargar más respuestas (${respuestasOcultas.length - limite}) <i class="fas fa-chevron-down"></i>`;
+                } else {
+                    // Eliminar el botón si no quedan respuestas ocultas
+                    botonCargarMas.remove();
+                }
+            });
         }
         
-        // Configurar la notificación
-        notificacion.textContent = mensaje;
-        notificacion.className = `notification ${tipo}`;
-        
-        // Mostrar la notificación
-        setTimeout(() => {
-            notificacion.classList.add('show');
-        }, 10);
-        
-        // Ocultar la notificación después de un tiempo
-        setTimeout(() => {
-            notificacion.classList.remove('show');
-        }, 3000);
+        // Reducir la frecuencia de animaciones
+        document.body.classList.add('reduce-motion');
     }
+}
+
+// Inicializar la aplicación cuando se carga el documento
+function inicializarApp() {
+    // Comprobar el tema actual y aplicarlo
+    const temaActual = localStorage.getItem('theme') || 'light-theme';
+    document.body.className = temaActual;
+    
+    // Establecer el estado del switch según el tema
+    const themeSwitch = document.getElementById('switch');
+    if (themeSwitch) {
+        themeSwitch.checked = temaActual === 'dark-theme';
+    }
+    
+    // Configurar animaciones de entrada
+    configurarAnimacionesEntrada();
+    
+    // Mejorar la accesibilidad
+    mejorarAccesibilidad();
+    
+    // Optimizar para dispositivos móviles
+    optimizarRendimientoMovil();
+}
+
+// Llamar a la función de inicialización cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', inicializarApp);
+
+// Añadir el listener para el evento de cambio de tamaño de ventana
+window.addEventListener('resize', () => {
+    // Volver a optimizar para dispositivos móviles cuando cambie el tamaño de la ventana
+    optimizarRendimientoMovil();
 });
+
+// Función para verificar soporte de características modernas
+function verificarSoporteNavegador() {
+    // Lista de características a verificar
+    const caracteristicas = {
+        'IntersectionObserver': 'IntersectionObserver' in window,
+        'PromesasFirebase': typeof Promise !== 'undefined',
+        'Flexbox': CSS.supports('display', 'flex'),
+        'Grid': CSS.supports('display', 'grid')
+    };
+    
+    // Verificar si alguna característica no está soportada
+    let todasSoportadas = true;
+    const mensajesError = [];
+    
+    for (const [caracteristica, soportada] of Object.entries(caracteristicas)) {
+        if (!soportada) {
+            todasSoportadas = false;
+            mensajesError.push(`Tu navegador no soporta ${caracteristica}.`);
+        }
+    }
+    
+    // Mostrar mensajes de error si es necesario
+    if (!todasSoportadas) {
+        const mensaje = `Se detectaron problemas de compatibilidad: ${mensajesError.join(' ')} Para una mejor experiencia, actualiza tu navegador.`;
+        mostrarNotificacion(mensaje, 'error');
+    }
+}
+
+// Verificar soporte de navegador al cargar la página
+window.addEventListener('load', verificarSoporteNavegador);
