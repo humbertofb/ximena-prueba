@@ -1,633 +1,656 @@
-// Script para la funcionalidad de la página de preguntas con Firebase
+// preguntas.js
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si el usuario está autenticado
+    // Referencia a la base de datos
+    const db = firebase.firestore();
+    
+    // Elementos DOM
+    const preguntaActualContainer = document.getElementById('pregunta-actual');
+    const respuestasContainer = document.getElementById('respuestas-container');
+    const nuevaPreguntaBtn = document.getElementById('nueva-pregunta-btn');
+    
+    // Variables globales
+    let preguntaActiva = null;
+    
+    // Comprobamos la autenticación del usuario
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            // Usuario está autenticado
-            inicializarPaginaPreguntas(user);
-        } else {
-            // Redirigir al login si no está autenticado
-            window.location.href = '../index.html';
+            // Si el usuario está autenticado, cargamos las preguntas
+            cargarPreguntaDelDia();
+            
+            // Configuramos el listener para el botón de nueva pregunta
+            if (nuevaPreguntaBtn) {
+                nuevaPreguntaBtn.addEventListener('click', mostrarModalNuevaPregunta);
+            }
         }
     });
-
-    // Función para inicializar la página cuando el usuario está autenticado
-    function inicializarPaginaPreguntas(user) {
-        const db = firebase.firestore();
-        const userId = user.uid;
-        const preguntasRef = db.collection('preguntas');
-        const respuestasRef = db.collection('respuestas');
-        
-        // Abrir/cerrar categorías
-        const categorias = document.querySelectorAll('.categoria');
-        categorias.forEach(categoria => {
-            const header = categoria.querySelector('.categoria-header');
-            header.addEventListener('click', () => {
-                categoria.classList.toggle('active');
-            });
-        });
-        
-        // Cargar preguntas existentes desde Firebase
-        cargarPreguntas();
-        
-        // Referencia al contenedor de categorías
-        const categoriasContainer = document.querySelector('.categorias-list');
-        
-        // Botón para añadir nueva pregunta
-        const btnNuevaPregunta = document.getElementById('nueva-pregunta-btn');
-        btnNuevaPregunta.addEventListener('click', () => {
-            mostrarModalNuevaPregunta();
-        });
-        
-        // Funcionalidad del botón de pregunta aleatoria
-        const randomBtn = document.getElementById('random-btn');
-        const randomContent = document.getElementById('pregunta-random-content');
-        
-        randomBtn.addEventListener('click', async () => {
-            try {
-                // Obtener todas las preguntas de Firebase
-                const snapshot = await preguntasRef.get();
-                if (snapshot.empty) {
-                    console.log('No hay preguntas disponibles');
-                    return;
-                }
-                
-                // Convertir a array para seleccionar una aleatoria
-                const preguntas = [];
-                snapshot.forEach(doc => {
-                    preguntas.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                // Seleccionar una pregunta aleatoria
-                const preguntaAleatoria = preguntas[Math.floor(Math.random() * preguntas.length)];
-                
-                // Buscar respuestas para esta pregunta
-                const respuestasSnapshot = await respuestasRef
-                    .where('preguntaId', '==', preguntaAleatoria.id)
-                    .get();
-                    
-                const respuestas = {};
-                respuestasSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    respuestas[data.usuarioId] = {
-                        id: doc.id,
-                        texto: data.texto,
-                        reacciones: data.reacciones || {}
-                    };
-                });
-                
-                // Crear el contenido HTML para la pregunta aleatoria
-                randomContent.innerHTML = crearHTMLPregunta(preguntaAleatoria, respuestas, userId);
-                
-                // Configurar listeners para los campos de texto
-                configurarListenersRespuestas(randomContent, preguntaAleatoria.id, userId);
-                
-                // Configurar listeners para los botones de edición
-                configurarListenersEdicion(randomContent, preguntaAleatoria.id);
-                
-                // Configurar listeners para los botones de reacción
-                configurarListenersReacciones(randomContent);
-                
-                // Mostrar el contenido con animación
-                randomContent.classList.add('visible');
-                
-            } catch (error) {
-                console.error('Error al cargar pregunta aleatoria:', error);
-                mostrarNotificacion('Error al cargar pregunta aleatoria', 'error');
-            }
-        });
-        
-        // Función para cargar todas las preguntas desde Firebase
-        async function cargarPreguntas() {
-            try {
-                // Limpiar contenido existente en categorías
-                document.querySelectorAll('.categoria-content').forEach(cat => {
-                    cat.innerHTML = '';
-                });
-                
-                // Obtener todas las preguntas
-                const snapshot = await preguntasRef.get();
-                
-                if (snapshot.empty) {
+    
+    // Función para cargar la pregunta del día
+    function cargarPreguntaDelDia() {
+        db.collection('preguntas')
+            .orderBy('fechaCreacion', 'desc')
+            .limit(1)
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
                     console.log('No hay preguntas en la base de datos');
+                    mostrarMensajeNoHayPreguntas();
                     return;
                 }
                 
-                // Agrupar preguntas por categoría
-                const preguntasPorCategoria = {};
+                const doc = querySnapshot.docs[0];
+                preguntaActiva = {
+                    id: doc.id,
+                    ...doc.data()
+                };
                 
-                for (const doc of snapshot.docs) {
-                    const pregunta = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    
-                    // Si la categoría no existe en el objeto, crearla
-                    if (!preguntasPorCategoria[pregunta.categoria]) {
-                        preguntasPorCategoria[pregunta.categoria] = [];
-                    }
-                    
-                    // Obtener respuestas para esta pregunta
-                    const respuestasSnapshot = await respuestasRef
-                        .where('preguntaId', '==', doc.id)
-                        .get();
-                        
-                    const respuestas = {};
-                    respuestasSnapshot.forEach(respDoc => {
-                        const data = respDoc.data();
-                        respuestas[data.usuarioId] = {
-                            id: respDoc.id,
-                            texto: data.texto,
-                            reacciones: data.reacciones || {}
-                        };
-                    });
-                    
-                    preguntasPorCategoria[pregunta.categoria].push({
-                        pregunta,
-                        respuestas
-                    });
-                }
+                mostrarPregunta(preguntaActiva);
+                cargarRespuestas(preguntaActiva.id);
                 
-                // Insertar preguntas en sus respectivas categorías
-                for (const categoria in preguntasPorCategoria) {
-                    const categoriaEl = document.getElementById(`cat-${categoria.toLowerCase().replace(/\s+/g, '-')}`);
-                    if (categoriaEl) {
-                        const contenidoEl = categoriaEl.querySelector('.categoria-content');
-                        
-                        preguntasPorCategoria[categoria].forEach(item => {
-                            const preguntaHTML = crearHTMLPregunta(item.pregunta, item.respuestas, userId);
-                            const preguntaDiv = document.createElement('div');
-                            preguntaDiv.innerHTML = preguntaHTML;
-                            contenidoEl.appendChild(preguntaDiv.firstChild);
-                            
-                            // Configurar listeners para esta pregunta
-                            const preguntaCard = contenidoEl.lastChild;
-                            configurarListenersRespuestas(preguntaCard, item.pregunta.id, userId);
-                            configurarListenersEdicion(preguntaCard, item.pregunta.id);
-                            configurarListenersReacciones(preguntaCard);
-                        });
-                    }
-                }
+                // Configuramos un listener en tiempo real para las respuestas
+                configurarListenerRespuestas(preguntaActiva.id);
+            })
+            .catch((error) => {
+                console.error('Error al cargar pregunta del día:', error);
+                mostrarMensajeNoHayPreguntas();
+            });
+    }
+    
+    // Función para mostrar un mensaje cuando no hay preguntas
+    function mostrarMensajeNoHayPreguntas() {
+        if (preguntaActualContainer) {
+            preguntaActualContainer.innerHTML = `
+                <div class="pregunta-card">
+                    <div class="pregunta-header">
+                        <div class="pregunta-texto">No hay preguntas disponibles</div>
+                    </div>
+                    <p>¡Sé el primero en crear una pregunta!</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Función para mostrar la pregunta actual
+    function mostrarPregunta(pregunta) {
+        if (!preguntaActualContainer) return;
+        
+        const usuario = firebase.auth().currentUser;
+        const esCreador = usuario && pregunta.usuarioId === usuario.uid;
+        
+        preguntaActualContainer.innerHTML = `
+            <div class="pregunta-card" data-id="${pregunta.id}">
+                <div class="pregunta-header">
+                    <div class="pregunta-texto">${pregunta.texto}</div>
+                    ${esCreador ? `
+                        <div class="pregunta-admin">
+                            <button class="btn-editar-pregunta" title="Editar pregunta">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-eliminar-pregunta" title="Eliminar pregunta">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+                <p>${formatearFecha(pregunta.fechaCreacion)}</p>
                 
-            } catch (error) {
-                console.error('Error al cargar preguntas:', error);
-                mostrarNotificacion('Error al cargar preguntas', 'error');
+                <!-- Sección para añadir una nueva respuesta -->
+                <div class="nueva-respuesta">
+                    <h3>Tu respuesta</h3>
+                    <textarea id="nueva-respuesta-texto" class="respuesta-input" 
+                        placeholder="Escribe tu respuesta aquí..."></textarea>
+                    <button id="guardar-respuesta" class="btn-guardar-respuesta">
+                        <i class="fas fa-paper-plane"></i> Enviar respuesta
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Configurar listeners para los botones de editar y eliminar
+        if (esCreador) {
+            const btnEditar = preguntaActualContainer.querySelector('.btn-editar-pregunta');
+            if (btnEditar) {
+                btnEditar.addEventListener('click', () => {
+                    mostrarModalEditarPregunta(pregunta);
+                });
+            }
+            
+            const btnEliminar = preguntaActualContainer.querySelector('.btn-eliminar-pregunta');
+            if (btnEliminar) {
+                btnEliminar.addEventListener('click', () => {
+                    confirmarEliminarPregunta(pregunta.id);
+                });
             }
         }
         
-        // Función para crear el HTML de una pregunta con sus respuestas
-        function crearHTMLPregunta(pregunta, respuestas, currentUserId) {
-            // Determinar el otro usuario (asumiendo que solo hay dos usuarios)
-            const otroUsuarioId = pregunta.creadorId !== currentUserId ? pregunta.creadorId : 'otroUsuario';
-            
-            // Crear botones de administración para la pregunta si el usuario actual es el creador
-            const botonesAdmin = pregunta.creadorId === currentUserId ? 
-                `<div class="pregunta-admin">
-                    <button class="btn-editar-pregunta" data-id="${pregunta.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-eliminar-pregunta" data-id="${pregunta.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>` : '';
-            
-            // Obtener respuestas de ambos usuarios si existen
-            const miRespuesta = respuestas[currentUserId] || { texto: '', reacciones: {} };
-            const suRespuesta = respuestas[otroUsuarioId] || { texto: '', reacciones: {} };
-            
-            // Crear HTML para las reacciones de cada respuesta
-            const misReacciones = crearHTMLReacciones(miRespuesta.reacciones, miRespuesta.id || '', 'mi');
-            const susReacciones = crearHTMLReacciones(suRespuesta.reacciones, suRespuesta.id || '', 'su');
-            
-            return `
-                <div class="pregunta-card" data-id="${pregunta.id}">
-                    <div class="pregunta-header">
-                        <div class="pregunta-texto">${pregunta.texto}</div>
-                        ${botonesAdmin}
-                    </div>
-                    <div class="respuestas">
-                        <div class="respuesta">
-                            <span class="respuesta-label">Tu respuesta:</span>
-                            <textarea class="respuesta-input mi-respuesta" data-pregunta-id="${pregunta.id}" placeholder="Escribe tu respuesta aquí...">${miRespuesta.texto}</textarea>
-                            <div class="respuesta-acciones">
-                                <button class="btn-guardar-respuesta" data-tipo="mi" data-respuesta-id="${miRespuesta.id || ''}">
-                                    <i class="fas fa-save"></i> Guardar
-                                </button>
-                                ${misReacciones}
-                            </div>
-                        </div>
-                        <div class="respuesta">
-                            <span class="respuesta-label">Su respuesta:</span>
-                            <textarea class="respuesta-input su-respuesta" data-pregunta-id="${pregunta.id}" placeholder="Esperando respuesta..." readonly>${suRespuesta.texto}</textarea>
-                            <div class="respuesta-acciones">
-                                ${susReacciones}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Función para crear el HTML de las reacciones
-        function crearHTMLReacciones(reacciones = {}, respuestaId = '', tipo) {
-            if (!respuestaId) return '<div class="reacciones"></div>'; // No mostrar botones si no hay respuesta guardada
-            
-            const emojis = [
-                { id: 'heart-yellow', emoji: '💛', label: 'Corazón amarillo' },
-                { id: 'heart-black', emoji: '🖤', label: 'Corazón negro' },
-                { id: 'laugh', emoji: '😂', label: 'Risa' },
-                { id: 'wow', emoji: '😮', label: 'Asombro' },
-                { id: 'monkey', emoji: '🙈', label: 'Mono tapándose los ojos' },
-                { id: 'cry', emoji: '😢', label: 'Llorando' }
-            ];
-            
-            let reaccionesHTML = `<div class="reacciones" data-respuesta-id="${respuestaId}">`;
-            
-            // Botones de reacción
-            reaccionesHTML += '<div class="reacciones-botones">';
-            emojis.forEach(emoji => {
-                const count = reacciones[emoji.id] || 0;
-                const active = count > 0 ? 'active' : '';
-                reaccionesHTML += `
-                    <button class="btn-reaccion ${active}" data-emoji="${emoji.id}" data-tipo="${tipo}" title="${emoji.label}">
-                        ${emoji.emoji} <span class="reaccion-count">${count > 0 ? count : ''}</span>
-                    </button>
-                `;
-            });
-            reaccionesHTML += '</div>';
-            
-            reaccionesHTML += '</div>';
-            return reaccionesHTML;
-        }
-        
-        // Función para configurar listeners para los campos de texto de respuestas
-        function configurarListenersRespuestas(container, preguntaId, userId) {
-            // Listener para botones de guardar respuesta
-            container.querySelectorAll('.btn-guardar-respuesta').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const tipo = this.getAttribute('data-tipo');
-                    const respuestaId = this.getAttribute('data-respuesta-id');
-                    const preguntaCard = this.closest('.pregunta-card');
-                    const texto = preguntaCard.querySelector(`.${tipo}-respuesta`).value.trim();
-                    
-                    if (!texto) {
-                        mostrarNotificacion('La respuesta no puede estar vacía', 'error');
-                        return;
-                    }
-                    
-                    try {
-                        if (respuestaId) {
-                            // Actualizar respuesta existente
-                            await respuestasRef.doc(respuestaId).update({
-                                texto: texto,
-                                actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                        } else {
-                            // Crear nueva respuesta
-                            const nuevaRespuesta = await respuestasRef.add({
-                                preguntaId: preguntaId,
-                                usuarioId: userId,
-                                texto: texto,
-                                reacciones: {},
-                                creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
-                                actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                            
-                            // Actualizar el atributo data-respuesta-id en el botón
-                            this.setAttribute('data-respuesta-id', nuevaRespuesta.id);
-                            
-                            // Actualizar el contenedor de reacciones
-                            const reaccionesContainer = this.parentElement.querySelector('.reacciones');
-                            if (reaccionesContainer) {
-                                reaccionesContainer.setAttribute('data-respuesta-id', nuevaRespuesta.id);
-                            } else {
-                                // Si no existe el contenedor de reacciones, añadirlo
-                                const nuevoContenedorReacciones = document.createElement('div');
-                                nuevoContenedorReacciones.className = 'reacciones';
-                                nuevoContenedorReacciones.setAttribute('data-respuesta-id', nuevaRespuesta.id);
-                                this.parentElement.appendChild(nuevoContenedorReacciones);
-                            }
-                        }
-                        
-                        mostrarNotificacion('Respuesta guardada correctamente', 'success');
-                        
-                        // Recargar la página para mostrar los cambios
-                        setTimeout(() => {
-                            cargarPreguntas();
-                        }, 1000);
-                        
-                    } catch (error) {
-                        console.error('Error al guardar respuesta:', error);
-                        mostrarNotificacion('Error al guardar respuesta', 'error');
-                    }
-                });
+        // Configurar listener para guardar respuesta
+        const btnGuardarRespuesta = preguntaActualContainer.querySelector('#guardar-respuesta');
+        if (btnGuardarRespuesta) {
+            btnGuardarRespuesta.addEventListener('click', () => {
+                guardarRespuesta(pregunta.id);
             });
         }
+    }
+    
+    // Función para cargar las respuestas de una pregunta
+    function cargarRespuestas(preguntaId) {
+        if (!respuestasContainer) return;
         
-        // Función para configurar listeners para botones de edición de preguntas
-        function configurarListenersEdicion(container, preguntaId) {
-            // Editar pregunta
-            container.querySelectorAll('.btn-editar-pregunta').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const preguntaId = this.getAttribute('data-id');
-                    
-                    try {
-                        // Obtener datos de la pregunta
-                        const doc = await preguntasRef.doc(preguntaId).get();
-                        if (doc.exists) {
-                            const pregunta = doc.data();
-                            
-                            // Mostrar modal de edición
-                            mostrarModalEditarPregunta(preguntaId, pregunta.texto, pregunta.categoria);
-                        }
-                    } catch (error) {
-                        console.error('Error al obtener pregunta:', error);
-                        mostrarNotificacion('Error al cargar datos de la pregunta', 'error');
-                    }
-                });
-            });
-            
-            // Eliminar pregunta
-            container.querySelectorAll('.btn-eliminar-pregunta').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const preguntaId = this.getAttribute('data-id');
-                    const confirmar = confirm('¿Estás seguro de que deseas eliminar esta pregunta y todas sus respuestas?');
-                    
-                    if (confirmar) {
-                        eliminarPregunta(preguntaId);
-                    }
-                });
-            });
-        }
+        respuestasContainer.innerHTML = '<h2>Respuestas</h2>';
         
-        // Función para configurar listeners para botones de reacción
-        function configurarListenersReacciones(container) {
-            container.querySelectorAll('.btn-reaccion').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const emoji = this.getAttribute('data-emoji');
-                    const respuestaId = this.closest('.reacciones').getAttribute('data-respuesta-id');
-                    
-                    if (!respuestaId) return;
-                    
-                    try {
-                        // Verificar si ya reaccionó con este emoji
-                        const doc = await respuestasRef.doc(respuestaId).get();
-                        if (!doc.exists) {
-                            mostrarNotificacion('La respuesta no existe', 'error');
-                            return;
-                        }
-                        
-                        const respuesta = doc.data();
-                        const reacciones = respuesta.reacciones || {};
-                        
-                        // Alternar la reacción (añadir o quitar)
-                        if (reacciones[emoji]) {
-                            // Ya existía esta reacción, quitar
-                            const actualizacion = {};
-                            actualizacion[`reacciones.${emoji}`] = firebase.firestore.FieldValue.delete();
-                            await respuestasRef.doc(respuestaId).update(actualizacion);
-                            this.classList.remove('active');
-                            this.querySelector('.reaccion-count').textContent = '';
-                        } else {
-                            // No existía, añadir
-                            const actualizacion = {};
-                            actualizacion[`reacciones.${emoji}`] = 1;
-                            await respuestasRef.doc(respuestaId).update(actualizacion);
-                            this.classList.add('active');
-                            this.querySelector('.reaccion-count').textContent = '1';
-                        }
-                        
-                    } catch (error) {
-                        console.error('Error al actualizar reacción:', error);
-                        mostrarNotificacion('Error al actualizar reacción', 'error');
-                    }
-                });
-            });
-        }
-        
-        // Función para mostrar modal de nueva pregunta
-        function mostrarModalNuevaPregunta() {
-            // Crear el modal
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Nueva Pregunta</h2>
-                    <form id="nueva-pregunta-form">
-                        <div class="form-group">
-                            <label for="pregunta-texto">Texto de la pregunta:</label>
-                            <textarea id="pregunta-texto" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="pregunta-categoria">Categoría:</label>
-                            <select id="pregunta-categoria" required>
-                                <option value="conocernos">Para conocernos mejor</option>
-                                <option value="momentos">Momentos Especiales</option>
-                                <option value="divertidas">Preguntas Divertidas</option>
-                                <option value="futuro">Sueños y Futuro</option>
-                                <option value="random">Aleatorias</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-modal-guardar">Guardar</button>
-                    </form>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Mostrar el modal
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
-            
-            // Cerrar modal
-            modal.querySelector('.close').addEventListener('click', () => {
-                cerrarModal(modal);
-            });
-            
-            // Manejar clic fuera del modal
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    cerrarModal(modal);
-                }
-            });
-            
-            // Manejar envío del formulario
-            modal.querySelector('#nueva-pregunta-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const texto = document.getElementById('pregunta-texto').value.trim();
-                const categoria = document.getElementById('pregunta-categoria').value;
-                
-                if (!texto) {
-                    mostrarNotificacion('Por favor escribe una pregunta', 'error');
+        db.collection('respuestas')
+            .where('preguntaId', '==', preguntaId)
+            .orderBy('fechaCreacion', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    respuestasContainer.innerHTML += '<p>Aún no hay respuestas. ¡Sé el primero en responder!</p>';
                     return;
                 }
                 
-                try {
-                    // Guardar nueva pregunta en Firebase
-                    await preguntasRef.add({
-                        texto: texto,
-                        categoria: categoria,
-                        creadorId: userId,
-                        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    mostrarNotificacion('Pregunta creada correctamente', 'success');
-                    cerrarModal(modal);
-                    
-                    // Recargar preguntas
-                    cargarPreguntas();
-                    
-                } catch (error) {
-                    console.error('Error al crear pregunta:', error);
-                    mostrarNotificacion('Error al crear pregunta', 'error');
-                }
+                querySnapshot.forEach((doc) => {
+                    const respuesta = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    mostrarRespuesta(respuesta);
+                });
+            })
+            .catch((error) => {
+                console.error('Error al cargar respuestas:', error);
             });
+    }
+    
+    // Configurar un listener en tiempo real para las respuestas
+    function configurarListenerRespuestas(preguntaId) {
+        db.collection('respuestas')
+            .where('preguntaId', '==', preguntaId)
+            .orderBy('fechaCreacion', 'desc')
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    const respuesta = {
+                        id: change.doc.id,
+                        ...change.doc.data()
+                    };
+                    
+                    if (change.type === 'added') {
+                        // Si es una respuesta nueva, la añadimos al DOM
+                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+                        if (!existingElement) {
+                            mostrarRespuesta(respuesta);
+                        }
+                    } else if (change.type === 'modified') {
+                        // Si es una respuesta modificada, actualizamos el DOM
+                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+                        if (existingElement) {
+                            existingElement.outerHTML = crearHtmlRespuesta(respuesta);
+                            configurarListenersRespuestaItem(respuesta);
+                        }
+                    } else if (change.type === 'removed') {
+                        // Si es una respuesta eliminada, la quitamos del DOM
+                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+                        if (existingElement) {
+                            existingElement.remove();
+                        }
+                    }
+                });
+            });
+    }
+    
+    // Función para mostrar una respuesta
+    function mostrarRespuesta(respuesta) {
+        if (!respuestasContainer) return;
+        
+        const respuestaHTML = crearHtmlRespuesta(respuesta);
+        
+        // Verificamos si el elemento ya existe
+        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+        if (existingElement) {
+            existingElement.outerHTML = respuestaHTML;
+        } else {
+            // Si no existe, lo añadimos después del título
+            const titulo = respuestasContainer.querySelector('h2');
+            if (titulo) {
+                titulo.insertAdjacentHTML('afterend', respuestaHTML);
+            } else {
+                respuestasContainer.innerHTML += respuestaHTML;
+            }
         }
         
-        // Función para mostrar modal de editar pregunta
-        function mostrarModalEditarPregunta(preguntaId, textoActual, categoriaActual) {
-            // Crear el modal
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Editar Pregunta</h2>
-                    <form id="editar-pregunta-form">
-                        <div class="form-group">
-                            <label for="pregunta-texto-edit">Texto de la pregunta:</label>
-                            <textarea id="pregunta-texto-edit" required>${textoActual}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="pregunta-categoria-edit">Categoría:</label>
-                            <select id="pregunta-categoria-edit" required>
-                                <option value="conocernos" ${categoriaActual === 'conocernos' ? 'selected' : ''}>Para conocernos mejor</option>
-                                <option value="momentos" ${categoriaActual === 'momentos' ? 'selected' : ''}>Momentos Especiales</option>
-                                <option value="divertidas" ${categoriaActual === 'divertidas' ? 'selected' : ''}>Preguntas Divertidas</option>
-                                <option value="futuro" ${categoriaActual === 'futuro' ? 'selected' : ''}>Sueños y Futuro</option>
-                                <option value="random" ${categoriaActual === 'random' ? 'selected' : ''}>Aleatorias</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-modal-guardar">Actualizar</button>
-                    </form>
+        configurarListenersRespuestaItem(respuesta);
+    }
+    
+    // Crear HTML para una respuesta
+    function crearHtmlRespuesta(respuesta) {
+        const usuario = firebase.auth().currentUser;
+        const esCreador = usuario && respuesta.usuarioId === usuario.uid;
+        
+        return `
+            <div class="respuesta-item" data-id="${respuesta.id}">
+                <div class="respuesta-header">
+                    <div class="respuesta-autor">${respuesta.nombreUsuario || 'Usuario'}</div>
+                    <div class="respuesta-fecha">${formatearFecha(respuesta.fechaCreacion)}</div>
                 </div>
-            `;
+                <div class="respuesta-contenido">${respuesta.texto}</div>
+                ${esCreador ? `
+                    <div class="respuesta-acciones">
+                        <div class="reacciones">
+                            <!-- Aquí puedes añadir botones de reacción si lo deseas -->
+                        </div>
+                        <div class="respuesta-admin">
+                            <button class="btn-editar-respuesta" title="Editar respuesta">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-eliminar-respuesta" title="Eliminar respuesta">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    
+    // Configurar listeners para una respuesta individual
+    function configurarListenersRespuestaItem(respuesta) {
+        const respuestaElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+        if (!respuestaElement) return;
+        
+        const usuario = firebase.auth().currentUser;
+        const esCreador = usuario && respuesta.usuarioId === usuario.uid;
+        
+        if (esCreador) {
+            const btnEditar = respuestaElement.querySelector('.btn-editar-respuesta');
+            if (btnEditar) {
+                btnEditar.addEventListener('click', () => {
+                    mostrarModalEditarRespuesta(respuesta);
+                });
+            }
             
-            document.body.appendChild(modal);
+            const btnEliminar = respuestaElement.querySelector('.btn-eliminar-respuesta');
+            if (btnEliminar) {
+                btnEliminar.addEventListener('click', () => {
+                    confirmarEliminarRespuesta(respuesta.id);
+                });
+            }
+        }
+    }
+    
+    // Función para guardar una respuesta
+    function guardarRespuesta(preguntaId) {
+        const textoRespuesta = document.getElementById('nueva-respuesta-texto');
+        
+        if (!textoRespuesta || !textoRespuesta.value.trim()) {
+            mostrarNotificacion('Por favor, escribe una respuesta', 'error');
+            return;
+        }
+        
+        const usuario = firebase.auth().currentUser;
+        if (!usuario) {
+            mostrarNotificacion('Debes iniciar sesión para responder', 'error');
+            return;
+        }
+        
+        const nuevaRespuesta = {
+            preguntaId: preguntaId,
+            texto: textoRespuesta.value.trim(),
+            usuarioId: usuario.uid,
+            nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
+            fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        db.collection('respuestas').add(nuevaRespuesta)
+            .then(() => {
+                textoRespuesta.value = '';
+                mostrarNotificacion('Respuesta guardada correctamente', 'success');
+            })
+            .catch((error) => {
+                console.error('Error al guardar respuesta:', error);
+                mostrarNotificacion('Error al guardar la respuesta', 'error');
+            });
+    }
+    
+    // Función para mostrar el modal de nueva pregunta
+    function mostrarModalNuevaPregunta() {
+        // Crear el modal si no existe
+        if (!document.getElementById('pregunta-modal')) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="pregunta-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Nueva Pregunta</h2>
+                        <form id="pregunta-form">
+                            <div class="form-group">
+                                <label for="pregunta-texto">Texto de la pregunta</label>
+                                <textarea id="pregunta-texto" placeholder="Escribe aquí tu pregunta..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-modal-guardar">Guardar pregunta</button>
+                        </form>
+                    </div>
+                </div>
+            `);
             
-            // Mostrar el modal
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
+            // Configurar evento para cerrar el modal
+            const modal = document.getElementById('pregunta-modal');
+            const closeBtn = modal.querySelector('.close');
             
-            // Cerrar modal
-            modal.querySelector('.close').addEventListener('click', () => {
-                cerrarModal(modal);
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('show');
             });
             
-            // Manejar clic fuera del modal
-            modal.addEventListener('click', (e) => {
+            window.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    cerrarModal(modal);
+                    modal.classList.remove('show');
                 }
             });
             
-            // Manejar envío del formulario
-            modal.querySelector('#editar-pregunta-form').addEventListener('submit', async (e) => {
+            // Configurar evento para guardar la pregunta
+            const preguntaForm = document.getElementById('pregunta-form');
+            preguntaForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                const texto = document.getElementById('pregunta-texto-edit').value.trim();
-                const categoria = document.getElementById('pregunta-categoria-edit').value;
+                const textoElement = document.getElementById('pregunta-texto');
+                const texto = textoElement.value.trim();
                 
                 if (!texto) {
-                    mostrarNotificacion('Por favor escribe una pregunta', 'error');
+                    mostrarNotificacion('Por favor, escribe una pregunta', 'error');
                     return;
                 }
                 
-                try {
-                    // Actualizar pregunta en Firebase
-                    await preguntasRef.doc(preguntaId).update({
-                        texto: texto,
-                        categoria: categoria,
-                        actualizadoEn: firebase.firestore.FieldValue.serverTimestamp()
+                const usuario = firebase.auth().currentUser;
+                if (!usuario) {
+                    mostrarNotificacion('Debes iniciar sesión para crear preguntas', 'error');
+                    return;
+                }
+                
+                const nuevaPregunta = {
+                    texto: texto,
+                    usuarioId: usuario.uid,
+                    nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
+                    fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                db.collection('preguntas').add(nuevaPregunta)
+                    .then(() => {
+                        modal.classList.remove('show');
+                        textoElement.value = '';
+                        mostrarNotificacion('Pregunta guardada correctamente', 'success');
+                        
+                        // Recargar la pregunta del día
+                        cargarPreguntaDelDia();
+                    })
+                    .catch((error) => {
+                        console.error('Error al guardar pregunta:', error);
+                        mostrarNotificacion('Error al guardar la pregunta', 'error');
                     });
-                    
+            });
+        }
+        
+        // Mostrar el modal
+        const modal = document.getElementById('pregunta-modal');
+        modal.classList.add('show');
+    }
+    
+    // Función para mostrar el modal de editar pregunta
+    function mostrarModalEditarPregunta(pregunta) {
+        // Crear el modal si no existe
+        if (!document.getElementById('editar-pregunta-modal')) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="editar-pregunta-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Editar Pregunta</h2>
+                        <form id="editar-pregunta-form">
+                            <input type="hidden" id="editar-pregunta-id">
+                            <div class="form-group">
+                                <label for="editar-pregunta-texto">Texto de la pregunta</label>
+                                <textarea id="editar-pregunta-texto" placeholder="Escribe aquí tu pregunta..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-modal-guardar">Guardar cambios</button>
+                        </form>
+                    </div>
+                </div>
+            `);
+            
+            // Configurar evento para cerrar el modal
+            const modal = document.getElementById('editar-pregunta-modal');
+            const closeBtn = modal.querySelector('.close');
+            
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('show');
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+            
+            // Configurar evento para guardar la pregunta
+            const editarPreguntaForm = document.getElementById('editar-pregunta-form');
+            editarPreguntaForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const idElement = document.getElementById('editar-pregunta-id');
+                const textoElement = document.getElementById('editar-pregunta-texto');
+                
+                const id = idElement.value;
+                const texto = textoElement.value.trim();
+                
+                if (!texto) {
+                    mostrarNotificacion('Por favor, escribe una pregunta', 'error');
+                    return;
+                }
+                
+                db.collection('preguntas').doc(id).update({
+                    texto: texto,
+                    fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(() => {
+                    modal.classList.remove('show');
                     mostrarNotificacion('Pregunta actualizada correctamente', 'success');
-                    cerrarModal(modal);
                     
-                    // Recargar preguntas
-                    cargarPreguntas();
-                    
-                } catch (error) {
+                    // Actualizar la pregunta en el DOM
+                    if (preguntaActiva && preguntaActiva.id === id) {
+                        preguntaActiva.texto = texto;
+                        mostrarPregunta(preguntaActiva);
+                    }
+                })
+                .catch((error) => {
                     console.error('Error al actualizar pregunta:', error);
-                    mostrarNotificacion('Error al actualizar pregunta', 'error');
-                }
+                    mostrarNotificacion('Error al actualizar la pregunta', 'error');
+                });
             });
         }
         
-        // Función para eliminar una pregunta y sus respuestas
-        async function eliminarPregunta(preguntaId) {
-            try {
-                // Primero eliminar todas las respuestas asociadas
-                const respuestasSnapshot = await respuestasRef.where('preguntaId', '==', preguntaId).get();
-                
-                // Usar batch para operaciones múltiples
+        // Rellenar el modal con los datos de la pregunta
+        const modal = document.getElementById('editar-pregunta-modal');
+        const idElement = document.getElementById('editar-pregunta-id');
+        const textoElement = document.getElementById('editar-pregunta-texto');
+        
+        idElement.value = pregunta.id;
+        textoElement.value = pregunta.texto;
+        
+        // Mostrar el modal
+        modal.classList.add('show');
+    }
+    
+    // Función para confirmar la eliminación de una pregunta
+    function confirmarEliminarPregunta(preguntaId) {
+        if (confirm('¿Estás seguro de que deseas eliminar esta pregunta? Esta acción no se puede deshacer.')) {
+            eliminarPregunta(preguntaId);
+        }
+    }
+    
+    // Función para eliminar una pregunta
+    function eliminarPregunta(preguntaId) {
+        // Primero eliminar todas las respuestas asociadas
+        db.collection('respuestas')
+            .where('preguntaId', '==', preguntaId)
+            .get()
+            .then((querySnapshot) => {
                 const batch = db.batch();
                 
-                respuestasSnapshot.forEach(doc => {
+                querySnapshot.forEach((doc) => {
                     batch.delete(doc.ref);
                 });
                 
-                // Eliminar la pregunta
-                batch.delete(preguntasRef.doc(preguntaId));
-                
-                // Commit batch
-                await batch.commit();
-                
+                return batch.commit();
+            })
+            .then(() => {
+                // Luego eliminar la pregunta
+                return db.collection('preguntas').doc(preguntaId).delete();
+            })
+            .then(() => {
                 mostrarNotificacion('Pregunta eliminada correctamente', 'success');
                 
-                // Recargar preguntas
-                cargarPreguntas();
-                
-            } catch (error) {
+                // Cargar la siguiente pregunta disponible
+                cargarPreguntaDelDia();
+            })
+            .catch((error) => {
                 console.error('Error al eliminar pregunta:', error);
-                mostrarNotificacion('Error al eliminar pregunta', 'error');
-            }
+                mostrarNotificacion('Error al eliminar la pregunta', 'error');
+            });
+    }
+    
+    // Función para mostrar el modal de editar respuesta
+    function mostrarModalEditarRespuesta(respuesta) {
+        // Crear el modal si no existe
+        if (!document.getElementById('editar-respuesta-modal')) {
+            document.body.insertAdjacentHTML('beforeend', `
+                <div id="editar-respuesta-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Editar Respuesta</h2>
+                        <form id="editar-respuesta-form">
+                            <input type="hidden" id="editar-respuesta-id">
+                            <div class="form-group">
+                                <label for="editar-respuesta-texto">Tu respuesta</label>
+                                <textarea id="editar-respuesta-texto" placeholder="Escribe aquí tu respuesta..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-modal-guardar">Guardar cambios</button>
+                        </form>
+                    </div>
+                </div>
+            `);
+            
+            // Configurar evento para cerrar el modal
+            const modal = document.getElementById('editar-respuesta-modal');
+            const closeBtn = modal.querySelector('.close');
+            
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('show');
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+            
+            // Configurar evento para guardar la respuesta
+            const editarRespuestaForm = document.getElementById('editar-respuesta-form');
+            editarRespuestaForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const idElement = document.getElementById('editar-respuesta-id');
+                const textoElement = document.getElementById('editar-respuesta-texto');
+                
+                const id = idElement.value;
+                const texto = textoElement.value.trim();
+                
+                if (!texto) {
+                    mostrarNotificacion('Por favor, escribe una respuesta', 'error');
+                    return;
+                }
+                
+                db.collection('respuestas').doc(id).update({
+                    texto: texto,
+                    fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(() => {
+                    modal.classList.remove('show');
+                    mostrarNotificacion('Respuesta actualizada correctamente', 'success');
+                })
+                .catch((error) => {
+                    console.error('Error al actualizar respuesta:', error);
+                    mostrarNotificacion('Error al actualizar la respuesta', 'error');
+                });
+            });
         }
         
-        // Funciones de utilidad
-        function cerrarModal(modal) {
-            modal.classList.remove('show');
-            setTimeout(() => {
-                document.body.removeChild(modal);
-            }, 300);
+        // Rellenar el modal con los datos de la respuesta
+        const modal = document.getElementById('editar-respuesta-modal');
+        const idElement = document.getElementById('editar-respuesta-id');
+        const textoElement = document.getElementById('editar-respuesta-texto');
+        
+        idElement.value = respuesta.id;
+        textoElement.value = respuesta.texto;
+        
+        // Mostrar el modal
+        modal.classList.add('show');
+    }
+    
+    // Función para confirmar la eliminación de una respuesta
+    function confirmarEliminarRespuesta(respuestaId) {
+        if (confirm('¿Estás seguro de que deseas eliminar esta respuesta? Esta acción no se puede deshacer.')) {
+            eliminarRespuesta(respuestaId);
+        }
+    }
+    
+    // Función para eliminar una respuesta
+    function eliminarRespuesta(respuestaId) {
+        db.collection('respuestas').doc(respuestaId).delete()
+            .then(() => {
+                mostrarNotificacion('Respuesta eliminada correctamente', 'success');
+            })
+            .catch((error) => {
+                console.error('Error al eliminar respuesta:', error);
+                mostrarNotificacion('Error al eliminar la respuesta', 'error');
+            });
+    }
+    
+    // Función para formatear la fecha
+    function formatearFecha(timestamp) {
+        if (!timestamp) return 'Fecha desconocida';
+        
+        const fecha = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        
+        // Formatear la fecha como: 12 de mayo de 2023, 15:30
+        const opciones = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        
+        return fecha.toLocaleDateString('es-ES', opciones);
+    }
+    
+    // Función para mostrar notificaciones
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        // Crear el elemento de notificación si no existe
+        let notificacion = document.querySelector('.notification');
+        
+        if (!notificacion) {
+            notificacion = document.createElement('div');
+            notificacion.className = 'notification';
+            document.body.appendChild(notificacion);
         }
         
-        function mostrarNotificacion(mensaje, tipo = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${tipo}`;
-            notification.textContent = mensaje;
-            
-            document.body.appendChild(notification);
-            
-            // Mostrar la notificación
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Ocultar después de 3 segundos
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
+        // Configurar la notificación
+        notificacion.textContent = mensaje;
+        notificacion.className = `notification ${tipo}`;
+        
+        // Mostrar la notificación
+        setTimeout(() => {
+            notificacion.classList.add('show');
+        }, 10);
+        
+        // Ocultar la notificación después de un tiempo
+        setTimeout(() => {
+            notificacion.classList.remove('show');
+        }, 3000);
     }
 });
