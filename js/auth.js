@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Cierre de sesión
-    const logoutButton = document.getElementById('logout-button-dropdown');
+    const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', function (e) {
             e.preventDefault();
