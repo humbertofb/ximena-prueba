@@ -4,118 +4,135 @@ document.addEventListener('DOMContentLoaded', function () {
     // Verificar autenticación
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+            // Usuario autenticado
+            const loginScreen = document.getElementById('login-screen');
+            const mainContent = document.getElementById('main-content');
+            
+            if (loginScreen && mainContent) {
+                loginScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            }
         } else {
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('main-content').classList.add('hidden');
+            // Usuario no autenticado
+            const loginScreen = document.getElementById('login-screen');
+            const mainContent = document.getElementById('main-content');
+            
+            if (loginScreen && mainContent) {
+                loginScreen.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            }
         }
     });
 
     // Cambio entre formularios login/registro
-    document.getElementById('show-register').addEventListener('click', function (e) {
-        e.preventDefault();
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.remove('hidden');
-    });
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
+    if (showRegister) {
+        showRegister.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (loginForm && registerForm) {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+            }
+        });
+    }
 
-    document.getElementById('show-login').addEventListener('click', function (e) {
-        e.preventDefault();
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('login-form').classList.remove('hidden');
-    });
+    if (showLogin) {
+        showLogin.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (loginForm && registerForm) {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        });
+    }
 
     // Inicio de sesión
-    document.getElementById('login-form').addEventListener('submit', function (e) {
-        e.preventDefault();
+    const loginFormElement = document.getElementById('login-form');
+    if (loginFormElement) {
+        loginFormElement.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        const errorElement = document.getElementById('auth-error');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('auth-error');
 
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(() => {
-                errorElement.textContent = '';
-            })
-            .catch((error) => {
-                console.error("Error de inicio de sesión:", error);
-                let errorMessage = 'Error al iniciar sesión.';
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    if (errorElement) errorElement.textContent = '';
+                })
+                .catch((error) => {
+                    console.error("Error de inicio de sesión:", error);
+                    let errorMessage = 'Error al iniciar sesión.';
 
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Correo electrónico no válido.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Esta cuenta ha sido deshabilitada.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No existe una cuenta con este correo.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = 'Contraseña incorrecta.';
-                        break;
-                }
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            errorMessage = 'Correo electrónico no válido.';
+                            break;
+                        case 'auth/user-disabled':
+                            errorMessage = 'Esta cuenta ha sido deshabilitada.';
+                            break;
+                        case 'auth/user-not-found':
+                            errorMessage = 'No existe una cuenta con este correo.';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage = 'Contraseña incorrecta.';
+                            break;
+                    }
 
-                errorElement.textContent = errorMessage;
-            });
-    });
+                    if (errorElement) errorElement.textContent = errorMessage;
+                });
+        });
+    }
 
     // Registro de usuario
-    document.getElementById('register-form').addEventListener('submit', function (e) {
-        e.preventDefault();
+    const registerFormElement = document.getElementById('register-form');
+    if (registerFormElement) {
+        registerFormElement.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
-        const confirmPassword = document.getElementById('register-confirm-password').value;
-        const errorElement = document.getElementById('auth-error');
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const errorElement = document.getElementById('auth-error');
 
-        if (password !== confirmPassword) {
-            errorElement.textContent = 'Las contraseñas no coinciden.';
-            return;
-        }
+            if (!errorElement) return;
 
-        if (password.length < 6) {
-            errorElement.textContent = 'La contraseña debe tener al menos 6 caracteres.';
-            return;
-        }
-
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then(() => {
-                errorElement.textContent = '';
-            })
-            .catch((error) => {
-                console.error("Error de registro:", error);
-                let errorMessage = 'Error al crear la cuenta.';
-
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'Este correo ya está en uso.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Correo electrónico no válido.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Contraseña demasiado débil.';
-                        break;
-                }
-
-                errorElement.textContent = errorMessage;
-            });
-    });
-
-    // Manejar botón de usuario y menú desplegable
-    const userMenuButton = document.getElementById('user-menu-button');
-    const userDropdown = document.getElementById('user-dropdown');
-
-    if (userMenuButton && userDropdown) {
-        userMenuButton.addEventListener('click', function () {
-            userDropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function (e) {
-            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-                userDropdown.classList.add('hidden');
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'Las contraseñas no coinciden.';
+                return;
             }
+
+            if (password.length < 6) {
+                errorElement.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                return;
+            }
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    errorElement.textContent = '';
+                })
+                .catch((error) => {
+                    console.error("Error de registro:", error);
+                    let errorMessage = 'Error al crear la cuenta.';
+
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            errorMessage = 'Este correo ya está en uso.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'Correo electrónico no válido.';
+                            break;
+                        case 'auth/weak-password':
+                            errorMessage = 'Contraseña demasiado débil.';
+                            break;
+                    }
+
+                    errorElement.textContent = errorMessage;
+                });
         });
     }
 
@@ -124,12 +141,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (logoutButton) {
         logoutButton.addEventListener('click', function (e) {
             e.preventDefault();
-
-            firebase.auth().signOut().then(() => {
-                console.log("Sesión cerrada correctamente.");
-            }).catch((error) => {
-                console.error("Error al cerrar sesión:", error);
-            });
+            
+            firebase.auth().signOut()
+                .then(() => {
+                    // Redirigir a la pantalla de login
+                    const loginScreen = document.getElementById('login-screen');
+                    const mainContent = document.getElementById('main-content');
+                    
+                    if (loginScreen && mainContent) {
+                        loginScreen.classList.remove('hidden');
+                        mainContent.classList.add('hidden');
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error al cerrar sesión:", error);
+                });
         });
     }
 });
