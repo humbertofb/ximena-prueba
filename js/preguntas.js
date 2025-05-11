@@ -60,35 +60,39 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar la pregunta del día
     function cargarPreguntaDelDia() {
-db.collection('preguntas')
-    .orderBy('fechaCreacion', 'desc')
-    .get()
-    .then((querySnapshot) => {
-        if (querySnapshot.empty) {
-            mostrarMensajeNoHayPreguntas();
-            return;
-        }
-
-        preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
-
-        querySnapshot.forEach((doc) => {
-            const pregunta = {
-                id: doc.id,
-                ...doc.data()
-            };
-            mostrarPregunta(pregunta);
-            cargarRespuestas(pregunta.id); // Puedes limitar solo a la más reciente si prefieres
-        });
-    })
-                
-                // Configuramos un listener en tiempo real para las respuestas
-                configurarListenerRespuestas(preguntaActual.id);
-            })
-            .catch((error) => {
-                console.error('Error al cargar pregunta del día:', error);
+    db.collection('preguntas')
+        .orderBy('fechaCreacion', 'desc')
+        .get()
+        .then((querySnapshot) => {
+            if (querySnapshot.empty) {
                 mostrarMensajeNoHayPreguntas();
+                return;
+            }
+
+            preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
+
+            querySnapshot.forEach((doc) => {
+                const pregunta = {
+                    id: doc.id,
+                    ...doc.data()
+                };
+
+                // Mostrar pregunta
+                mostrarPregunta(pregunta);
+
+                // Cargar respuestas de esta pregunta
+                cargarRespuestas(pregunta.id);
+
+                // Configurar listener en tiempo real por cada pregunta
+                configurarListenerRespuestas(pregunta.id);
             });
-    }
+        })
+        .catch((error) => {
+            console.error('Error al cargar preguntas:', error);
+            mostrarMensajeNoHayPreguntas();
+        });
+}
+
     
     // Función para mostrar un mensaje cuando no hay preguntas
     function mostrarMensajeNoHayPreguntas() {
