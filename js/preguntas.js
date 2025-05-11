@@ -82,7 +82,7 @@ db.collection('preguntas')
     })
                 
                 // Configuramos un listener en tiempo real para las respuestas
-                configurarListenerRespuestas(preguntaActiva.id);
+                configurarListenerRespuestas(preguntaActual.id);
             })
             .catch((error) => {
                 console.error('Error al cargar pregunta del día:', error);
