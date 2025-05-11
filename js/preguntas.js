@@ -60,25 +60,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar la pregunta del día
     function cargarPreguntaDelDia() {
-        db.collection('preguntas')
-            .orderBy('fechaCreacion', 'desc')
-            .limit(1)
-            .get()
-            .then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    console.log('No hay preguntas en la base de datos');
-                    mostrarMensajeNoHayPreguntas();
-                    return;
-                }
-                
-                const doc = querySnapshot.docs[0];
-                preguntaActiva = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                
-                mostrarPregunta(preguntaActiva);
-                cargarRespuestas(preguntaActiva.id);
+db.collection('preguntas')
+    .orderBy('fechaCreacion', 'desc')
+    .get()
+    .then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            mostrarMensajeNoHayPreguntas();
+            return;
+        }
+
+        preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
+
+        querySnapshot.forEach((doc) => {
+            const pregunta = {
+                id: doc.id,
+                ...doc.data()
+            };
+            mostrarPregunta(pregunta);
+            cargarRespuestas(pregunta.id); // Puedes limitar solo a la más reciente si prefieres
+        });
+    })
                 
                 // Configuramos un listener en tiempo real para las respuestas
                 configurarListenerRespuestas(preguntaActiva.id);
