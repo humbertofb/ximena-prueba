@@ -928,7 +928,6 @@ function inicializarFuncionalidades() {
     
     // Comprobar también al redimensionar la ventana
     window.addEventListener('resize', limitarRespuestasMobile);
-}
 
 // Iniciar cuando el usuario esté autenticado
 firebase.auth().onAuthStateChanged(function(user) {
