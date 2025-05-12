@@ -736,24 +736,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Función para cargar más preguntas (paginación)
-    function cargarMasPreguntas() {
-        const ultimaPregunta = document.querySelector('.pregunta-card:last-child');
-        if (!ultimaPregunta) return;
-        
-        const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
-        
-        db.collection('preguntas')
-            .orderBy('fechaCreacion', 'desc')
-            .startAfter(preguntaActiva.fechaCreacion)
-            .limit(5)
-            .get()
-            .then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    mostrarNotificacion('No hay más preguntas para cargar', 'info');
-                    return;
-                }
-                
-                const preguntasContainer = document.createElement('div className = 'preguntas-anteriores';
+function cargarMasPreguntas() {
+    const ultimaPregunta = document.querySelector('.pregunta-card:last-child');
+    if (!ultimaPregunta) return;
+    
+    const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
+    
+    db.collection('preguntas')
+        .orderBy('fechaCreacion', 'desc')
+        .startAfter(preguntaActiva.fechaCreacion)
+        .limit(5)
+        .get()
+        .then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                mostrarNotificacion('No hay más preguntas para cargar', 'info');
+                return;
+            }
+            
+            const preguntasContainer = document.createElement('div');
+            preguntasContainer.className = 'preguntas-anteriores';
             
             querySnapshot.forEach((doc) => {
                 const pregunta = {
@@ -791,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error al cargar más preguntas:', error);
             mostrarNotificacion('Error al cargar más preguntas', 'error');
         });
-    }
+}
     
     // Función para cargar una pregunta específica
     function cargarPreguntaEspecifica(preguntaId) {
