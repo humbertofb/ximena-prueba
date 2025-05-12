@@ -60,39 +60,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para cargar la pregunta del día
     function cargarPreguntaDelDia() {
-    db.collection('preguntas')
-        .orderBy('fechaCreacion', 'desc')
-        .get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
+        db.collection('preguntas')
+            .orderBy('fechaCreacion', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    mostrarMensajeNoHayPreguntas();
+                    return;
+                }
+
+                preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
+
+                querySnapshot.forEach((doc) => {
+                    const pregunta = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+
+                    // Mostrar pregunta
+                    mostrarPregunta(pregunta);
+
+                    // Cargar respuestas de esta pregunta
+                    cargarRespuestas(pregunta.id);
+
+                    // Configurar listener en tiempo real por cada pregunta
+                    configurarListenerRespuestas(pregunta.id);
+                });
+            })
+            .catch((error) => {
+                console.error('Error al cargar preguntas:', error);
                 mostrarMensajeNoHayPreguntas();
-                return;
-            }
-
-            preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
-
-            querySnapshot.forEach((doc) => {
-                const pregunta = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-
-                // Mostrar pregunta
-                mostrarPregunta(pregunta);
-
-                // Cargar respuestas de esta pregunta
-                cargarRespuestas(pregunta.id);
-
-                // Configurar listener en tiempo real por cada pregunta
-                configurarListenerRespuestas(pregunta.id);
             });
-        })
-        .catch((error) => {
-            console.error('Error al cargar preguntas:', error);
-            mostrarMensajeNoHayPreguntas();
-        });
-}
-
+    }
     
     // Función para mostrar un mensaje cuando no hay preguntas
     function mostrarMensajeNoHayPreguntas() {
@@ -593,6 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 
                 const textoElement = document.getElementById('pregunta-texto');
+                
                 const texto = textoElement.value.trim();
                 
                 if (!texto) {
@@ -705,55 +705,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
-
+    }
+    
     // Función para mostrar notificaciones
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    // Eliminar notificaciones existentes
-    const notificacionesExistentes = document.querySelectorAll('.notification');
-    notificacionesExistentes.forEach(notif => notif.remove());
-    
-    // Crear nueva notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = `notification ${tipo}`;
-    notificacion.textContent = mensaje;
-    
-    // Añadir al DOM
-    document.body.appendChild(notificacion);
-    
-    // Mostrar con animación
-    setTimeout(() => {
-        notificacion.classList.add('show');
-    }, 10);
-    
-    // Ocultar después de 3 segundos
-    setTimeout(() => {
-        notificacion.classList.remove('show');
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        // Eliminar notificaciones existentes
+        const notificacionesExistentes = document.querySelectorAll('.notification');
+        notificacionesExistentes.forEach(notif => notif.remove());
+        
+        // Crear nueva notificación
+        const notificacion = document.createElement('div');
+        notificacion.className = `notification ${tipo}`;
+        notificacion.textContent = mensaje;
+        
+        // Añadir al DOM
+        document.body.appendChild(notificacion);
+        
+        // Mostrar con animación
         setTimeout(() => {
-            notificacion.remove();
-        }, 300);
-    }, 3000);
-}
-
-// Función para cargar más preguntas (paginación)
-function cargarMasPreguntas() {
-    const ultimaPregunta = document.querySelector('.pregunta-card:last-child');
-    if (!ultimaPregunta) return;
+            notificacion.classList.add('show');
+        }, 10);
+        
+        // Ocultar después de 3 segundos
+        setTimeout(() => {
+            notificacion.classList.remove('show');
+            setTimeout(() => {
+                notificacion.remove();
+            }, 300);
+        }, 3000);
+    }
     
-    const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
-    
-    db.collection('preguntas')
-        .orderBy('fechaCreacion', 'desc')
-        .startAfter(preguntaActiva.fechaCreacion)
-        .limit(5)
-        .get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                mostrarNotificacion('No hay más preguntas para cargar', 'info');
-                return;
-            }
-            
-            const preguntasContainer = document.createElement('div');
-            preguntasContainer.className = 'preguntas-anteriores';
+    // Función para cargar más preguntas (paginación)
+    function cargarMasPreguntas() {
+        const ultimaPregunta = document.querySelector('.pregunta-card:last-child');
+        if (!ultimaPregunta) return;
+        
+        const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
+        
+        db.collection('preguntas')
+            .orderBy('fechaCreacion', 'desc')
+            .startAfter(preguntaActiva.fechaCreacion)
+            .limit(5)
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    mostrarNotificacion('No hay más preguntas para cargar', 'info');
+                    return;
+                }
+                
+                const preguntasContainer = document.createElement('div className = 'preguntas-anteriores';
             
             querySnapshot.forEach((doc) => {
                 const pregunta = {
@@ -791,147 +791,148 @@ function cargarMasPreguntas() {
             console.error('Error al cargar más preguntas:', error);
             mostrarNotificacion('Error al cargar más preguntas', 'error');
         });
-}
-
-// Función para cargar una pregunta específica
-function cargarPreguntaEspecifica(preguntaId) {
-    db.collection('preguntas').doc(preguntaId).get()
-        .then((doc) => {
-            if (!doc.exists) {
-                mostrarNotificacion('La pregunta no existe', 'error');
-                return;
-            }
-            
-            preguntaActiva = {
-                id: doc.id,
-                ...doc.data()
-            };
-            
-            mostrarPregunta(preguntaActiva);
-            cargarRespuestas(preguntaActiva.id);
-            
-            // Desplazar la pantalla hacia arriba
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        })
-        .catch((error) => {
-            console.error('Error al cargar pregunta específica:', error);
-            mostrarNotificacion('Error al cargar la pregunta', 'error');
-        });
-}
-
-// Función para limitar el número de respuestas en móvil
-function limitarRespuestasMobile() {
-    // Detectar si es un dispositivo móvil
-    const esMobile = window.innerWidth < 768;
+    }
     
-    if (esMobile) {
-        const respuestas = document.querySelectorAll('.respuesta-item');
+    // Función para cargar una pregunta específica
+    function cargarPreguntaEspecifica(preguntaId) {
+        db.collection('preguntas').doc(preguntaId).get()
+            .then((doc) => {
+                if (!doc.exists) {
+                    mostrarNotificacion('La pregunta no existe', 'error');
+                    return;
+                }
+                
+                preguntaActiva = {
+                    id: doc.id,
+                    ...doc.data()
+                };
+                
+                mostrarPregunta(preguntaActiva);
+                cargarRespuestas(preguntaActiva.id);
+                
+                // Desplazar la pantalla hacia arriba
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            })
+            .catch((error) => {
+                console.error('Error al cargar pregunta específica:', error);
+                mostrarNotificacion('Error al cargar la pregunta', 'error');
+            });
+    }
+    
+    // Función para limitar el número de respuestas en móvil
+    function limitarRespuestasMobile() {
+        // Detectar si es un dispositivo móvil
+        const esMobile = window.innerWidth < 768;
         
-        // Si hay más de 3 respuestas, ocultar el resto
-        if (respuestas.length > 3) {
-            let contadorRespuestas = 0;
-            respuestas.forEach(respuesta => {
-                contadorRespuestas++;
-                if (contadorRespuestas > 3) {
-                    respuesta.classList.add('hidden');
+        if (esMobile) {
+            const respuestas = document.querySelectorAll('.respuesta-item');
+            
+            // Si hay más de 3 respuestas, ocultar el resto
+            if (respuestas.length > 3) {
+                let contadorRespuestas = 0;
+                respuestas.forEach(respuesta => {
+                    contadorRespuestas++;
+                    if (contadorRespuestas > 3) {
+                        respuesta.classList.add('hidden');
+                    }
+                });
+                
+                // Agregar botón "Ver más respuestas"
+                if (!document.querySelector('.btn-ver-mas')) {
+                    const verMasBtn = document.createElement('button');
+                    verMasBtn.className = 'btn-ver-mas';
+                    verMasBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver más respuestas';
+                    verMasBtn.addEventListener('click', mostrarMasRespuestas);
+                    
+                    respuestasContainer.appendChild(verMasBtn);
+                }
+            }
+        }
+    }
+    
+    // Función para mostrar más respuestas
+    function mostrarMasRespuestas() {
+        const respuestasOcultas = document.querySelectorAll('.respuesta-item.hidden');
+        
+        // Mostrar las siguientes 3 respuestas
+        let contador = 0;
+        respuestasOcultas.forEach(respuesta => {
+            if (contador < 3) {
+                respuesta.classList.remove('hidden');
+                contador++;
+            }
+        });
+        
+        // Si ya no hay más respuestas ocultas, quitar el botón
+        if (document.querySelectorAll('.respuesta-item.hidden').length === 0) {
+            const verMasBtn = document.querySelector('.btn-ver-mas');
+            if (verMasBtn) {
+                verMasBtn.remove();
+            }
+        }
+    }
+    
+    // Función para añadir el botón de volver arriba
+    function agregarBotonVolverArriba() {
+        // Crear botón si no existe
+        if (!document.querySelector('.btn-volver-arriba')) {
+            const botonVolver = document.createElement('button');
+            botonVolver.className = 'btn-volver-arriba';
+            botonVolver.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            botonVolver.title = 'Volver arriba';
+            
+            // Añadir al DOM
+            document.body.appendChild(botonVolver);
+            
+            // Añadir evento
+            botonVolver.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Mostrar/ocultar dependiendo del scroll
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    botonVolver.classList.add('visible');
+                } else {
+                    botonVolver.classList.remove('visible');
                 }
             });
-            
-            // Agregar botón "Ver más respuestas"
-            if (!document.querySelector('.btn-ver-mas')) {
-                const verMasBtn = document.createElement('button');
-                verMasBtn.className = 'btn-ver-mas';
-                verMasBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver más respuestas';
-                verMasBtn.addEventListener('click', mostrarMasRespuestas);
-                
-                respuestasContainer.appendChild(verMasBtn);
-            }
         }
     }
-}
-
-// Función para mostrar más respuestas
-function mostrarMasRespuestas() {
-    const respuestasOcultas = document.querySelectorAll('.respuesta-item.hidden');
     
-    // Mostrar las siguientes 3 respuestas
-    let contador = 0;
-    respuestasOcultas.forEach(respuesta => {
-        if (contador < 3) {
-            respuesta.classList.remove('hidden');
-            contador++;
-        }
-    });
-    
-    // Si ya no hay más respuestas ocultas, quitar el botón
-    if (document.querySelectorAll('.respuesta-item.hidden').length === 0) {
-        const verMasBtn = document.querySelector('.btn-ver-mas');
-        if (verMasBtn) {
-            verMasBtn.remove();
-        }
-    }
-}
-
-// Función para añadir el botón de volver arriba
-function agregarBotonVolverArriba() {
-    // Crear botón si no existe
-    if (!document.querySelector('.btn-volver-arriba')) {
-        const botonVolver = document.createElement('button');
-        botonVolver.className = 'btn-volver-arriba';
-        botonVolver.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        botonVolver.title = 'Volver arriba';
+    // Función principal para inicializar todas las funcionalidades
+    function inicializarFuncionalidades() {
+        cargarPreguntaDelDia();
+        agregarBotonVolverArriba();
         
-        // Añadir al DOM
-        document.body.appendChild(botonVolver);
+        // Añadir botón para cargar más preguntas
+        const cargarMasBtn = document.createElement('button');
+        cargarMasBtn.className = 'btn-cargar-mas';
+        cargarMasBtn.innerHTML = '<i class="fas fa-plus"></i> Cargar más preguntas';
+        cargarMasBtn.addEventListener('click', cargarMasPreguntas);
         
-        // Añadir evento
-        botonVolver.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+        document.querySelector('.preguntas-container').appendChild(cargarMasBtn);
+        
+        // Observar cambios en el DOM para aplicar limitaciones en móvil
+        const observer = new MutationObserver(() => {
+            limitarRespuestasMobile();
         });
         
-        // Mostrar/ocultar dependiendo del scroll
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                botonVolver.classList.add('visible');
-            } else {
-                botonVolver.classList.remove('visible');
-            }
-        });
+        observer.observe(respuestasContainer, { childList: true, subtree: true });
+        
+        // Comprobar también al redimensionar la ventana
+        window.addEventListener('resize', limitarRespuestasMobile);
     }
-}
-
-// Función principal para inicializar todas las funcionalidades
-function inicializarFuncionalidades() {
-    cargarPreguntaDelDia();
-    agregarBotonVolverArriba();
     
-    // Añadir botón para cargar más preguntas
-    const cargarMasBtn = document.createElement('button');
-    cargarMasBtn.className = 'btn-cargar-mas';
-    cargarMasBtn.innerHTML = '<i class="fas fa-plus"></i> Cargar más preguntas';
-    cargarMasBtn.addEventListener('click', cargarMasPreguntas);
-    
-    document.querySelector('.preguntas-container').appendChild(cargarMasBtn);
-    
-    // Observar cambios en el DOM para aplicar limitaciones en móvil
-    const observer = new MutationObserver(() => {
-        limitarRespuestasMobile();
+    // Iniciar cuando el usuario esté autenticado
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            inicializarFuncionalidades();
+        }
     });
-    
-    observer.observe(respuestasContainer, { childList: true, subtree: true });
-    
-    // Comprobar también al redimensionar la ventana
-    window.addEventListener('resize', limitarRespuestasMobile);
-
-// Iniciar cuando el usuario esté autenticado
-firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-        inicializarFuncionalidades();
-    }
-});
