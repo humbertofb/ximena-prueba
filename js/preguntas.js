@@ -932,8 +932,11 @@ function cargarMasPreguntas() {
     }
     
     // Iniciar cuando el usuario esté autenticado
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            inicializarFuncionalidades();
-        }
-    });
+firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        inicializarFuncionalidades();
+    }
+});
+
+// Cierre del evento DOMContentLoaded que faltaba
+});
