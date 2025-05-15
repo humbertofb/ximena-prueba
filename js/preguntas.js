@@ -4,6 +4,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Referencia a la base de datos
     const db = firebase.firestore();
     
+// Función formatearFecha que falta en el código
+    function formatearFecha(timestamp) {
+    if (!timestamp) {
+        return 'Fecha no disponible';
+    }
+    
+    // Convertir el timestamp de Firestore a objeto Date
+    const fecha = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    
+    // Opciones de formato
+    const opciones = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    
+    return fecha.toLocaleDateString('es-ES', opciones);
+}
+    
     // Elementos DOM
     const preguntaActualContainer = document.getElementById('pregunta-actual');
     const respuestasContainer = document.getElementById('respuestas-container');
