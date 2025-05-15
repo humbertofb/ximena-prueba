@@ -15,6 +15,67 @@ document.addEventListener('DOMContentLoaded', function() {
     let respuestasMostradas = 0;
     const respuestasPorPagina = 3; // Número de respuestas a mostrar por página en móviles
     const esMobil = window.innerWidth <= 768;
+
+    // Función para el botón hamburguesa
+function inicializarMenuHamburguesa() {
+    const menuBtn = document.getElementById('menu-toggle');
+    const sideMenu = document.querySelector('.side-menu');
+    const overlay = document.querySelector('.overlay');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (!menuBtn || !sideMenu || !overlay) {
+        console.error('Elementos del menú no encontrados');
+        return;
+    }
+    
+    menuBtn.addEventListener('click', () => {
+        sideMenu.classList.toggle('active');
+        overlay.classList.toggle('active');
+        if (mainContent) {
+            mainContent.classList.toggle('active');
+        }
+    });
+    
+    // Cerrar menú al hacer clic en el overlay
+    overlay.addEventListener('click', () => {
+        sideMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        if (mainContent) {
+            mainContent.classList.remove('active');
+        }
+    });
+}
+
+// Llamar a esta función desde inicializarFuncionalidades
+function inicializarFuncionalidades() {
+    cargarPreguntaDelDia();
+    agregarBotonVolverArriba();
+    inicializarMenuHamburguesa(); // Añadir esta línea
+    inicializarSwitchTema(); // Añadir esta línea
+    
+    // Añadir botón para cargar más preguntas
+    const cargarMasBtn = document.createElement('button');
+    cargarMasBtn.className = 'btn-cargar-mas';
+    cargarMasBtn.innerHTML = '<i class="fas fa-plus"></i> Cargar más preguntas';
+    cargarMasBtn.addEventListener('click', cargarMasPreguntas);
+    
+    const preguntasContainer = document.querySelector('.preguntas-container');
+    if (preguntasContainer) {
+        preguntasContainer.appendChild(cargarMasBtn);
+    }
+    
+    // Observar cambios en el DOM para aplicar limitaciones en móvil
+    if (respuestasContainer) {
+        const observer = new MutationObserver(() => {
+            limitarRespuestasMobile();
+        });
+        
+        observer.observe(respuestasContainer, { childList: true, subtree: true });
+    }
+    
+    // Comprobar también al redimensionar la ventana
+    window.addEventListener('resize', limitarRespuestasMobile);
+}
     
     // Añadir botón "Volver arriba"
     crearBotonVolverArriba();
