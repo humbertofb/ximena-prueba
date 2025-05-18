@@ -788,6 +788,95 @@ function inicializarFuncionalidades() {
             });
         }
     }
+
+    function mostrarModalEditarRespuesta(respuesta) {
+    // Crear el modal si no existe
+    if (!document.getElementById('editar-respuesta-modal')) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="editar-respuesta-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Editar Respuesta</h2>
+                    <form id="editar-respuesta-form">
+                        <input type="hidden" id="editar-respuesta-id">
+                        <div class="form-group">
+                            <label for="editar-respuesta-texto">Tu respuesta</label>
+                            <textarea id="editar-respuesta-texto" placeholder="Escribe aquí tu respuesta..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-modal-guardar">Guardar cambios</button>
+                    </form>
+                </div>
+            </div>
+        `);
+        
+        // Configurar los eventos del modal (cerrar, submit, etc.)
+        const modal = document.getElementById('editar-respuesta-modal');
+        const closeBtn = modal.querySelector('.close');
+        
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+        
+        // ... resto de configuración de eventos
+    }
+    
+    // Establecer valores actuales en el formulario
+    const modal = document.getElementById('editar-respuesta-modal');
+    const idElement = document.getElementById('editar-respuesta-id');
+    const textoElement = document.getElementById('editar-respuesta-texto');
+    
+    idElement.value = respuesta.id;
+    textoElement.value = respuesta.texto;
+    
+    // Mostrar el modal
+    modal.classList.add('show');
+}
+
+function confirmarEliminarRespuesta(respuestaId) {
+    // Crear el modal de confirmación si no existe
+    if (!document.getElementById('confirmar-modal')) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="confirmar-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Confirmar eliminación</h2>
+                    <p>¿Estás seguro de que deseas eliminar esta respuesta? Esta acción no se puede deshacer.</p>
+                    <div class="modal-buttons">
+                        <button id="confirmar-cancelar" class="btn-cancelar">Cancelar</button>
+                        <button id="confirmar-eliminar" class="btn-eliminar">Eliminar</button>
+                    </div>
+                    <input type="hidden" id="confirmar-id">
+                    <input type="hidden" id="confirmar-tipo">
+                </div>
+            </div>
+        `);
+        
+        // Configurar eventos para el modal
+        // ... código para manejar los eventos
+    }
+    
+    // Configurar el modal para eliminar respuesta
+    const modal = document.getElementById('confirmar-modal');
+    const confirmarId = document.getElementById('confirmar-id');
+    const confirmarTipo = document.getElementById('confirmar-tipo');
+    
+    confirmarId.value = respuestaId;
+    confirmarTipo.value = 'respuesta';
+    
+    // Mostrar el modal
+    modal.classList.add('show');
+}
+
+function confirmarEliminarPregunta(preguntaId) {
+    // Similar a confirmarEliminarRespuesta pero para preguntas
+    // ...
+    
+    confirmarId.value = preguntaId;
+    confirmarTipo.value = 'pregunta';
+    
+    // Mostrar el modal
+    modal.classList.add('show');
+}
     
     // Función para mostrar notificaciones
     function mostrarNotificacion(mensaje, tipo = 'info') {
@@ -824,11 +913,23 @@ function cargarMasPreguntas() {
     
     const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
     
-    db.collection('preguntas')
-        .orderBy('fechaCreacion', 'desc')
-        .startAfter(preguntaActiva.fechaCreacion)
-        .limit(5)
-        .get()
+    // Consultar primero el documento de referencia
+    db.collection('preguntas').doc(ultimaPreguntaId).get()
+        .then(doc => {
+            if (doc.exists) {
+                return db.collection('preguntas')
+                    .orderBy('fechaCreacion', 'desc')
+                    .startAfter(doc)
+                    .limit(5)
+                    .get();
+            } else {
+                // Fallback si no se encuentra el documento
+                return db.collection('preguntas')
+                    .orderBy('fechaCreacion', 'desc')
+                    .limit(5)
+                    .get();
+            }
+        })
         .then((querySnapshot) => {
             if (querySnapshot.empty) {
                 mostrarNotificacion('No hay más preguntas para cargar', 'info');
