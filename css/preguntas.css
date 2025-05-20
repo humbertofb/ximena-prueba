@@ -343,6 +343,7 @@ body {
     margin: 20px 0 40px;
 }
 
+/* Correccion: Estilos para el botón de nueva pregunta */
 .nueva-pregunta-btn {
     background: linear-gradient(135deg, #4CAF50, #8BC34A);
     color: white;
@@ -378,11 +379,250 @@ body {
     font-size: 1.2rem;
 }
 
+/* Estilos para el modal de nueva pregunta */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.dark-theme .modal-content {
+    background-color: #333;
+    color: #fff;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.dark-theme .close-modal:hover {
+    color: #fff;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.dark-theme .form-control {
+    background-color: #444;
+    border-color: #555;
+    color: #fff;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+textarea.form-control {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancelar {
+    background-color: #f2f2f2;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dark-theme .btn-cancelar {
+    background-color: #555;
+    color: #fff;
+}
+
+.btn-cancelar:hover {
+    background-color: #e0e0e0;
+}
+
+.dark-theme .btn-cancelar:hover {
+    background-color: #666;
+}
+
+.btn-guardar {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-guardar:hover {
+    background-color: #357abd;
+}
+
+/* Cuadro para responder a preguntas */
+.responder-container {
+    margin: 30px 0;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.dark-theme .responder-container {
+    background-color: #2a2a2a;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.responder-titulo {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.dark-theme .responder-titulo {
+    color: #fff;
+}
+
+.responder-form {
+    width: 100%;
+}
+
+.responder-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.dark-theme .responder-textarea {
+    background-color: #333;
+    border-color: #444;
+    color: #fff;
+}
+
+.responder-textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.responder-btn {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.responder-btn:hover {
+    background-color: #357abd;
+    transform: translateY(-2px);
+}
+
+.responder-btn:active {
+    transform: translateY(0);
+}
+
+.responder-btn i {
+    font-size: 1.1rem;
+}
+
 /* Estilos para las reacciones */
 .reacciones {
     display: flex;
-    justify-content: space-between; /* Añadir esta línea */
-    align-items: center; /* Añadir esta línea */
+    justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
@@ -394,11 +634,12 @@ body {
     flex-wrap: wrap;
 }
 
+/* Corrección: Emojis más pequeños */
 .btn-reaccion {
     background: none;
     border: 1px solid rgba(0,0,0,0.1);
     cursor: pointer;
-    font-size: 1.3rem;
+    font-size: 1rem; /* Reducido de 1.3rem a 1rem */
     border-radius: 20px;
     padding: 3px 10px;
     display: flex;
@@ -431,12 +672,12 @@ body {
 }
 
 .reaccion-emoji {
-    font-size: 1rem;
+    font-size: 0.85rem; /* Reducido de 1rem a 0.85rem */
 }
 
 .reaccion-count {
-    font-size: 0.9rem;
-    min-width: 18px;
+    font-size: 0.8rem; /* Reducido de 0.9rem a 0.8rem */
+    min-width: 16px; /* Reducido de 18px a 16px */
     text-align: center;
     font-weight: bold;
 }
@@ -474,19 +715,12 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.4);
 }
 
-/* Estilos para el botón de ver más respuestas en móvil */
+/* Corrección: Estilos para el botón de ver más respuestas */
 .btn-ver-mas {
-    .btn-volver-arriba {
-    position: fixed;
-    bottom: 50px; /* Cambiar de 30px a 50px */
-    right: 30px;
-    width: 60px; /* Cambiar de 50px a 60px */
-    height: 60px; /* Cambiar de 50px a 60px */
-    border-radius: 50%;
-    background: #4a90e2;
     background-color: #f0f8ff;
     color: #4a90e2;
     border: 1px solid #4a90e2;
+    border-radius: 8px;
     padding: 10px 15px;
     margin-top: 15px;
     cursor: pointer;
@@ -496,6 +730,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    width: 100%;
 }
 
 .dark-theme .btn-ver-mas {
@@ -520,7 +755,7 @@ body {
     transform: translateY(3px);
 }
 
-/* Estilos para los botones de editar y eliminar */
+/* Corrección: Estilos para los botones de editar y eliminar respuestas */
 .respuesta-admin {
     display: flex;
     gap: 10px;
@@ -582,7 +817,7 @@ body {
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
-        margin-left: auto; /* Añadir esta línea para empujar a la derecha */
+        margin-left: auto;
     }
     
     .btn-editar-respuesta,
