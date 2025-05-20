@@ -455,12 +455,14 @@ body {
 
 .form-group {
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .form-label {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
+    text-align: left;
 }
 
 .form-control {
@@ -470,6 +472,7 @@ body {
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.2s ease;
+    background-color: #fff;
 }
 
 .dark-theme .form-control {
@@ -481,6 +484,7 @@ body {
 .form-control:focus {
     outline: none;
     border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 textarea.form-control {
@@ -537,6 +541,26 @@ textarea.form-control {
 
 .btn-guardar:hover {
     background-color: #357abd;
+    transform: translateY(-2px);
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s ease;
+    padding: 5px;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.dark-theme .close-modal:hover {
+    color: #fff;
 }
 
 /* Cuadro para responder a preguntas */
