@@ -31,7 +31,7 @@ body {
     left: 1rem;
     z-index: 1000;
     cursor: pointer;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Asegúrate que --primary-color esté definido en themes.css o style.css */
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -100,7 +100,7 @@ body {
     z-index: 900;
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+    transition: opacity var(--transition-speed, 0.3s), visibility var(--transition-speed, 0.3s); /* fallback para --transition-speed */
 }
 
 .menu-open .overlay {
@@ -112,12 +112,12 @@ body {
 .side-menu {
     position: fixed;
     top: 0;
-    left: -100%;
-    width: var(--side-menu-width);
+    left: -100%; /* Comienza oculto */
+    width: var(--side-menu-width, 250px); /* fallback para --side-menu-width */
     height: 100vh;
-    background-color: var(--card-bg);
+    background-color: var(--card-bg, #fff); /* fallback para --card-bg */
     z-index: 1000;
-    transition: left var(--transition-speed);
+    transition: left var(--transition-speed, 0.3s); /* fallback */
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
 }
@@ -128,7 +128,7 @@ body {
 
 .menu-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: linear-gradient(135deg, var(--primary-color, #8A2BE2) 0%, var(--accent-color, #BA55D3) 100%); /* fallback */
     color: white;
     text-align: center;
 }
@@ -141,21 +141,21 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    color: var(--text-color);
+    color: var(--text-color, #333); /* fallback */
     text-decoration: none;
     font-weight: 500;
-    transition: background-color var(--transition-speed);
+    transition: background-color var(--transition-speed, 0.3s); /* fallback */
 }
 
 .menu-items a i {
     margin-right: 0.8rem;
     width: 20px;
     text-align: center;
-    color: var(--primary-color);
+    color: var(--primary-color, #8A2BE2); /* fallback */
 }
 
 .menu-items a:hover, .menu-items a.active {
-    background-color: rgba(138, 43, 226, 0.1);
+    background-color: rgba(138, 43, 226, 0.1); /* Usando un color fijo ya que --primary-color puede variar */
 }
 
 /* Contenido principal */
@@ -165,7 +165,7 @@ body {
 }
 
 .main-content.active {
-    margin-left: 280px;
+    margin-left: var(--side-menu-width, 280px); /* Ajustar al valor real de --side-menu-width si es diferente */
 }
 
 /* Estilos para la página de preguntas */
@@ -181,11 +181,11 @@ body {
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-    background-color: #fff;
+    background-color: #fff; /* Mantener un fondo para light theme */
 }
 
 .dark-theme .pregunta-actual {
-    background-color: #2d2d2d;
+    background-color: #3a3a3a; /* Un poco más claro que el fondo para destacar */
 }
 
 .pregunta-actual:hover {
@@ -194,21 +194,21 @@ body {
 
 .pregunta-card {
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 15px; /* Redondeo ya está en .pregunta-actual, quizás no necesario aquí si es el único hijo */
     position: relative;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; /* Si .pregunta-card está dentro de .pregunta-actual, esto podría ser innecesario */
     border-left: 5px solid transparent;
 }
 
 .light-theme .pregunta-card {
     background-color: #f9f9f9;
-    border-left-color: #f8a5c2;
+    border-left-color: #f8a5c2; /* Color para light theme */
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .dark-theme .pregunta-card {
-    background-color: #2d2d2d;
-    border-left-color: #c6426e;
+    background-color: #2d2d2d; /* Mismo que el fondo del tema oscuro */
+    border-left-color: #c6426e; /* Color para dark theme */
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
@@ -286,13 +286,13 @@ body {
 }
 
 .light-theme .respuesta-item {
-    background-color: #f0f8ff;
-    border-left-color: #4a90e2;
+    background-color: #f0f8ff; /* AliceBlue, un color claro y suave */
+    border-left-color: #4a90e2; /* Azul para respuestas */
 }
 
 .dark-theme .respuesta-item {
-    background-color: #2a2a2a;
-    border-left-color: #4a90e2;
+    background-color: #2a2a2a; /* Ligeramente diferente del fondo general */
+    border-left-color: #4a90e2; /* Mantener consistencia de color */
     box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 }
 
@@ -300,6 +300,11 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
+
+.dark-theme .respuesta-item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
 
 .respuesta-header {
     display: flex;
@@ -310,18 +315,21 @@ body {
 
 .respuesta-autor {
     font-weight: 600;
-    color: #4a90e2;
+    color: #4a90e2; /* Color consistente con la temática de respuesta */
 }
 
 .respuesta-fecha {
     font-size: 0.85rem;
     color: #888;
 }
+.dark-theme .respuesta-fecha {
+    color: #bbb;
+}
 
 .respuesta-contenido {
     margin-top: 10px;
     line-height: 1.5;
-    font-size: 1.25rem;
+    font-size: 1.1rem; /* Ligeramente más pequeño que la pregunta para jerarquía */
 }
 
 .respuesta-acciones {
@@ -343,7 +351,6 @@ body {
     margin: 20px 0 40px;
 }
 
-/* Correccion: Estilos para el botón de nueva pregunta */
 .nueva-pregunta-btn {
     background: linear-gradient(135deg, #4CAF50, #8BC34A);
     color: white;
@@ -355,11 +362,11 @@ body {
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
+    display: inline-flex; /* Cambiado de flex a inline-flex para que respete text-align:center del padre */
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin: 0 auto;
+    /* margin: 0 auto; /* No es necesario si el padre tiene text-align: center y el botón es inline-flex/inline-block */
 }
 
 .dark-theme .nueva-pregunta-btn {
@@ -380,21 +387,28 @@ body {
 }
 
 /* Estilos para el modal de nueva pregunta */
+/* NOTA: JavaScript debe añadir la clase .show al .modal para que sea visible */
 .modal {
-    display: none;
+    display: none; /* Oculto por defecto */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6); /* Un poco más oscuro para mejor contraste */
     z-index: 1100;
     align-items: center;
     justify-content: center;
+    opacity: 0; /* Para transición suave */
+    visibility: hidden; /* Para transición suave */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Transición */
 }
 
 .modal.show {
-    display: flex;
+    display: flex; /* Se activa con JS */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
 
 .modal-content {
@@ -407,10 +421,16 @@ body {
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
+    transform: scale(0.95); /* Para efecto de aparición */
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
 }
 
 .dark-theme .modal-content {
-    background-color: #333;
+    background-color: #333; /* Un gris oscuro, no negro puro */
     color: #fff;
 }
 
@@ -435,14 +455,21 @@ body {
 .close-modal {
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.8rem; /* Un poco más grande para facilidad de click */
     cursor: pointer;
     color: #888;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 5px;
+    line-height: 1;
 }
 
 .close-modal:hover {
     color: #333;
+    transform: scale(1.1);
+}
+
+.dark-theme .close-modal {
+    color: #aaa;
 }
 
 .dark-theme .close-modal:hover {
@@ -462,7 +489,7 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    text-align: left;
+    text-align: left; /* Asegura alineación izquierda, aunque ya estaba */
 }
 
 .form-control {
@@ -471,8 +498,9 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Añadido box-shadow a la transición */
     background-color: #fff;
+    color: #333; /* Color de texto para light theme */
 }
 
 .dark-theme .form-control {
@@ -483,8 +511,8 @@ body {
 
 .form-control:focus {
     outline: none;
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    border-color: #4a90e2; /* Color de borde al enfocar */
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Sombra al enfocar */
 }
 
 textarea.form-control {
@@ -544,25 +572,6 @@ textarea.form-control {
     transform: translateY(-2px);
 }
 
-.close-modal {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #888;
-    transition: color 0.2s ease;
-    padding: 5px;
-    line-height: 1;
-}
-
-.close-modal:hover {
-    color: #333;
-}
-
-.dark-theme .close-modal:hover {
-    color: #fff;
-}
-
 /* Cuadro para responder a preguntas */
 .responder-container {
     margin: 30px 0;
@@ -602,6 +611,8 @@ textarea.form-control {
     margin-bottom: 15px;
     resize: vertical;
     transition: border-color 0.2s ease;
+    background-color: #fff; /* Explicit background for light theme */
+    color: #333; /* Explicit text color for light theme */
 }
 
 .dark-theme .responder-textarea {
@@ -645,7 +656,7 @@ textarea.form-control {
 /* Estilos para las reacciones */
 .reacciones {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Esto es para el contenedor general de reacciones, si hay algo más además de los botones */
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
@@ -655,17 +666,16 @@ textarea.form-control {
 .reacciones-botones {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite que los botones de reacción pasen a la siguiente línea si no caben */
 }
 
-/* Corrección: Emojis más pequeños */
 .btn-reaccion {
     background: none;
     border: 1px solid rgba(0,0,0,0.1);
     cursor: pointer;
-    font-size: 1rem; /* Reducido de 1.3rem a 1rem */
+    font-size: 1rem; 
     border-radius: 20px;
-    padding: 3px 10px;
+    padding: 3px 10px; /* Ajustado para mejor proporción */
     display: flex;
     align-items: center;
     gap: 5px;
@@ -674,7 +684,12 @@ textarea.form-control {
 
 .dark-theme .btn-reaccion {
     border-color: rgba(255,255,255,0.1);
+    color: #ddd; /* Color de texto para emojis/contador en dark theme */
 }
+.dark-theme .btn-reaccion .reaccion-emoji {
+    color: #fff; /* Si el emoji es un caracter de fuente, para que se vea bien */
+}
+
 
 .btn-reaccion:hover {
     transform: scale(1.05);
@@ -688,25 +703,28 @@ textarea.form-control {
 .btn-reaccion.active {
     background-color: rgba(74, 144, 226, 0.1);
     border-color: #4a90e2;
+    color: #4a90e2; /* Color de texto cuando está activo */
 }
 
 .dark-theme .btn-reaccion.active {
     background-color: rgba(74, 144, 226, 0.2);
     border-color: #4a90e2;
+    color: #69a5e9; /* Un azul más claro para dark theme activo */
 }
 
 .reaccion-emoji {
-    font-size: 0.85rem; /* Reducido de 1rem a 0.85rem */
+    font-size: 0.85rem; 
 }
 
 .reaccion-count {
-    font-size: 0.8rem; /* Reducido de 0.9rem a 0.8rem */
-    min-width: 16px; /* Reducido de 18px a 16px */
+    font-size: 0.8rem; 
+    min-width: 16px; 
     text-align: center;
     font-weight: bold;
 }
 
 /* Estilos para el botón de volver arriba */
+/* NOTA: JavaScript debe añadir la clase .visible cuando se haga scroll */
 .btn-volver-arriba {
     position: fixed;
     bottom: 30px;
@@ -724,12 +742,12 @@ textarea.form-control {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    z-index: 100;
+    z-index: 100; /* Asegurar que esté sobre la mayoría del contenido pero debajo del modal/menú */
     border: none;
-    font-size: 1.2rem;
+    font-size: 1.2rem; /* Para el ícono interno que DEBES añadir en el HTML, ej: <i class="fas fa-arrow-up"></i> */
 }
 
-.btn-volver-arriba.visible {
+.btn-volver-arriba.visible { /* Esta clase la añade JS */
     opacity: 1;
     visibility: visible;
 }
@@ -737,29 +755,33 @@ textarea.form-control {
 .btn-volver-arriba:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    background-color: #357abd; /* Color más oscuro al pasar el mouse */
 }
 
-/* Corrección: Estilos para el botón de ver más respuestas */
+/* Estilos para el botón de ver más respuestas */
+/* NOTA: Asegúrate de tener solo UN botón para "ver más" en tu HTML/JS */
 .btn-ver-mas {
     background-color: #f0f8ff;
     color: #4a90e2;
     border: 1px solid #4a90e2;
     border-radius: 8px;
     padding: 10px 15px;
-    margin-top: 15px;
+    margin-top: 15px; /* Espacio arriba */
+    margin-bottom: 20px; /* Espacio abajo */
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s ease;
-    display: flex;
+    display: flex; /* Asegurar que es flex para alinear el ícono */
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
+    width: 100%; /* Ocupa todo el ancho disponible */
 }
 
 .dark-theme .btn-ver-mas {
     background-color: #2a2a2a;
-    color: #4a90e2;
+    color: #4a90e2; /* Mantener el color del texto, es un color de acción */
+    border-color: #4a90e2; /* Mantener el color del borde */
 }
 
 .btn-ver-mas:hover {
@@ -768,7 +790,7 @@ textarea.form-control {
 }
 
 .dark-theme .btn-ver-mas:hover {
-    background-color: #333;
+    background-color: #333; /* Oscurecer un poco el fondo */
 }
 
 .btn-ver-mas i {
@@ -776,12 +798,12 @@ textarea.form-control {
 }
 
 .btn-ver-mas:hover i {
-    transform: translateY(3px);
+    transform: translateY(2px); /* Animación sutil del ícono */
 }
 
-/* Corrección: Estilos para los botones de editar y eliminar respuestas */
-.respuesta-admin {
-    display: flex;
+/* Estilos para los botones de editar y eliminar respuestas (parte de .respuesta-admin) */
+.respuesta-admin { /* Contenedor de los botones de editar/eliminar DENTRO de una respuesta */
+    display: flex; /* Por defecto, los botones estarán en fila */
     gap: 10px;
 }
 
@@ -790,7 +812,7 @@ textarea.form-control {
     display: flex;
     align-items: center;
     background: none;
-    border: 1px solid;
+    border: 1px solid; /* El color se define abajo */
     border-radius: 20px;
     padding: 5px 10px;
     font-size: 0.9rem;
@@ -818,6 +840,16 @@ textarea.form-control {
     transform: translateY(-2px);
 }
 
+.dark-theme .btn-editar-respuesta {
+    color: #69a5e9; /* Azul más claro para dark theme */
+    border-color: #69a5e9;
+}
+.dark-theme .btn-eliminar-respuesta {
+    color: #ec7063; /* Rojo más claro para dark theme */
+    border-color: #ec7063;
+}
+
+
 .dark-theme .btn-editar-respuesta:hover {
     background-color: rgba(74, 144, 226, 0.2);
 }
@@ -833,30 +865,77 @@ textarea.form-control {
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
+    .main-content.active {
+        margin-left: 0; /* En móvil, el contenido principal no se desplaza cuando el menú está abierto si el menú se superpone */
+    }
+    /* Si el menú en móvil debe empujar el contenido, esta regla debe ser .main-content.active { margin-left: var(--side-menu-width, 250px); } */
+    
     .respuesta-item.hidden {
-        display: none;
+        display: none; /* Para la funcionalidad de "ver más respuestas" si oculta items */
     }
     
-    .respuesta-admin {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-        margin-left: auto;
+    /* CORRECCIÓN 4: Hacer respuestas más "largas" (más anchas) reduciendo padding */
+    .respuesta-item {
+        padding: 15px; /* Padding reducido para móviles */
+    }
+
+    /* CORRECCIÓN 5: Layout de acciones de respuesta en móvil */
+    .respuesta-acciones {
+        flex-direction: row; /* Emojis y botones admin en la misma fila */
+        justify-content: space-between; /* Emojis a la izquierda, botones admin a la derecha */
+        align-items: center; /* Alineación vertical */
+        gap: 15px; /* Espacio entre grupo de emojis y grupo de botones admin */
+    }
+    
+    .reacciones-botones {
+        /* No necesita width: 100% aquí, se ajustará a su contenido */
+        /* justify-content: space-between; /* Esto es para los botones de reacción *entre sí*, puede quedar */
+        flex-grow: 1; /* Permite que tome el espacio disponible si es necesario */
+    }
+
+    .respuesta-admin { /* Contenedor de botones editar/eliminar en respuestas */
+        flex-direction: row; /* Botones editar/eliminar uno al lado del otro */
+        align-items: center; /* Alineación vertical de los botones editar/eliminar */
+        gap: 8px; /* Espacio entre botón editar y eliminar */
+        /* margin-left: auto; /* No es necesario si .respuesta-acciones tiene justify-content: space-between */
     }
     
     .btn-editar-respuesta,
     .btn-eliminar-respuesta {
-        width: 100%;
-        justify-content: center;
+        width: auto; /* Ancho automático según el contenido */
+        justify-content: center; /* Centrar contenido si el botón es más ancho que el texto/icono */
+        padding: 5px 8px; /* Ajustar padding si es necesario para tamaño */
+        font-size: 0.85rem; /* Ligeramente más pequeño en móvil */
     }
-    
-    .respuesta-acciones {
-        flex-direction: column;
-        gap: 10px;
+     .btn-editar-respuesta i, /* Ocultar texto y dejar solo iconos en móvil si se prefiere */
+    .btn-eliminar-respuesta i {
+        /* margin-right: 0; */ /* Si se oculta el texto */
     }
-    
+    /* Ejemplo: para ocultar texto y dejar solo icono:
+    .btn-editar-respuesta span, .btn-eliminar-respuesta span { display: none; }
+    .btn-editar-respuesta i, .btn-eliminar-respuesta i { margin-right: 0; }
+    */
+}
+
+@media (max-width: 480px) {
+    /* Ajustes adicionales para pantallas muy pequeñas si son necesarios */
+    .pregunta-texto {
+        font-size: 1.1rem;
+    }
+    .respuesta-contenido {
+        font-size: 1rem;
+    }
     .reacciones-botones {
-        width: 100%;
-        justify-content: space-between;
+        gap: 5px; /* Menor espacio entre botones de reacción */
+    }
+    .btn-reaccion {
+        padding: 2px 8px;
+        font-size: 0.9rem;
+    }
+    .reaccion-emoji {
+        font-size: 0.8rem;
+    }
+    .reaccion-count {
+        font-size: 0.75rem;
     }
 }
