@@ -321,7 +321,7 @@ body {
 .respuesta-contenido {
     margin-top: 10px;
     line-height: 1.5;
-    font-size: 1.05rem;
+    font-size: 1.25rem;
 }
 
 .respuesta-acciones {
@@ -381,6 +381,8 @@ body {
 /* Estilos para las reacciones */
 .reacciones {
     display: flex;
+    justify-content: space-between; /* Añadir esta línea */
+    align-items: center; /* Añadir esta línea */
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
@@ -429,7 +431,7 @@ body {
 }
 
 .reaccion-emoji {
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 .reaccion-count {
@@ -474,11 +476,17 @@ body {
 
 /* Estilos para el botón de ver más respuestas en móvil */
 .btn-ver-mas {
-    width: 100%;
+    .btn-volver-arriba {
+    position: fixed;
+    bottom: 50px; /* Cambiar de 30px a 50px */
+    right: 30px;
+    width: 60px; /* Cambiar de 50px a 60px */
+    height: 60px; /* Cambiar de 50px a 60px */
+    border-radius: 50%;
+    background: #4a90e2;
     background-color: #f0f8ff;
     color: #4a90e2;
     border: 1px solid #4a90e2;
-    border-radius: 10px;
     padding: 10px 15px;
     margin-top: 15px;
     cursor: pointer;
@@ -570,17 +578,11 @@ body {
         display: none;
     }
     
-    .btn-volver-arriba {
-        width: 40px;
-        height: 40px;
-        bottom: 20px;
-        right: 20px;
-    }
-    
     .respuesta-admin {
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
+        margin-left: auto; /* Añadir esta línea para empujar a la derecha */
     }
     
     .btn-editar-respuesta,
