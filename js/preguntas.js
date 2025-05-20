@@ -3,1123 +3,805 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Referencia a la base de datos
     const db = firebase.firestore();
-    
-// Función formatearFecha que falta en el código
+
+    // Función formatearFecha (asumo que está correcta y la mantengo)
     function formatearFecha(timestamp) {
-    if (!timestamp) {
-        return 'Fecha no disponible';
+        if (!timestamp) {
+            return 'Fecha no disponible';
+        }
+        const fecha = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        const opciones = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return fecha.toLocaleDateString('es-ES', opciones);
     }
-    
-    // Convertir el timestamp de Firestore a objeto Date
-    const fecha = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    
-    // Opciones de formato
-    const opciones = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    
-    return fecha.toLocaleDateString('es-ES', opciones);
-}
-    
+
     // Elementos DOM
+    const mainContentElement = document.getElementById('main-content'); // Para el menú
     const preguntaActualContainer = document.getElementById('pregunta-actual');
     const respuestasContainer = document.getElementById('respuestas-container');
     const nuevaPreguntaBtn = document.getElementById('nueva-pregunta-btn');
-    
+    const overlayElement = document.getElementById('overlay'); // Para el menú
+
     // Variables globales
-    let preguntaActiva = null;
-    let respuestasTotales = 0;
-    let respuestasMostradas = 0;
-    const respuestasPorPagina = 3; // Número de respuestas a mostrar por página en móviles
-    const esMobil = window.innerWidth <= 768;
+    let preguntaActiva = null; // Objeto de la pregunta actualmente mostrada en #pregunta-actual
+    let respuestasListeners = {}; // Para manejar los listeners de respuestas y evitar duplicados
 
-    // Función para el botón hamburguesa
-function inicializarMenuHamburguesa() {
-    const menuBtn = document.getElementById('menu-toggle');
-    const sideMenu = document.querySelector('.side-menu');
-    const overlay = document.querySelector('.overlay');
-    const mainContent = document.querySelector('.main-content');
-    
-    if (!menuBtn || !sideMenu || !overlay) {
-        console.error('Elementos del menú no encontrados');
-        return;
-    }
-    
-    menuBtn.addEventListener('click', () => {
-        sideMenu.classList.toggle('active');
-        overlay.classList.toggle('active');
-        if (mainContent) {
-            mainContent.classList.toggle('active');
-        }
-    });
-    
-    // Cerrar menú al hacer clic en el overlay
-    overlay.addEventListener('click', () => {
-        sideMenu.classList.remove('active');
-        overlay.classList.remove('active');
-        if (mainContent) {
-            mainContent.classList.remove('active');
-        }
-    });
-}
+    const RESPUESTAS_POR_PAGINA_MOVIL = 3; // Número de respuestas a mostrar inicialmente en móviles
 
-// Llamar a esta función desde inicializarFuncionalidades
-function inicializarFuncionalidades() {
-    cargarPreguntaDelDia();
-    agregarBotonVolverArriba();
-    inicializarMenuHamburguesa(); // Añadir esta línea
-    inicializarSwitchTema(); // Añadir esta línea
-    
-    // Añadir botón para cargar más preguntas
-    const cargarMasBtn = document.createElement('button');
-    cargarMasBtn.className = 'btn-cargar-mas';
-    cargarMasBtn.innerHTML = '<i class="fas fa-plus"></i> Cargar más preguntas';
-    cargarMasBtn.addEventListener('click', cargarMasPreguntas);
-    
-    const preguntasContainer = document.querySelector('.preguntas-container');
-    if (preguntasContainer) {
-        preguntasContainer.appendChild(cargarMasBtn);
-    }
-    
-    // Observar cambios en el DOM para aplicar limitaciones en móvil
-    if (respuestasContainer) {
-        const observer = new MutationObserver(() => {
-            limitarRespuestasMobile();
-        });
-        
-        observer.observe(respuestasContainer, { childList: true, subtree: true });
-    }
-    
-    // Comprobar también al redimensionar la ventana
-    window.addEventListener('resize', limitarRespuestasMobile);
-}
-    
-    // Añadir botón "Volver arriba"
-    crearBotonVolverArriba();
-    
-    // Comprobamos la autenticación del usuario
+    // --- INICIALIZACIÓN ---
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            // Si el usuario está autenticado, cargamos las preguntas
-            cargarPreguntaDelDia();
-            
-            // Configuramos el listener para el botón de nueva pregunta
+            // Si el usuario está autenticado, inicializamos funcionalidades
+            inicializarFuncionalidadesPrincipales();
             if (nuevaPreguntaBtn) {
-                nuevaPreguntaBtn.addEventListener('click', mostrarModalNuevaPregunta);
+                nuevaPreguntaBtn.addEventListener('click', () => mostrarModalFormularioPregunta());
             }
+        } else {
+            // Manejar caso de usuario no autenticado si es necesario (ej. redirigir a login)
+            console.log("Usuario no autenticado. Funcionalidades de preguntas no activas.");
+            // Podrías limpiar los contenedores o mostrar un mensaje
+            if (preguntaActualContainer) preguntaActualContainer.innerHTML = '<p>Inicia sesión para ver y participar en las preguntas.</p>';
+            if (respuestasContainer) respuestasContainer.innerHTML = '';
         }
     });
-    
-    // Función para crear el botón de volver arriba
-    function crearBotonVolverArriba() {
-        const botonVolver = document.createElement('button');
-        botonVolver.id = 'boton-volver-arriba';
-        botonVolver.className = 'boton-volver-arriba';
-        botonVolver.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        document.body.appendChild(botonVolver);
-        
-        // Mostrar u ocultar el botón según el scroll
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                botonVolver.classList.add('mostrar');
-            } else {
-                botonVolver.classList.remove('mostrar');
-            }
+
+    function inicializarFuncionalidadesPrincipales() {
+        cargarPreguntaMasReciente();
+        inicializarMenuHamburguesa();
+        configurarBotonVolverArriba();
+        // inicializarSwitchTema(); // Comentado porque no está definida
+        configurarBotonCargarMasPreguntasAnteriores();
+    }
+
+    // --- MENÚ HAMBURGUESA ---
+    function inicializarMenuHamburguesa() {
+        const menuButton = document.getElementById('menu-button'); // ID del HTML
+        const sideMenu = document.getElementById('side-menu'); // ID del HTML
+
+        if (!menuButton || !sideMenu || !overlayElement || !mainContentElement) {
+            console.error('Elementos del menú (botón, menú lateral, overlay o main-content) no encontrados');
+            return;
+        }
+
+        menuButton.addEventListener('click', () => {
+            // Alternar clase en el body o un elemento contenedor principal
+            // Esto asume que tu CSS tiene .menu-open .side-menu { left: 0; } etc.
+            document.body.classList.toggle('menu-open');
+            // mainContentElement.classList.toggle('active'); // Si el contenido principal debe moverse
         });
-        
-        // Configurar evento click para volver arriba
-        botonVolver.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+
+        overlayElement.addEventListener('click', () => {
+            document.body.classList.remove('menu-open');
+            // mainContentElement.classList.remove('active');
         });
     }
-    
-    // Función para cargar la pregunta del día
-    function cargarPreguntaDelDia() {
+
+    // --- BOTÓN VOLVER ARRIBA ---
+    function configurarBotonVolverArriba() {
+        let botonVolver = document.querySelector('.btn-volver-arriba');
+        if (!botonVolver) {
+            botonVolver = document.createElement('button');
+            // botonVolver.id = 'btn-volver-arriba'; // ID si es necesario, clase es suficiente
+            botonVolver.className = 'btn-volver-arriba'; // Clase del CSS
+            botonVolver.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            botonVolver.title = 'Volver arriba';
+            document.body.appendChild(botonVolver);
+
+            botonVolver.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                botonVolver.classList.add('visible'); // Clase del CSS para mostrarlo
+            } else {
+                botonVolver.classList.remove('visible');
+            }
+        });
+    }
+
+    // --- CARGA DE PREGUNTAS ---
+    function cargarPreguntaMasReciente() {
         db.collection('preguntas')
             .orderBy('fechaCreacion', 'desc')
+            .limit(1) // Solo la más reciente
             .get()
             .then((querySnapshot) => {
                 if (querySnapshot.empty) {
                     mostrarMensajeNoHayPreguntas();
+                    preguntaActiva = null;
+                    if(respuestasContainer) respuestasContainer.innerHTML = '';
                     return;
                 }
-
-                preguntaActualContainer.innerHTML = ''; // Limpiar contenedor
-
-                querySnapshot.forEach((doc) => {
-                    const pregunta = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-
-                    // Mostrar pregunta
-                    mostrarPregunta(pregunta);
-
-                    // Cargar respuestas de esta pregunta
-                    cargarRespuestas(pregunta.id);
-
-                    // Configurar listener en tiempo real por cada pregunta
-                    configurarListenerRespuestas(pregunta.id);
-                });
+                const doc = querySnapshot.docs[0];
+                preguntaActiva = { id: doc.id, ...doc.data() };
+                mostrarPreguntaEnContenedorPrincipal(preguntaActiva);
+                cargarYMostrarRespuestas(preguntaActiva.id);
             })
             .catch((error) => {
-                console.error('Error al cargar preguntas:', error);
+                console.error('Error al cargar la pregunta más reciente:', error);
                 mostrarMensajeNoHayPreguntas();
             });
     }
-    
-    // Función para mostrar un mensaje cuando no hay preguntas
+
     function mostrarMensajeNoHayPreguntas() {
         if (preguntaActualContainer) {
             preguntaActualContainer.innerHTML = `
                 <div class="pregunta-card">
                     <div class="pregunta-header">
-                        <div class="pregunta-texto">No hay preguntas disponibles</div>
+                        <p class="pregunta-texto">No hay preguntas disponibles actualmente.</p>
                     </div>
-                    <p>¡Sé el primero en crear una pregunta!</p>
-                </div>
-            `;
+                    <p>¡Anímate a crear la primera!</p>
+                </div>`;
         }
     }
-    
-    // Función para mostrar la pregunta actual
-    function mostrarPregunta(pregunta) {
-        if (!preguntaActualContainer) return;
-        
+
+    function mostrarPreguntaEnContenedorPrincipal(pregunta) {
+        if (!preguntaActualContainer || !pregunta) return;
+
         const usuario = firebase.auth().currentUser;
         const esCreador = usuario && pregunta.usuarioId === usuario.uid;
-        
+
         preguntaActualContainer.innerHTML = `
             <div class="pregunta-card" data-id="${pregunta.id}">
                 <div class="pregunta-header">
-                    <div class="pregunta-texto">${pregunta.texto}</div>
+                    <h2 class="pregunta-texto">${pregunta.texto}</h2>
                     ${esCreador ? `
                         <div class="pregunta-admin">
-                            <button class="btn-editar-pregunta" title="Editar pregunta">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-eliminar-pregunta" title="Eliminar pregunta">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <button class="btn-editar-pregunta" title="Editar pregunta"><i class="fas fa-edit"></i></button>
+                            <button class="btn-eliminar-pregunta" title="Eliminar pregunta"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     ` : ''}
                 </div>
-                <p>${formatearFecha(pregunta.fechaCreacion)}</p>
+                <p class="pregunta-fecha">Publicada por ${pregunta.nombreUsuario || 'Anónimo'} el ${formatearFecha(pregunta.fechaCreacion)}</p>
                 
-                <!-- Sección para añadir una nueva respuesta -->
-                <div class="nueva-respuesta">
-                    <h3>Tu respuesta</h3>
-                    <textarea id="nueva-respuesta-texto" class="respuesta-input" 
-                        placeholder="Escribe tu respuesta aquí..."></textarea>
-                    <button id="guardar-respuesta" class="btn-guardar-respuesta">
-                        <i class="fas fa-paper-plane"></i> Enviar respuesta
-                    </button>
+                <div class="responder-container">
+                    <h3 class="responder-titulo">Tu respuesta:</h3>
+                    <form class="responder-form">
+                        <textarea class="responder-textarea form-control" placeholder="Escribe tu respuesta aquí..." required></textarea>
+                        <button type="submit" class="responder-btn">
+                            <i class="fas fa-paper-plane"></i> Enviar respuesta
+                        </button>
+                    </form>
                 </div>
             </div>
         `;
-        
-        // Configurar listeners para los botones de editar y eliminar
+
         if (esCreador) {
-            const btnEditar = preguntaActualContainer.querySelector('.btn-editar-pregunta');
-            if (btnEditar) {
-                btnEditar.addEventListener('click', () => {
-                    mostrarModalEditarPregunta(pregunta);
-                });
+            preguntaActualContainer.querySelector('.btn-editar-pregunta')?.addEventListener('click', () => mostrarModalFormularioPregunta(pregunta));
+            preguntaActualContainer.querySelector('.btn-eliminar-pregunta')?.addEventListener('click', () => confirmarEliminacion('pregunta', pregunta.id, pregunta.texto));
+        }
+
+        preguntaActualContainer.querySelector('.responder-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const textarea = preguntaActualContainer.querySelector('.responder-textarea');
+            guardarRespuesta(pregunta.id, textarea);
+        });
+    }
+
+    // --- CARGA DE RESPUESTAS Y PAGINACIÓN ---
+    function cargarYMostrarRespuestas(preguntaId) {
+        if (!respuestasContainer) return;
+        respuestasContainer.innerHTML = '<h2>Respuestas:</h2><div class="respuestas-lista"></div>'; // Contenedor para lista
+        const respuestasLista = respuestasContainer.querySelector('.respuestas-lista');
+
+        // Desuscribirse de listeners anteriores para esta pregunta si existen
+        if (respuestasListeners[preguntaId]) {
+            respuestasListeners[preguntaId](); // Llama a la función de desuscripción
+            delete respuestasListeners[preguntaId];
+        }
+        
+        let respuestasMostradasCount = 0;
+        const esDispositivoMovil = window.innerWidth <= 768;
+
+        const query = db.collection('respuestas')
+            .where('preguntaId', '==', preguntaId)
+            .orderBy('fechaCreacion', 'desc');
+
+        respuestasListeners[preguntaId] = query.onSnapshot((snapshot) => {
+            respuestasLista.innerHTML = ''; // Limpiar para repintar en cada actualización
+            respuestasMostradasCount = 0; 
+            let totalRespuestasEnSnapshot = snapshot.size;
+
+            if (snapshot.empty) {
+                respuestasLista.innerHTML = '<p>Aún no hay respuestas. ¡Sé el primero en responder!</p>';
+                eliminarBotonVerMasRespuestas();
+                return;
             }
             
-            const btnEliminar = preguntaActualContainer.querySelector('.btn-eliminar-pregunta');
-            if (btnEliminar) {
-                btnEliminar.addEventListener('click', () => {
-                    confirmarEliminarPregunta(pregunta.id);
-                });
+            snapshot.docs.forEach((doc, index) => {
+                const respuesta = { id: doc.id, ...doc.data() };
+                if (esDispositivoMovil && respuestasMostradasCount >= RESPUESTAS_POR_PAGINA_MOVIL) {
+                    // No mostrar más si ya se alcanzó el límite inicial en móvil
+                    // El botón "ver más" se encargará del resto
+                } else {
+                    const respuestaElement = crearHtmlRespuesta(respuesta);
+                    respuestasLista.insertAdjacentHTML('beforeend', respuestaElement);
+                    configurarListenersRespuestaItem(doc.id);
+                    respuestasMostradasCount++;
+                }
+            });
+
+            if (esDispositivoMovil && totalRespuestasEnSnapshot > respuestasMostradasCount) {
+                actualizarBotonVerMasRespuestas(preguntaId, respuestasMostradasCount, totalRespuestasEnSnapshot);
+            } else {
+                eliminarBotonVerMasRespuestas();
             }
-        }
-        
-        // Configurar listener para guardar respuesta
-        const btnGuardarRespuesta = preguntaActualContainer.querySelector('#guardar-respuesta');
-        if (btnGuardarRespuesta) {
-            btnGuardarRespuesta.addEventListener('click', () => {
-                guardarRespuesta(pregunta.id);
-            });
-        }
+
+        }, error => {
+            console.error("Error al escuchar respuestas: ", error);
+            respuestasLista.innerHTML = '<p>Error al cargar respuestas.</p>';
+        });
     }
-    
-    // Función para cargar las respuestas de una pregunta
-    function cargarRespuestas(preguntaId) {
-        if (!respuestasContainer) return;
+
+    function actualizarBotonVerMasRespuestas(preguntaId, mostradas, total) {
+        eliminarBotonVerMasRespuestas(); // Eliminar si ya existe para evitar duplicados
+
+        const botonVerMas = document.createElement('button');
+        botonVerMas.id = 'btn-ver-mas-respuestas'; // ID único
+        botonVerMas.className = 'btn-ver-mas'; // Clase CSS
+        botonVerMas.innerHTML = `<i class="fas fa-chevron-down"></i> Ver más respuestas (${total - mostradas} restantes)`;
         
-        respuestasContainer.innerHTML = '<h2>Respuestas</h2>';
-        
-        // Añadir contenedor para las respuestas
-        respuestasContainer.innerHTML += '<div id="respuestas-lista" class="respuestas-lista"></div>';
-        const respuestasLista = document.getElementById('respuestas-lista');
-        
-        // Reiniciar contadores
-        respuestasTotales = 0;
-        respuestasMostradas = 0;
-        
-        db.collection('respuestas')
-            .where('preguntaId', '==', preguntaId)
-            .orderBy('fechaCreacion', 'desc')
-            .get()
-            .then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    respuestasLista.innerHTML = '<p>Aún no hay respuestas. ¡Sé el primero en responder!</p>';
-                    return;
-                }
-                
-                respuestasTotales = querySnapshot.size;
-                
-                // Determinar cuántas respuestas mostrar inicialmente
-                const limiteMostrar = esMobil ? respuestasPorPagina : respuestasTotales;
-                
-                querySnapshot.forEach((doc, index) => {
-                    const respuesta = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    
-                    if (index < limiteMostrar) {
-                        mostrarRespuesta(respuesta);
-                        respuestasMostradas++;
-                    }
-                });
-                
-                // Añadir botón "Ver más" si es necesario
-                if (esMobil && respuestasTotales > respuestasPorPagina) {
-                    mostrarBotonVerMas();
-                }
-            })
-            .catch((error) => {
-                console.error('Error al cargar respuestas:', error);
-            });
+        botonVerMas.addEventListener('click', () => cargarLoteAdicionalDeRespuestas(preguntaId));
+        respuestasContainer.appendChild(botonVerMas);
     }
-    
-    // Función para mostrar el botón "Ver más"
-    function mostrarBotonVerMas() {
-        // Si ya existe el botón, lo removemos para volver a crearlo
-        const botonExistente = document.getElementById('boton-ver-mas');
+
+    function eliminarBotonVerMasRespuestas() {
+        const botonExistente = document.getElementById('btn-ver-mas-respuestas');
         if (botonExistente) {
             botonExistente.remove();
         }
-        
-        const botonVerMas = document.createElement('button');
-        botonVerMas.id = 'boton-ver-mas';
-        botonVerMas.className = 'boton-ver-mas';
-        botonVerMas.textContent = `Ver más respuestas (${respuestasMostradas}/${respuestasTotales})`;
-        
-        respuestasContainer.appendChild(botonVerMas);
-        
-        botonVerMas.addEventListener('click', cargarMasRespuestas);
     }
-    
-    // Función para cargar más respuestas
-    function cargarMasRespuestas() {
-        if (!preguntaActiva) return;
-        
-        const respuestasAMostrar = Math.min(respuestasPorPagina, respuestasTotales - respuestasMostradas);
-        
-        if (respuestasAMostrar <= 0) return;
-        
-        db.collection('respuestas')
-            .where('preguntaId', '==', preguntaActiva.id)
-            .orderBy('fechaCreacion', 'desc')
-            .get()
-            .then((querySnapshot) => {
-                const todasLasRespuestas = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                // Mostrar el siguiente lote de respuestas
-                for (let i = respuestasMostradas; i < respuestasMostradas + respuestasAMostrar && i < respuestasTotales; i++) {
-                    mostrarRespuesta(todasLasRespuestas[i]);
-                }
-                
-                respuestasMostradas += respuestasAMostrar;
-                
-                // Actualizar o eliminar el botón "Ver más"
-                if (respuestasMostradas >= respuestasTotales) {
-                    const botonVerMas = document.getElementById('boton-ver-mas');
-                    if (botonVerMas) {
-                        botonVerMas.remove();
-                    }
-                } else {
-                    // Actualizar el contador del botón
-                    const botonVerMas = document.getElementById('boton-ver-mas');
-                    if (botonVerMas) {
-                        botonVerMas.textContent = `Ver más respuestas (${respuestasMostradas}/${respuestasTotales})`;
-                    }
-                }
-            });
-    }
-    
-    // Configurar un listener en tiempo real para las respuestas
-    function configurarListenerRespuestas(preguntaId) {
-        db.collection('respuestas')
-            .where('preguntaId', '==', preguntaId)
-            .orderBy('fechaCreacion', 'desc')
-            .onSnapshot((snapshot) => {
-                let cambioRealizado = false;
-                
-                snapshot.docChanges().forEach((change) => {
-                    const respuesta = {
-                        id: change.doc.id,
-                        ...change.doc.data()
-                    };
-                    
-                    if (change.type === 'added') {
-                        // Solo mostramos automáticamente si es la primera carga o si estamos mostrando todas las respuestas
-                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
-                        if (!existingElement && (!esMobil || respuestasMostradas < respuestasPorPagina)) {
-                            mostrarRespuesta(respuesta);
-                            respuestasMostradas++;
-                            cambioRealizado = true;
-                        }
-                    } else if (change.type === 'modified') {
-                        // Si es una respuesta modificada, actualizamos el DOM
-                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
-                        if (existingElement) {
-                            existingElement.outerHTML = crearHtmlRespuesta(respuesta);
-                            configurarListenersRespuestaItem(respuesta);
-                            cambioRealizado = true;
-                        }
-                    } else if (change.type === 'removed') {
-                        // Si es una respuesta eliminada, la quitamos del DOM
-                        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
-                        if (existingElement) {
-                            existingElement.remove();
-                            respuestasMostradas--;
-                            cambioRealizado = true;
-                        }
-                    }
-                });
-                
-                // Actualizamos el contador de respuestas totales
-                if (cambioRealizado) {
-                    db.collection('respuestas')
-                        .where('preguntaId', '==', preguntaId)
-                        .get()
-                        .then((querySnapshot) => {
-                            respuestasTotales = querySnapshot.size;
-                            
-                            // Actualizar el botón Ver más si existe
-                            const botonVerMas = document.getElementById('boton-ver-mas');
-                            if (botonVerMas) {
-                                if (respuestasMostradas >= respuestasTotales) {
-                                    botonVerMas.remove();
-                                } else {
-                                    botonVerMas.textContent = `Ver más respuestas (${respuestasMostradas}/${respuestasTotales})`;
-                                }
-                            } else if (esMobil && respuestasTotales > respuestasMostradas) {
-                                mostrarBotonVerMas();
-                            }
-                        });
-                }
-            });
-    }
-    
-    // Función para mostrar una respuesta
-    function mostrarRespuesta(respuesta) {
-        if (!respuestasContainer) return;
-        
-        const respuestaHTML = crearHtmlRespuesta(respuesta);
-        const respuestasLista = document.getElementById('respuestas-lista');
-        
+
+    async function cargarLoteAdicionalDeRespuestas(preguntaId) {
+        const esDispositivoMovil = window.innerWidth <= 768;
+        if (!esDispositivoMovil) return; // Esta lógica es principalmente para móviles
+
+        const respuestasLista = respuestasContainer.querySelector('.respuestas-lista');
         if (!respuestasLista) return;
-        
-        // Verificamos si el elemento ya existe
-        const existingElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
-        if (existingElement) {
-            existingElement.outerHTML = respuestaHTML;
-        } else {
-            // Si no existe, lo añadimos a la lista de respuestas
-            respuestasLista.insertAdjacentHTML('beforeend', respuestaHTML);
+
+        const ultimaRespuestaVisibleElement = respuestasLista.querySelector('.respuesta-item:last-child');
+        if (!ultimaRespuestaVisibleElement) return; // No hay respuestas visibles para paginar después
+
+        const ultimaRespuestaVisibleId = ultimaRespuestaVisibleElement.dataset.id;
+
+        try {
+            const ultimoDocSnapshot = await db.collection('respuestas').doc(ultimaRespuestaVisibleId).get();
+            if (!ultimoDocSnapshot.exists) {
+                console.warn("Última respuesta visible no encontrada en DB, cargando sin paginación.");
+                // Podrías intentar cargar sin startAfter como fallback, pero esto es complejo con listeners.
+                // Por ahora, si esto pasa, el botón "ver más" podría no funcionar como se espera.
+                eliminarBotonVerMasRespuestas();
+                return;
+            }
+
+            const snapshot = await db.collection('respuestas')
+                .where('preguntaId', '==', preguntaId)
+                .orderBy('fechaCreacion', 'desc')
+                .startAfter(ultimoDocSnapshot)
+                .limit(RESPUESTAS_POR_PAGINA_MOVIL)
+                .get();
+
+            let nuevasRespuestasCargadas = 0;
+            snapshot.forEach(doc => {
+                const respuesta = { id: doc.id, ...doc.data() };
+                const respuestaElement = crearHtmlRespuesta(respuesta);
+                respuestasLista.insertAdjacentHTML('beforeend', respuestaElement);
+                configurarListenersRespuestaItem(doc.id);
+                nuevasRespuestasCargadas++;
+            });
+
+            if (nuevasRespuestasCargadas < RESPUESTAS_POR_PAGINA_MOVIL || snapshot.empty) {
+                eliminarBotonVerMasRespuestas(); // No hay más o se cargaron todas las disponibles en este lote
+            } else {
+                // Recontar para actualizar el botón (esto es simplificado, idealmente el listener general lo manejaría)
+                 const totalRespuestasQuery = await db.collection('respuestas').where('preguntaId', '==', preguntaId).get();
+                 const totalGeneral = totalRespuestasQuery.size;
+                 const mostradasActuales = respuestasLista.querySelectorAll('.respuesta-item').length;
+                 if (mostradasActuales < totalGeneral) {
+                    actualizarBotonVerMasRespuestas(preguntaId, mostradasActuales, totalGeneral);
+                 } else {
+                    eliminarBotonVerMasRespuestas();
+                 }
+            }
+
+        } catch (error) {
+            console.error("Error al cargar más respuestas:", error);
+            mostrarNotificacion("Error al cargar más respuestas", "error");
         }
-        
-        configurarListenersRespuestaItem(respuesta);
     }
     
-    // Crear HTML para una respuesta
+    // --- HTML Y LISTENERS PARA RESPUESTAS INDIVIDUALES ---
     function crearHtmlRespuesta(respuesta) {
         const usuario = firebase.auth().currentUser;
         const esCreador = usuario && respuesta.usuarioId === usuario.uid;
-        
-        // Obtener reacciones actuales o inicializar si no existen
-        const reacciones = respuesta.reacciones || {
-            '💛': 0,    // Corazón amarillo
-            '🖤': 0,    // Corazón negro
-            '🙈': 0,    // Mono tapándose los ojos
-            '🥹': 0,    // Cara con lágrima
-            '😂': 0     // Risa
-        };
-        
-        // Obtener las reacciones del usuario actual
+
+        const reacciones = respuesta.reacciones || { '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0 };
         const misReacciones = (usuario && respuesta.usuariosReacciones && respuesta.usuariosReacciones[usuario.uid]) || {};
-        
+
+        // Clase para tema oscuro si está activo
+        const themeClass = document.body.classList.contains('dark-theme') ? 'dark-theme' : 'light-theme';
+
         return `
-            <div class="respuesta-item" data-id="${respuesta.id}">
+            <div class="respuesta-item ${themeClass}" data-id="${respuesta.id}">
                 <div class="respuesta-header">
-                    <div class="respuesta-autor">${respuesta.nombreUsuario || 'Usuario'}</div>
-                    <div class="respuesta-fecha">${formatearFecha(respuesta.fechaCreacion)}</div>
+                    <span class="respuesta-autor">${respuesta.nombreUsuario || 'Usuario'}</span>
+                    <span class="respuesta-fecha">${formatearFecha(respuesta.fechaCreacion)}</span>
                 </div>
-                <div class="respuesta-contenido">${respuesta.texto}</div>
+                <p class="respuesta-contenido">${respuesta.texto}</p>
                 <div class="respuesta-acciones">
                     <div class="reacciones">
                         <div class="reacciones-botones">
-                            <button class="btn-reaccion ${misReacciones['💛'] ? 'active' : ''}" data-emoji="💛">
-                                💛 <span class="reaccion-count">${reacciones['💛'] || 0}</span>
-                            </button>
-                            <button class="btn-reaccion ${misReacciones['🖤'] ? 'active' : ''}" data-emoji="🖤">
-                                🖤 <span class="reaccion-count">${reacciones['🖤'] || 0}</span>
-                            </button>
-                            <button class="btn-reaccion ${misReacciones['🙈'] ? 'active' : ''}" data-emoji="🙈">
-                                🙈 <span class="reaccion-count">${reacciones['🙈'] || 0}</span>
-                            </button>
-                            <button class="btn-reaccion ${misReacciones['🥹'] ? 'active' : ''}" data-emoji="🥹">
-                                🥹 <span class="reaccion-count">${reacciones['🥹'] || 0}</span>
-                            </button>
-                            <button class="btn-reaccion ${misReacciones['😂'] ? 'active' : ''}" data-emoji="😂">
-                                😂 <span class="reaccion-count">${reacciones['😂'] || 0}</span>
-                            </button>
+                            ${Object.entries(reacciones).map(([emoji, count]) => `
+                                <button class="btn-reaccion ${misReacciones[emoji] ? 'active' : ''}" data-emoji="${emoji}" title="Reaccionar con ${emoji}">
+                                    <span class="reaccion-emoji">${emoji}</span>
+                                    <span class="reaccion-count">${count || 0}</span>
+                                </button>
+                            `).join('')}
                         </div>
                     </div>
                     ${esCreador ? `
                         <div class="respuesta-admin">
-                            <button class="btn-editar-respuesta" title="Editar respuesta">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-eliminar-respuesta" title="Eliminar respuesta">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <button class="btn-editar-respuesta" title="Editar respuesta"><i class="fas fa-edit"></i></button>
+                            <button class="btn-eliminar-respuesta" title="Eliminar respuesta"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     ` : ''}
                 </div>
             </div>
         `;
     }
-    
-    // Configurar listeners para una respuesta individual
-    function configurarListenersRespuestaItem(respuesta) {
-        const respuestaElement = document.querySelector(`.respuesta-item[data-id="${respuesta.id}"]`);
+
+    function configurarListenersRespuestaItem(respuestaId) {
+        const respuestaElement = document.querySelector(`.respuesta-item[data-id="${respuestaId}"]`);
         if (!respuestaElement) return;
-        
+
         const usuario = firebase.auth().currentUser;
-        const esCreador = usuario && respuesta.usuarioId === usuario.uid;
-        
-        // Configurar listeners para botones de reacción
-        const botonesReaccion = respuestaElement.querySelectorAll('.btn-reaccion');
-        botonesReaccion.forEach(boton => {
+
+        respuestaElement.querySelectorAll('.btn-reaccion').forEach(boton => {
             boton.addEventListener('click', () => {
                 if (!usuario) {
-                    mostrarNotificacion('Debes iniciar sesión para reaccionar', 'error');
+                    mostrarNotificacion('Debes iniciar sesión para reaccionar.', 'error');
                     return;
                 }
-                
-                const emoji = boton.getAttribute('data-emoji');
-                toggleReaccion(respuesta.id, emoji);
+                toggleReaccion(respuestaId, boton.dataset.emoji);
             });
         });
-        
-        if (esCreador) {
-            const btnEditar = respuestaElement.querySelector('.btn-editar-respuesta');
-            if (btnEditar) {
-                btnEditar.addEventListener('click', () => {
-                    mostrarModalEditarRespuesta(respuesta);
-                });
-            }
-            
-            const btnEliminar = respuestaElement.querySelector('.btn-eliminar-respuesta');
-            if (btnEliminar) {
-                btnEliminar.addEventListener('click', () => {
-                    confirmarEliminarRespuesta(respuesta.id);
-                });
-            }
+
+        const btnEditar = respuestaElement.querySelector('.btn-editar-respuesta');
+        const btnEliminar = respuestaElement.querySelector('.btn-eliminar-respuesta');
+
+        if (btnEditar) {
+            btnEditar.addEventListener('click', async () => {
+                const doc = await db.collection('respuestas').doc(respuestaId).get();
+                if (doc.exists) mostrarModalFormularioRespuesta(preguntaActiva.id, { id: doc.id, ...doc.data() });
+            });
+        }
+        if (btnEliminar) {
+            btnEliminar.addEventListener('click', () => confirmarEliminacion('respuesta', respuestaId, "esta respuesta"));
         }
     }
-    
-    // Función para alternar una reacción (añadir o quitar)
-    function toggleReaccion(respuestaId, emoji) {
-        const usuario = firebase.auth().currentUser;
-        if (!usuario) return;
-        
-        const respuestaRef = db.collection('respuestas').doc(respuestaId);
-        
-        // Primero obtenemos el documento para ver el estado actual
-        respuestaRef.get().then(doc => {
-            if (!doc.exists) {
-                console.error('No existe esta respuesta');
-                return;
-            }
-            
-            const respuesta = doc.data();
-            
-            // Inicializar objetos si no existen
-            const reacciones = respuesta.reacciones || {
-                '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0
-            };
-            
-            const usuariosReacciones = respuesta.usuariosReacciones || {};
-            const misReacciones = usuariosReacciones[usuario.uid] || {};
-            
-            // Comprobar si ya había reaccionado con este emoji
-            const yaHabiaReaccionado = misReacciones[emoji];
-            
-            // Actualizar el contador de reacciones
-            if (yaHabiaReaccionado) {
-                reacciones[emoji] = Math.max(0, (reacciones[emoji] || 0) - 1);
-                delete misReacciones[emoji];
-            } else {
-                reacciones[emoji] = (reacciones[emoji] || 0) + 1;
-                misReacciones[emoji] = true;
-            }
-            
-            // Actualizar objeto de usuarios que han reaccionado
-            usuariosReacciones[usuario.uid] = misReacciones;
-            
-            // Guardar los cambios en Firestore
-            return respuestaRef.update({
-                reacciones: reacciones,
-                usuariosReacciones: usuariosReacciones
-            });
-        })
-        .catch(error => {
-            console.error('Error al actualizar reacción:', error);
-            mostrarNotificacion('Error al actualizar reacción', 'error');
-        });
-    }
-    
-    // Función para guardar una respuesta
-    function guardarRespuesta(preguntaId) {
-        const textoRespuesta = document.getElementById('nueva-respuesta-texto');
-        
-        if (!textoRespuesta || !textoRespuesta.value.trim()) {
-            mostrarNotificacion('Por favor, escribe una respuesta', 'error');
+
+    // --- ACCIONES CRUD (Crear, Leer, Actualizar, Eliminar) ---
+    function guardarRespuesta(preguntaId, textareaElement) {
+        const texto = textareaElement.value.trim();
+        if (!texto) {
+            mostrarNotificacion('Por favor, escribe una respuesta.', 'error');
             return;
         }
-        
         const usuario = firebase.auth().currentUser;
         if (!usuario) {
-            mostrarNotificacion('Debes iniciar sesión para responder', 'error');
+            mostrarNotificacion('Debes iniciar sesión para responder.', 'error');
             return;
         }
-        
         const nuevaRespuesta = {
             preguntaId: preguntaId,
-            texto: textoRespuesta.value.trim(),
+            texto: texto,
             usuarioId: usuario.uid,
             nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
             fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
-            reacciones: {
-                '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0
-            },
+            reacciones: { '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0 },
             usuariosReacciones: {}
         };
-        
         db.collection('respuestas').add(nuevaRespuesta)
             .then(() => {
-                textoRespuesta.value = '';
-                mostrarNotificacion('Respuesta guardada correctamente', 'success');
+                textareaElement.value = '';
+                mostrarNotificacion('Respuesta guardada.', 'success');
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error al guardar respuesta:', error);
-                mostrarNotificacion('Error al guardar la respuesta', 'error');
+                mostrarNotificacion('Error al guardar la respuesta.', 'error');
             });
     }
-    
-    // Función para mostrar el modal de nueva pregunta
-    function mostrarModalNuevaPregunta() {
-        // Crear el modal si no existe
-        if (!document.getElementById('pregunta-modal')) {
-            document.body.insertAdjacentHTML('beforeend', `
-                <div id="pregunta-modal" class="modal">
+
+    function toggleReaccion(respuestaId, emoji) {
+        const usuario = firebase.auth().currentUser;
+        if (!usuario) return;
+
+        const respuestaRef = db.collection('respuestas').doc(respuestaId);
+        db.runTransaction(transaction => {
+            return transaction.get(respuestaRef).then(doc => {
+                if (!doc.exists) throw "Document does not exist!";
+                
+                let reacciones = doc.data().reacciones || { '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0 };
+                let usuariosReacciones = doc.data().usuariosReacciones || {};
+                let misReacciones = usuariosReacciones[usuario.uid] || {};
+
+                if (misReacciones[emoji]) {
+                    reacciones[emoji] = Math.max(0, (reacciones[emoji] || 0) - 1);
+                    delete misReacciones[emoji];
+                } else {
+                    reacciones[emoji] = (reacciones[emoji] || 0) + 1;
+                    misReacciones[emoji] = true;
+                }
+                usuariosReacciones[usuario.uid] = misReacciones;
+                transaction.update(respuestaRef, { reacciones, usuariosReacciones });
+            });
+        }).catch(error => {
+            console.error("Error al actualizar reacción: ", error);
+            mostrarNotificacion("Error al reaccionar.", "error");
+        });
+    }
+
+    // --- MODALES (Creación y Edición) ---
+    // Modal genérico para Pregunta (crear/editar)
+    function mostrarModalFormularioPregunta(preguntaExistente = null) {
+        const modalId = 'modal-formulario-pregunta';
+        let modal = document.getElementById(modalId);
+
+        if (!modal) {
+            const modalHTML = `
+                <div id="${modalId}" class="modal">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
-                        <h2>Nueva Pregunta</h2>
-                        <form id="pregunta-form">
+                        <div class="modal-header">
+                            <h2 class="modal-title">${preguntaExistente ? 'Editar Pregunta' : 'Nueva Pregunta'}</h2>
+                            <button class="close-modal" title="Cerrar">×</button>
+                        </div>
+                        <form id="form-pregunta" class="modal-body">
                             <div class="form-group">
-                                <label for="pregunta-texto">Texto de la pregunta</label>
-                                <textarea id="pregunta-texto" placeholder="Escribe aquí tu pregunta..." required></textarea>
+                                <label for="modal-pregunta-texto" class="form-label">Texto de la pregunta:</label>
+                                <textarea id="modal-pregunta-texto" class="form-control" placeholder="Escribe aquí tu pregunta..." required></textarea>
                             </div>
-                            <button type="submit" class="btn-modal-guardar">Guardar pregunta</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-cancelar">Cancelar</button>
+                                <button type="submit" class="btn-guardar">${preguntaExistente ? 'Guardar Cambios' : 'Crear Pregunta'}</button>
+                            </div>
                         </form>
                     </div>
-                </div>
-            `);
-            
-            // Configurar evento para cerrar el modal
-            const modal = document.getElementById('pregunta-modal');
-            const closeBtn = modal.querySelector('.close');
-            
-            closeBtn.addEventListener('click', () => {
-                modal.classList.remove('show');
-            });
-            
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('show');
-                }
-            });
-            
-            // Configurar evento para guardar la pregunta
-            const preguntaForm = document.getElementById('pregunta-form');
-            preguntaForm.addEventListener('submit', (e) => {
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            modal = document.getElementById(modalId);
+
+            modal.querySelector('.close-modal').addEventListener('click', () => modal.classList.remove('show'));
+            modal.querySelector('.btn-cancelar').addEventListener('click', () => modal.classList.remove('show'));
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+            modal.querySelector('#form-pregunta').addEventListener('submit', (e) => {
                 e.preventDefault();
-                
-                const textoElement = document.getElementById('pregunta-texto');
-                
-                const texto = textoElement.value.trim();
-                
+                const texto = modal.querySelector('#modal-pregunta-texto').value.trim();
                 if (!texto) {
-                    mostrarNotificacion('Por favor, escribe una pregunta', 'error');
+                    mostrarNotificacion('El texto de la pregunta no puede estar vacío.', 'error');
                     return;
                 }
-                
                 const usuario = firebase.auth().currentUser;
                 if (!usuario) {
-                    mostrarNotificacion('Debes iniciar sesión para crear preguntas', 'error');
+                    mostrarNotificacion('Debes iniciar sesión.', 'error');
                     return;
                 }
-                
-                const nuevaPregunta = {
-                    texto: texto,
-                    usuarioId: usuario.uid,
-                    nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
-                    fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                db.collection('preguntas').add(nuevaPregunta)
-                    .then(() => {
+
+                if (preguntaExistente) { // Editar
+                    db.collection('preguntas').doc(preguntaExistente.id).update({
+                        texto: texto,
+                        fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        mostrarNotificacion('Pregunta actualizada.', 'success');
                         modal.classList.remove('show');
-                        textoElement.value = '';
-                        mostrarNotificacion('Pregunta guardada correctamente', 'success');
-                        
-                        // Recargar la pregunta del día
-                        cargarPreguntaDelDia();
-                    })
-                    .catch((error) => {
-                        console.error('Error al guardar pregunta:', error);
-                        mostrarNotificacion('Error al guardar la pregunta', 'error');
-                    });
+                        if (preguntaActiva && preguntaActiva.id === preguntaExistente.id) {
+                            preguntaActiva.texto = texto; // Actualizar localmente también
+                            mostrarPreguntaEnContenedorPrincipal(preguntaActiva);
+                        }
+                    }).catch(err => mostrarNotificacion('Error al actualizar: ' + err.message, 'error'));
+                } else { // Crear
+                    db.collection('preguntas').add({
+                        texto: texto,
+                        usuarioId: usuario.uid,
+                        nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
+                        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        mostrarNotificacion('Pregunta creada.', 'success');
+                        modal.classList.remove('show');
+                        cargarPreguntaMasReciente(); // Recargar para ver la nueva
+                    }).catch(err => mostrarNotificacion('Error al crear: ' + err.message, 'error'));
+                }
             });
+        } else {
+            // Si el modal ya existe, solo actualizar título y botón si es necesario
+            modal.querySelector('.modal-title').textContent = preguntaExistente ? 'Editar Pregunta' : 'Nueva Pregunta';
+            modal.querySelector('.btn-guardar').textContent = preguntaExistente ? 'Guardar Cambios' : 'Crear Pregunta';
         }
         
-        // Mostrar el modal
-        const modal = document.getElementById('pregunta-modal');
+        modal.querySelector('#modal-pregunta-texto').value = preguntaExistente ? preguntaExistente.texto : '';
         modal.classList.add('show');
     }
-    
-    // Función para mostrar el modal de editar pregunta
-    function mostrarModalEditarPregunta(pregunta) {
-        // Crear el modal si no existe
-        if (!document.getElementById('editar-pregunta-modal')) {
-            document.body.insertAdjacentHTML('beforeend', `
-                <div id="editar-pregunta-modal" class="modal">
+
+    // Modal genérico para Respuesta (crear/editar) - Adaptado de Pregunta
+    function mostrarModalFormularioRespuesta(preguntaIdParaNuevaRespuesta, respuestaExistente = null) {
+        const modalId = 'modal-formulario-respuesta';
+        let modal = document.getElementById(modalId);
+        
+        if (!modal) {
+            const modalHTML = `
+                <div id="${modalId}" class="modal">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
-                        <h2>Editar Pregunta</h2>
-                        <form id="editar-pregunta-form">
-                            <input type="hidden" id="editar-pregunta-id">
-                            <div class="form-group">
-                                <label for="editar-pregunta-texto">Texto de la pregunta</label>
-                                <textarea id="editar-pregunta-texto" placeholder="Escribe aquí tu pregunta..." required></textarea>
+                        <div class="modal-header">
+                            <h2 class="modal-title">${respuestaExistente ? 'Editar Respuesta' : 'Nueva Respuesta'}</h2>
+                            <button class="close-modal" title="Cerrar">×</button>
+                        </div>
+                        <form id="form-respuesta" class="modal-body">
+                             <div class="form-group">
+                                <label for="modal-respuesta-texto" class="form-label">Tu respuesta:</label>
+                                <textarea id="modal-respuesta-texto" class="form-control" placeholder="Escribe aquí tu respuesta..." required></textarea>
                             </div>
-                            <button type="submit" class="btn-modal-guardar">Guardar cambios</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn-cancelar">Cancelar</button>
+                                <button type="submit" class="btn-guardar">${respuestaExistente ? 'Guardar Cambios' : 'Enviar Respuesta'}</button>
+                            </div>
                         </form>
                     </div>
-                </div>
-            `);
-            
-            // Configurar evento para cerrar el modal
-            const modal = document.getElementById('editar-pregunta-modal');
-            const closeBtn = modal.querySelector('.close');
-            
-            closeBtn.addEventListener('click', () => {
-                modal.classList.remove('show');
-            });
-            
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('show');
-                }
-            });
-            
-            // Configurar evento para guardar la pregunta
-            const editarPreguntaForm = document.getElementById('editar-pregunta-form');
-            editarPreguntaForm.addEventListener('submit', (e) => {
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            modal = document.getElementById(modalId);
+
+            modal.querySelector('.close-modal').addEventListener('click', () => modal.classList.remove('show'));
+            modal.querySelector('.btn-cancelar').addEventListener('click', () => modal.classList.remove('show'));
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+            modal.querySelector('#form-respuesta').addEventListener('submit', (e) => {
                 e.preventDefault();
-                
-                const idElement = document.getElementById('editar-pregunta-id');
-                const textoElement = document.getElementById('editar-pregunta-texto');
-                
-                const id = idElement.value;
-                const texto = textoElement.value.trim();
-                
-                if (!texto) {
-                    mostrarNotificacion('Por favor, escribe una pregunta', 'error');
+                const texto = modal.querySelector('#modal-respuesta-texto').value.trim();
+                 if (!texto) {
+                    mostrarNotificacion('La respuesta no puede estar vacía.', 'error');
                     return;
                 }
-                
-                db.collection('preguntas').doc(id).update({
-                    texto: texto,
-                    fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
-                })
-                .then(() => {
-                    modal.classList.remove('show');
-                    mostrarNotificacion('Pregunta actualizada correctamente', 'success');
-                    
-                    // Actualizar la pregunta en el DOM
-                    if (preguntaActiva && preguntaActiva.id === id) {
-                        preguntaActiva.texto = texto;
-                        mostrarPregunta(preguntaActiva);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error al actualizar pregunta:', error);
-                    mostrarNotificacion('Error al actualizar la pregunta', 'error');
-                });
+                const usuario = firebase.auth().currentUser;
+                 if (!usuario) {
+                    mostrarNotificacion('Debes iniciar sesión.', 'error');
+                    return;
+                }
+
+                if (respuestaExistente) { // Editar
+                    db.collection('respuestas').doc(respuestaExistente.id).update({
+                        texto: texto,
+                        fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        mostrarNotificacion('Respuesta actualizada.', 'success');
+                        modal.classList.remove('show');
+                        // El listener onSnapshot debería actualizar el DOM automáticamente
+                    }).catch(err => mostrarNotificacion('Error al actualizar: ' + err.message, 'error'));
+                } else { // Crear (aunque ya tenemos un formulario en la página, este es por si se quiere un modal)
+                    // Esta parte es redundante si ya tienes el formulario de respuesta en la página.
+                    // Lo mantengo por si decides usar un modal para nuevas respuestas también.
+                    db.collection('respuestas').add({
+                        preguntaId: preguntaIdParaNuevaRespuesta,
+                        texto: texto,
+                        usuarioId: usuario.uid,
+                        nombreUsuario: usuario.displayName || usuario.email.split('@')[0],
+                        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp(),
+                        reacciones: { '💛': 0, '🖤': 0, '🙈': 0, '🥹': 0, '😂': 0 },
+                        usuariosReacciones: {}
+                    }).then(() => {
+                        mostrarNotificacion('Respuesta enviada.', 'success');
+                        modal.classList.remove('show');
+                    }).catch(err => mostrarNotificacion('Error al enviar: ' + err.message, 'error'));
+                }
             });
+        } else {
+            modal.querySelector('.modal-title').textContent = respuestaExistente ? 'Editar Respuesta' : 'Nueva Respuesta';
+            modal.querySelector('.btn-guardar').textContent = respuestaExistente ? 'Guardar Cambios' : 'Enviar Respuesta';
         }
+        
+        modal.querySelector('#modal-respuesta-texto').value = respuestaExistente ? respuestaExistente.texto : '';
+        modal.classList.add('show');
     }
 
-    function mostrarModalEditarRespuesta(respuesta) {
-    // Crear el modal si no existe
-    if (!document.getElementById('editar-respuesta-modal')) {
-        document.body.insertAdjacentHTML('beforeend', `
-            <div id="editar-respuesta-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Editar Respuesta</h2>
-                    <form id="editar-respuesta-form">
-                        <input type="hidden" id="editar-respuesta-id">
-                        <div class="form-group">
-                            <label for="editar-respuesta-texto">Tu respuesta</label>
-                            <textarea id="editar-respuesta-texto" placeholder="Escribe aquí tu respuesta..." required></textarea>
+    // Modal de Confirmación de Eliminación
+    function confirmarEliminacion(tipo, id, nombreItem = "este elemento") {
+        const modalId = 'modal-confirmar-eliminacion';
+        let modal = document.getElementById(modalId);
+
+        if (!modal) {
+            const modalHTML = `
+                <div id="${modalId}" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Confirmar Eliminación</h2>
+                            <button class="close-modal" title="Cerrar">×</button>
                         </div>
-                        <button type="submit" class="btn-modal-guardar">Guardar cambios</button>
-                    </form>
-                </div>
-            </div>
-        `);
-        
-        // Configurar los eventos del modal (cerrar, submit, etc.)
-        const modal = document.getElementById('editar-respuesta-modal');
-        const closeBtn = modal.querySelector('.close');
-        
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('show');
-        });
-        
-        // ... resto de configuración de eventos
-    }
-    
-    // Establecer valores actuales en el formulario
-    const modal = document.getElementById('editar-respuesta-modal');
-    const idElement = document.getElementById('editar-respuesta-id');
-    const textoElement = document.getElementById('editar-respuesta-texto');
-    
-    idElement.value = respuesta.id;
-    textoElement.value = respuesta.texto;
-    
-    // Mostrar el modal
-    modal.classList.add('show');
-}
-
-function confirmarEliminarRespuesta(respuestaId) {
-    // Crear el modal de confirmación si no existe
-    if (!document.getElementById('confirmar-modal')) {
-        document.body.insertAdjacentHTML('beforeend', `
-            <div id="confirmar-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Confirmar eliminación</h2>
-                    <p>¿Estás seguro de que deseas eliminar esta respuesta? Esta acción no se puede deshacer.</p>
-                    <div class="modal-buttons">
-                        <button id="confirmar-cancelar" class="btn-cancelar">Cancelar</button>
-                        <button id="confirmar-eliminar" class="btn-eliminar">Eliminar</button>
+                        <div class="modal-body">
+                            <p>¿Estás seguro de que deseas eliminar "${nombreItem}"? Esta acción no se puede deshacer.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn-cancelar">Cancelar</button>
+                            <button type="button" id="btn-confirmar-eliminar" class="btn-eliminar-confirmado">Eliminar</button> 
+                        </div>
                     </div>
-                    <input type="hidden" id="confirmar-id">
-                    <input type="hidden" id="confirmar-tipo">
-                </div>
-            </div>
-        `);
-        
-        // Configurar eventos para el modal
-        // ... código para manejar los eventos
-    }
-    
-    // Configurar el modal para eliminar respuesta
-    const modal = document.getElementById('confirmar-modal');
-    const confirmarId = document.getElementById('confirmar-id');
-    const confirmarTipo = document.getElementById('confirmar-tipo');
-    
-    confirmarId.value = respuestaId;
-    confirmarTipo.value = 'respuesta';
-    
-    // Mostrar el modal
-    modal.classList.add('show');
-}
+                </div>`;
+            // Nota: .btn-eliminar-confirmado necesita estilos CSS, similar a .btn-eliminar-pregunta
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            modal = document.getElementById(modalId);
 
-function confirmarEliminarPregunta(preguntaId) {
-    // Similar a confirmarEliminarRespuesta pero para preguntas
-    // ...
-    
-    confirmarId.value = preguntaId;
-    confirmarTipo.value = 'pregunta';
-    
-    // Mostrar el modal
-    modal.classList.add('show');
-}
-    
-    // Función para mostrar notificaciones
-    function mostrarNotificacion(mensaje, tipo = 'info') {
-        // Eliminar notificaciones existentes
-        const notificacionesExistentes = document.querySelectorAll('.notification');
-        notificacionesExistentes.forEach(notif => notif.remove());
+            modal.querySelector('.close-modal').addEventListener('click', () => modal.classList.remove('show'));
+            modal.querySelector('.btn-cancelar').addEventListener('click', () => modal.classList.remove('show'));
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+        }
         
-        // Crear nueva notificación
-        const notificacion = document.createElement('div');
-        notificacion.className = `notification ${tipo}`;
-        notificacion.textContent = mensaje;
-        
-        // Añadir al DOM
-        document.body.appendChild(notificacion);
-        
-        // Mostrar con animación
-        setTimeout(() => {
-            notificacion.classList.add('show');
-        }, 10);
-        
-        // Ocultar después de 3 segundos
-        setTimeout(() => {
-            notificacion.classList.remove('show');
-            setTimeout(() => {
-                notificacion.remove();
-            }, 300);
-        }, 3000);
+        // Actualizar texto si el modal ya existía
+        modal.querySelector('.modal-body p').textContent = `¿Estás seguro de que deseas eliminar "${nombreItem}"? Esta acción no se puede deshacer.`;
+
+        // Configurar el botón de confirmación para la acción específica
+        const btnConfirmar = modal.querySelector('#btn-confirmar-eliminar');
+        // Clonar y reemplazar para remover listeners antiguos
+        const newBtnConfirmar = btnConfirmar.cloneNode(true);
+        btnConfirmar.parentNode.replaceChild(newBtnConfirmar, btnConfirmar);
+
+        newBtnConfirmar.addEventListener('click', () => {
+            let coleccion = tipo === 'pregunta' ? 'preguntas' : 'respuestas';
+            db.collection(coleccion).doc(id).delete()
+                .then(() => {
+                    mostrarNotificacion(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} eliminada.`, 'success');
+                    modal.classList.remove('show');
+                    if (tipo === 'pregunta') {
+                        // Si se elimina la pregunta activa, cargar la siguiente más reciente o mostrar mensaje
+                        if (preguntaActiva && preguntaActiva.id === id) {
+                            cargarPreguntaMasReciente(); 
+                        }
+                        // Si la pregunta eliminada estaba en la lista de "anteriores", removerla del DOM.
+                        const preguntaCardAnterior = document.querySelector(`.preguntas-anteriores .pregunta-card[data-id="${id}"]`);
+                        preguntaCardAnterior?.remove();
+
+                    } 
+                    // Para respuestas, el listener onSnapshot debería manejar la actualización del DOM.
+                })
+                .catch(err => mostrarNotificacion(`Error al eliminar: ${err.message}`, 'error'));
+        });
+        modal.classList.add('show');
+    }
+
+    // --- PREGUNTAS ANTERIORES ---
+    function configurarBotonCargarMasPreguntasAnteriores() {
+        let cargarMasBtn = document.getElementById('btn-cargar-mas-preguntas');
+        if (!cargarMasBtn) {
+            cargarMasBtn = document.createElement('button');
+            cargarMasBtn.id = 'btn-cargar-mas-preguntas';
+            cargarMasBtn.className = 'btn-cargar-mas'; // Usa una clase genérica o crea una específica
+            cargarMasBtn.innerHTML = '<i class="fas fa-history"></i> Ver preguntas anteriores';
+            
+            const container = document.querySelector('.preguntas-container');
+            // Insertar después del contenedor de la pregunta actual, o al final del contenedor principal.
+            if (preguntaActualContainer && preguntaActualContainer.nextSibling) {
+                 preguntaActualContainer.parentNode.insertBefore(cargarMasBtn, preguntaActualContainer.nextSibling.nextSibling); // Después de respuestas
+            } else if (container) {
+                container.appendChild(cargarMasBtn);
+            }
+        }
+        cargarMasBtn.addEventListener('click', cargarLotePreguntasAnteriores);
     }
     
-    // Función para cargar más preguntas (paginación)
-function cargarMasPreguntas() {
-    const ultimaPregunta = document.querySelector('.pregunta-card:last-child');
-    if (!ultimaPregunta) return;
-    
-    const ultimaPreguntaId = ultimaPregunta.getAttribute('data-id');
-    
-    // Consultar primero el documento de referencia
-    db.collection('preguntas').doc(ultimaPreguntaId).get()
-        .then(doc => {
-            if (doc.exists) {
-                return db.collection('preguntas')
-                    .orderBy('fechaCreacion', 'desc')
-                    .startAfter(doc)
-                    .limit(5)
-                    .get();
-            } else {
-                // Fallback si no se encuentra el documento
-                return db.collection('preguntas')
-                    .orderBy('fechaCreacion', 'desc')
-                    .limit(5)
-                    .get();
+    async function cargarLotePreguntasAnteriores() {
+        const preguntasAnterioresContainerId = 'preguntas-anteriores-lista';
+        let contenedorAnteriores = document.getElementById(preguntasAnterioresContainerId);
+        if (!contenedorAnteriores) {
+            contenedorAnteriores = document.createElement('div');
+            contenedorAnteriores.id = preguntasAnterioresContainerId;
+            contenedorAnteriores.className = 'preguntas-anteriores'; // Para estilizar
+            // Insertar después del contenedor de respuestas
+            if (respuestasContainer && respuestasContainer.nextSibling) {
+                respuestasContainer.parentNode.insertBefore(contenedorAnteriores, respuestasContainer.nextSibling);
+            } else if (preguntaActualContainer && preguntaActualContainer.parentNode) {
+                 preguntaActualContainer.parentNode.appendChild(contenedorAnteriores);
             }
-        })
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                mostrarNotificacion('No hay más preguntas para cargar', 'info');
+        }
+
+        const ultimaPreguntaAnteriorVisible = contenedorAnteriores.querySelector('.pregunta-card:last-child');
+        let query = db.collection('preguntas').orderBy('fechaCreacion', 'desc');
+
+        // Queremos preguntas ANTERIORES a la actual, o si ya hay anteriores, anteriores a la última anterior
+        let docReferenciaParaStartAfter = null;
+
+        if (ultimaPreguntaAnteriorVisible) {
+            const ultimaId = ultimaPreguntaAnteriorVisible.dataset.id;
+            docReferenciaParaStartAfter = await db.collection('preguntas').doc(ultimaId).get();
+        } else if (preguntaActiva) { // Primera carga de anteriores, paginar después de la activa
+            docReferenciaParaStartAfter = await db.collection('preguntas').doc(preguntaActiva.id).get();
+        }
+        
+        if (docReferenciaParaStartAfter && docReferenciaParaStartAfter.exists) {
+            query = query.startAfter(docReferenciaParaStartAfter);
+        } else if (!ultimaPreguntaAnteriorVisible && !preguntaActiva) {
+            // No hay pregunta activa y no hay anteriores, no hacer nada o cargar desde el inicio (pero ya lo hizo cargarPreguntaMasReciente)
+            mostrarNotificacion('No hay pregunta activa para paginar después.', 'info');
+            return;
+        }
+
+
+        query.limit(5).get().then(snapshot => {
+            if (snapshot.empty) {
+                mostrarNotificacion('No hay más preguntas anteriores.', 'info');
+                document.getElementById('btn-cargar-mas-preguntas')?.remove(); // Ocultar botón si no hay más
                 return;
             }
-            
-            const preguntasContainer = document.createElement('div');
-            preguntasContainer.className = 'preguntas-anteriores';
-            
-            querySnapshot.forEach((doc) => {
-                const pregunta = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                
-                const preguntaCard = document.createElement('div');
-                preguntaCard.className = 'pregunta-card';
-                preguntaCard.setAttribute('data-id', pregunta.id);
-                
-                preguntaCard.innerHTML = `
-                    <div class="pregunta-header">
-                        <div class="pregunta-texto">${pregunta.texto}</div>
-                    </div>
-                    <p>${formatearFecha(pregunta.fechaCreacion)}</p>
-                    <button class="btn-ver-pregunta" data-id="${pregunta.id}">Ver respuestas</button>
-                `;
-                
-                preguntasContainer.appendChild(preguntaCard);
+            snapshot.forEach(doc => {
+                const pregunta = { id: doc.id, ...doc.data() };
+                const preguntaCardHTML = `
+                    <div class="pregunta-card" data-id="${pregunta.id}">
+                        <div class="pregunta-header">
+                            <h3 class="pregunta-texto-anterior">${pregunta.texto}</h3>
+                        </div>
+                        <p class="pregunta-fecha-anterior">Por ${pregunta.nombreUsuario || 'Anónimo'} - ${formatearFecha(pregunta.fechaCreacion)}</p>
+                        <button class="btn-ver-pregunta-completa" data-id="${pregunta.id}">
+                            <i class="fas fa-eye"></i> Ver esta pregunta y sus respuestas
+                        </button>
+                    </div>`;
+                // CSS necesitará .pregunta-texto-anterior, .pregunta-fecha-anterior, .btn-ver-pregunta-completa
+                contenedorAnteriores.insertAdjacentHTML('beforeend', preguntaCardHTML);
+                contenedorAnteriores.querySelector(`.btn-ver-pregunta-completa[data-id="${pregunta.id}"]`)
+                    .addEventListener('click', () => cargarPreguntaEspecificaComoPrincipal(pregunta.id));
             });
-            
-            // Insertar después de la pregunta actual
-            document.querySelector('.pregunta-actual').after(preguntasContainer);
-            
-            // Configurar eventos para los botones de ver pregunta
-            document.querySelectorAll('.btn-ver-pregunta').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const preguntaId = btn.getAttribute('data-id');
-                    cargarPreguntaEspecifica(preguntaId);
-                });
-            });
-        })
-        .catch((error) => {
-            console.error('Error al cargar más preguntas:', error);
-            mostrarNotificacion('Error al cargar más preguntas', 'error');
+        }).catch(error => {
+            console.error("Error al cargar preguntas anteriores: ", error);
+            mostrarNotificacion("Error al cargar preguntas anteriores.", "error");
         });
-}
-    
-    // Función para cargar una pregunta específica
-    function cargarPreguntaEspecifica(preguntaId) {
+    }
+
+    function cargarPreguntaEspecificaComoPrincipal(preguntaId) {
+        // Similar a cargarPreguntaMasReciente pero con un ID específico
         db.collection('preguntas').doc(preguntaId).get()
             .then((doc) => {
                 if (!doc.exists) {
-                    mostrarNotificacion('La pregunta no existe', 'error');
+                    mostrarNotificacion('La pregunta no existe.', 'error');
                     return;
                 }
+                preguntaActiva = { id: doc.id, ...doc.data() };
+                mostrarPreguntaEnContenedorPrincipal(preguntaActiva);
+                cargarYMostrarRespuestas(preguntaActiva.id);
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll al inicio
                 
-                preguntaActiva = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                
-                mostrarPregunta(preguntaActiva);
-                cargarRespuestas(preguntaActiva.id);
-                
-                // Desplazar la pantalla hacia arriba
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                // Limpiar lista de preguntas anteriores, ya que la seleccionada es ahora la principal
+                const contenedorAnteriores = document.getElementById('preguntas-anteriores-lista');
+                if (contenedorAnteriores) contenedorAnteriores.innerHTML = '';
+                // Volver a mostrar el botón de cargar anteriores si no está ya
+                if (!document.getElementById('btn-cargar-mas-preguntas')) {
+                    configurarBotonCargarMasPreguntasAnteriores();
+                }
+
             })
             .catch((error) => {
                 console.error('Error al cargar pregunta específica:', error);
-                mostrarNotificacion('Error al cargar la pregunta', 'error');
+                mostrarNotificacion('Error al cargar la pregunta.', 'error');
             });
     }
-    
-    // Función para limitar el número de respuestas en móvil
-    function limitarRespuestasMobile() {
-        // Detectar si es un dispositivo móvil
-        const esMobile = window.innerWidth < 768;
-        
-        if (esMobile) {
-            const respuestas = document.querySelectorAll('.respuesta-item');
-            
-            // Si hay más de 3 respuestas, ocultar el resto
-            if (respuestas.length > 3) {
-                let contadorRespuestas = 0;
-                respuestas.forEach(respuesta => {
-                    contadorRespuestas++;
-                    if (contadorRespuestas > 3) {
-                        respuesta.classList.add('hidden');
-                    }
-                });
-                
-                // Agregar botón "Ver más respuestas"
-                if (!document.querySelector('.btn-ver-mas')) {
-                    const verMasBtn = document.createElement('button');
-                    verMasBtn.className = 'btn-ver-mas';
-                    verMasBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Ver más respuestas';
-                    verMasBtn.addEventListener('click', mostrarMasRespuestas);
-                    
-                    respuestasContainer.appendChild(verMasBtn);
-                }
-            }
-        }
-    }
-    
-    // Función para mostrar más respuestas
-    function mostrarMasRespuestas() {
-        const respuestasOcultas = document.querySelectorAll('.respuesta-item.hidden');
-        
-        // Mostrar las siguientes 3 respuestas
-        let contador = 0;
-        respuestasOcultas.forEach(respuesta => {
-            if (contador < 3) {
-                respuesta.classList.remove('hidden');
-                contador++;
-            }
-        });
-        
-        // Si ya no hay más respuestas ocultas, quitar el botón
-        if (document.querySelectorAll('.respuesta-item.hidden').length === 0) {
-            const verMasBtn = document.querySelector('.btn-ver-mas');
-            if (verMasBtn) {
-                verMasBtn.remove();
-            }
-        }
-    }
-    
-    // Función para añadir el botón de volver arriba
-    function agregarBotonVolverArriba() {
-        // Crear botón si no existe
-        if (!document.querySelector('.btn-volver-arriba')) {
-            const botonVolver = document.createElement('button');
-            botonVolver.className = 'btn-volver-arriba';
-            botonVolver.innerHTML = '<i class="fas fa-arrow-up"></i>';
-            botonVolver.title = 'Volver arriba';
-            
-            // Añadir al DOM
-            document.body.appendChild(botonVolver);
-            
-            // Añadir evento
-            botonVolver.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-            
-            // Mostrar/ocultar dependiendo del scroll
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    botonVolver.classList.add('visible');
-                } else {
-                    botonVolver.classList.remove('visible');
-                }
-            });
-        }
-    }
-    
-    // Función principal para inicializar todas las funcionalidades
-    function inicializarFuncionalidades() {
-        cargarPreguntaDelDia();
-        agregarBotonVolverArriba();
-        
-        // Añadir botón para cargar más preguntas
-        const cargarMasBtn = document.createElement('button');
-        cargarMasBtn.className = 'btn-cargar-mas';
-        cargarMasBtn.innerHTML = '<i class="fas fa-plus"></i> Cargar más preguntas';
-        cargarMasBtn.addEventListener('click', cargarMasPreguntas);
-        
-        document.querySelector('.preguntas-container').appendChild(cargarMasBtn);
-        
-        // Observar cambios en el DOM para aplicar limitaciones en móvil
-        const observer = new MutationObserver(() => {
-            limitarRespuestasMobile();
-        });
-        
-        observer.observe(respuestasContainer, { childList: true, subtree: true });
-        
-        // Comprobar también al redimensionar la ventana
-        window.addEventListener('resize', limitarRespuestasMobile);
-    }
-    
-    // Iniciar cuando el usuario esté autenticado
-firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-        inicializarFuncionalidades();
-    }
-});
 
-// Cierre del evento DOMContentLoaded que faltaba
+
+    // --- NOTIFICACIONES ---
+    // (Asegúrate de tener el CSS para .notification y .notification.show)
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        const existingNotif = document.querySelector('.notification');
+        if(existingNotif) existingNotif.remove();
+
+        const notificacion = document.createElement('div');
+        notificacion.className = `notification ${tipo}`; // ej. info, success, error
+        notificacion.textContent = mensaje;
+        document.body.appendChild(notificacion);
+
+        setTimeout(() => notificacion.classList.add('show'), 10); // Para la animación de entrada
+        setTimeout(() => {
+            notificacion.classList.remove('show');
+            setTimeout(() => notificacion.remove(), 500); // Esperar a que termine la animación de salida
+        }, 3000);
+    }
 });
