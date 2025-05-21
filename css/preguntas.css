@@ -8,30 +8,69 @@
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
-    background-color: #f5f5f5;
-    color: #333;
-    transition: background-color 0.3s ease;
+    background-color: var(--body-bg, #f5f5f5); /* Usar variables de themes.css o style.css */
+    color: var(--text-color, #333);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Temas */
+/* Temas (asegúrate que estas variables estén definidas en themes.css o style.css) */
+/* .light-theme se aplica al body */
 .light-theme {
-    background-color: #f5f5f5;
-    color: #333;
+    --body-bg: #f5f5f5;
+    --text-color: #333;
+    --card-bg: #fff;
+    --card-bg-alt: #f9f9f9; /* Para pregunta-card */
+    --respuesta-bg: #f0f8ff; /* AliceBlue */
+    --respuesta-border: #4a90e2;
+    --pregunta-border-alt: #f8a5c2; /* Rosa claro para borde pregunta */
+    --modal-content-bg: #fff;
+    --form-control-bg: #fff;
+    --form-control-border: #ddd;
+    --form-control-text: #333;
+    --btn-cancelar-bg: #f2f2f2;
+    --btn-cancelar-text: #333;
+    --btn-reaccion-border: rgba(0,0,0,0.1);
+    --btn-reaccion-hover-bg: rgba(0,0,0,0.05);
+    --header-border: rgba(0,0,0,0.1);
+    --responder-container-bg: #fff;
+    --btn-ver-mas-bg: #f0f8ff;
+    --btn-ver-mas-text: #4a90e2;
+    --btn-ver-mas-border: #4a90e2;
 }
 
+/* .dark-theme se aplica al body */
 .dark-theme {
-    background-color: #2d2d2d;
-    color: #fff;
+    --body-bg: #2d2d2d;
+    --text-color: #fff;
+    --card-bg: #3a3a3a; /* Ligeramente más claro que el fondo */
+    --card-bg-alt: #2d2d2d; /* Mismo que fondo para pregunta-card */
+    --respuesta-bg: #2a2a2a;
+    --respuesta-border: #4a90e2;
+    --pregunta-border-alt: #c6426e; /* Rosa oscuro para borde pregunta */
+    --modal-content-bg: #333;
+    --form-control-bg: #444;
+    --form-control-border: #555;
+    --form-control-text: #fff;
+    --btn-cancelar-bg: #555;
+    --btn-cancelar-text: #fff;
+    --btn-reaccion-border: rgba(255,255,255,0.1);
+    --btn-reaccion-text: #ddd; /* Para emoji y contador */
+    --btn-reaccion-hover-bg: rgba(255,255,255,0.05);
+    --header-border: rgba(255,255,255,0.1);
+    --responder-container-bg: #2a2a2a;
+    --btn-ver-mas-bg: #2a2a2a;
+    --btn-ver-mas-text: #4a90e2; /* Mantenemos color acción */
+    --btn-ver-mas-border: #4a90e2;
 }
 
-/* Botón del menú */
+/* Botón del menú y Overlay (asumo que parte de esto puede estar en style.css o boton.css) */
 .menu-button {
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 1000;
+    z-index: 1010; /* Encima del overlay y contenido, pero debajo de modales de notificación/acción */
     cursor: pointer;
-    background-color: var(--primary-color); /* Asegúrate que --primary-color esté definido en themes.css o style.css */
+    background-color: var(--primary-color, #8A2BE2);
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -62,34 +101,14 @@ body {
     transition: 0.25s ease-in-out;
 }
 
-.hamburger span:nth-child(1) {
-    top: 0px;
-}
+.hamburger span:nth-child(1) { top: 0px; }
+.hamburger span:nth-child(2) { top: 8px; }
+.hamburger span:nth-child(3) { top: 16px; }
 
-.hamburger span:nth-child(2) {
-    top: 8px;
-}
+body.menu-open .hamburger span:nth-child(1) { top: 8px; transform: rotate(135deg); }
+body.menu-open .hamburger span:nth-child(2) { opacity: 0; left: -60px; }
+body.menu-open .hamburger span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
 
-.hamburger span:nth-child(3) {
-    top: 16px;
-}
-
-.menu-open .hamburger span:nth-child(1) {
-    top: 8px;
-    transform: rotate(135deg);
-}
-
-.menu-open .hamburger span:nth-child(2) {
-    opacity: 0;
-    left: -60px;
-}
-
-.menu-open .hamburger span:nth-child(3) {
-    top: 8px;
-    transform: rotate(-135deg);
-}
-
-/* Overlay para cuando el menú está abierto */
 .overlay {
     position: fixed;
     top: 0;
@@ -97,13 +116,13 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 900;
+    z-index: 900; /* Debajo del menú */
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--transition-speed, 0.3s), visibility var(--transition-speed, 0.3s); /* fallback para --transition-speed */
+    transition: opacity 0.3s, visibility 0.3s;
 }
 
-.menu-open .overlay {
+body.menu-open .overlay {
     opacity: 1;
     visibility: visible;
 }
@@ -112,60 +131,57 @@ body {
 .side-menu {
     position: fixed;
     top: 0;
-    left: -100%; /* Comienza oculto */
-    width: var(--side-menu-width, 250px); /* fallback para --side-menu-width */
+    left: -100%;
+    width: var(--side-menu-width, 250px);
     height: 100vh;
-    background-color: var(--card-bg, #fff); /* fallback para --card-bg */
-    z-index: 1000;
-    transition: left var(--transition-speed, 0.3s); /* fallback */
+    background-color: var(--card-bg, #fff);
+    z-index: 1000; /* Encima del overlay */
+    transition: left 0.3s;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
 }
 
-.menu-open .side-menu {
+body.menu-open .side-menu {
     left: 0;
 }
 
 .menu-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color, #8A2BE2) 0%, var(--accent-color, #BA55D3) 100%); /* fallback */
+    background: linear-gradient(135deg, var(--primary-color, #8A2BE2) 0%, var(--accent-color, #BA55D3) 100%);
     color: white;
     text-align: center;
 }
-
-.menu-items {
-    padding: 1rem 0;
-}
-
+.menu-items { padding: 1rem 0; }
 .menu-items a {
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    color: var(--text-color, #333); /* fallback */
+    color: var(--text-color, #333);
     text-decoration: none;
     font-weight: 500;
-    transition: background-color var(--transition-speed, 0.3s); /* fallback */
+    transition: background-color 0.3s;
 }
-
 .menu-items a i {
     margin-right: 0.8rem;
     width: 20px;
     text-align: center;
-    color: var(--primary-color, #8A2BE2); /* fallback */
+    color: var(--primary-color, #8A2BE2);
 }
-
 .menu-items a:hover, .menu-items a.active {
-    background-color: rgba(138, 43, 226, 0.1); /* Usando un color fijo ya que --primary-color puede variar */
+    background-color: rgba(138, 43, 226, 0.1); /* Color fijo o usar var(--primary-color-transparent) */
 }
 
 /* Contenido principal */
 .main-content {
     padding: 20px;
+    padding-top: 70px; /* Espacio para el botón de menú y switcher */
     transition: margin-left 0.3s ease;
+    background-color: var(--body-bg); /* Asegura que el fondo del contenido cambie */
+    color: var(--text-color);
 }
 
-.main-content.active {
-    margin-left: var(--side-menu-width, 280px); /* Ajustar al valor real de --side-menu-width si es diferente */
+body.menu-open .main-content {
+    margin-left: var(--side-menu-width, 250px);
 }
 
 /* Estilos para la página de preguntas */
@@ -175,42 +191,34 @@ body {
     padding: 20px;
 }
 
-.pregunta-actual {
-    margin-bottom: 20px;
+.pregunta-actual { /* Contenedor de la pregunta principal */
+    margin-bottom: 30px;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-    background-color: #fff; /* Mantener un fondo para light theme */
+    background-color: var(--card-bg);
 }
-
-.dark-theme .pregunta-actual {
-    background-color: #3a3a3a; /* Un poco más claro que el fondo para destacar */
-}
-
 .pregunta-actual:hover {
     transform: translateY(-5px);
 }
 
-.pregunta-card {
+.pregunta-card { /* Estilo base para CADA tarjeta de pregunta (principal o anterior) */
     padding: 20px;
-    border-radius: 15px; /* Redondeo ya está en .pregunta-actual, quizás no necesario aquí si es el único hijo */
+    border-radius: 15px; 
     position: relative;
-    /* margin-bottom: 20px; /* Si .pregunta-card está dentro de .pregunta-actual, esto podría ser innecesario */
     border-left: 5px solid transparent;
+    background-color: var(--card-bg-alt);
+    border-left-color: var(--pregunta-border-alt);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra más sutil para cards individuales */
+    margin-bottom: 20px; /* Espacio entre preguntas en la lista de anteriores */
+}
+/* Específicos si la pregunta-card está DENTRO de pregunta-actual (si es la única hija) */
+.pregunta-actual .pregunta-card {
+    margin-bottom: 0; /* Sin margen si es la única hija directa */
+    box-shadow: none; /* La sombra ya está en .pregunta-actual */
 }
 
-.light-theme .pregunta-card {
-    background-color: #f9f9f9;
-    border-left-color: #f8a5c2; /* Color para light theme */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.dark-theme .pregunta-card {
-    background-color: #2d2d2d; /* Mismo que el fondo del tema oscuro */
-    border-left-color: #c6426e; /* Color para dark theme */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
 
 .pregunta-header {
     display: flex;
@@ -218,11 +226,7 @@ body {
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.dark-theme .pregunta-header {
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid var(--header-border);
 }
 
 .pregunta-texto {
@@ -230,712 +234,396 @@ body {
     font-weight: 600;
     flex-grow: 1;
     line-height: 1.4;
+    color: var(--text-color);
 }
 
-.pregunta-admin {
-    display: flex;
-    gap: 12px;
+.pregunta-admin { display: flex; gap: 12px; }
+.btn-editar-pregunta, .btn-eliminar-pregunta {
+    background: none; border: none; cursor: pointer; width: 40px; height: 40px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; font-size: 1.2rem;
 }
-
-.btn-editar-pregunta, 
-.btn-eliminar-pregunta {
-    background: none;
-    border: none;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 1.2rem;
-}
-
-.btn-editar-pregunta:hover, 
-.btn-eliminar-pregunta:hover {
-    background-color: rgba(0,0,0,0.1);
+.btn-editar-pregunta:hover, .btn-eliminar-pregunta:hover {
+    background-color: var(--btn-reaccion-hover-bg); /* Reutilizar variable */
     transform: scale(1.1);
 }
+.btn-editar-pregunta { color: #4a90e2; }
+.btn-eliminar-pregunta { color: #e74c3c; }
+.pregunta-fecha { font-size: 0.85rem; color: var(--text-color-muted, #888); } /* Nueva variable */
+.dark-theme .pregunta-fecha { color: var(--text-color-muted, #bbb); }
 
-.dark-theme .btn-editar-pregunta:hover, 
-.dark-theme .btn-eliminar-pregunta:hover {
-    background-color: rgba(255,255,255,0.1);
-}
 
-.btn-editar-pregunta {
-    color: #4a90e2;
-}
-
-.btn-eliminar-pregunta {
-    color: #e74c3c;
-}
-
-/* Estilos para respuestas */
-.respuestas-container {
-    margin-top: 30px;
-}
-
+/* Respuestas */
+.respuestas-container { margin-top: 30px; }
+.respuestas-container h2 { margin-bottom: 15px; color: var(--text-color); }
 .respuesta-item {
-    padding: 25px;
+    padding: 20px; /* Ajustado */
     border-radius: 15px;
-    margin-bottom: 25px;
-    border-left: 5px solid transparent;
+    margin-bottom: 20px; /* Ajustado */
+    border-left: 5px solid var(--respuesta-border);
+    background-color: var(--respuesta-bg);
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    color: var(--text-color); /* Hereda o especifica */
 }
-
-.light-theme .respuesta-item {
-    background-color: #f0f8ff; /* AliceBlue, un color claro y suave */
-    border-left-color: #4a90e2; /* Azul para respuestas */
-}
-
-.dark-theme .respuesta-item {
-    background-color: #2a2a2a; /* Ligeramente diferente del fondo general */
-    border-left-color: #4a90e2; /* Mantener consistencia de color */
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-}
-
+.dark-theme .respuesta-item { box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
 .respuesta-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
-
-.dark-theme .respuesta-item:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-}
-
+.dark-theme .respuesta-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.35); }
 
 .respuesta-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
 }
-
-.respuesta-autor {
-    font-weight: 600;
-    color: #4a90e2; /* Color consistente con la temática de respuesta */
-}
-
-.respuesta-fecha {
-    font-size: 0.85rem;
-    color: #888;
-}
-.dark-theme .respuesta-fecha {
-    color: #bbb;
-}
-
-.respuesta-contenido {
-    margin-top: 10px;
-    line-height: 1.5;
-    font-size: 1.1rem; /* Ligeramente más pequeño que la pregunta para jerarquía */
-}
-
+.respuesta-autor { font-weight: 600; color: #4a90e2; } /* Mantener color para destacar */
+.respuesta-fecha { font-size: 0.85rem; color: var(--text-color-muted, #888); }
+.dark-theme .respuesta-fecha { color: var(--text-color-muted, #bbb); }
+.respuesta-contenido { margin-top: 10px; line-height: 1.5; font-size: 1.1rem; }
 .respuesta-acciones {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(0,0,0,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--header-border);
 }
 
-.dark-theme .respuesta-acciones {
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Estilos para el botón de agregar pregunta */
-.nueva-pregunta-container {
-    text-align: center;
-    margin: 20px 0 40px;
-}
-
+/* Botón Nueva Pregunta */
+.nueva-pregunta-container { text-align: center; margin: 20px 0 40px; }
 .nueva-pregunta-btn {
-    background: linear-gradient(135deg, #4CAF50, #8BC34A);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: inline-flex; /* Cambiado de flex a inline-flex para que respete text-align:center del padre */
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    /* margin: 0 auto; /* No es necesario si el padre tiene text-align: center y el botón es inline-flex/inline-block */
+    background: linear-gradient(135deg, #4CAF50, #8BC34A); color: white; border: none;
+    padding: 12px 24px; border-radius: 50px; font-size: 1.1rem; font-weight: bold;
+    cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: inline-flex;
+    align-items: center; justify-content: center; gap: 10px;
 }
+.dark-theme .nueva-pregunta-btn { background: linear-gradient(135deg, #388E3C, #689F38); }
+.nueva-pregunta-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.nueva-pregunta-btn:active { transform: translateY(0); }
+.nueva-pregunta-btn i { font-size: 1.2rem; }
 
-.dark-theme .nueva-pregunta-btn {
-    background: linear-gradient(135deg, #388E3C, #689F38);
-}
-
-.nueva-pregunta-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-}
-
-.nueva-pregunta-btn:active {
-    transform: translateY(0);
-}
-
-.nueva-pregunta-btn i {
-    font-size: 1.2rem;
-}
-
-/* Estilos para el modal de nueva pregunta */
-/* NOTA: JavaScript debe añadir la clase .show al .modal para que sea visible */
+/* Modales (general) */
 .modal {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Un poco más oscuro para mejor contraste */
-    z-index: 1100;
-    align-items: center;
-    justify-content: center;
-    opacity: 0; /* Para transición suave */
-    visibility: hidden; /* Para transición suave */
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Transición */
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); z-index: 1100; /* Encima del menu-button */
+    align-items: center; justify-content: center; opacity: 0; visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
-
 .modal.show {
-    display: flex; /* Se activa con JS */
-    opacity: 1;
-    visibility: visible;
+    display: flex; opacity: 1; visibility: visible;
     transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
-
 .modal-content {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 25px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: scale(0.95); /* Para efecto de aparición */
+    background-color: var(--modal-content-bg); color: var(--text-color);
+    border-radius: 15px; padding: 25px; width: 90%; max-width: 600px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); position: relative;
+    max-height: 90vh; overflow-y: auto; transform: scale(0.95);
     transition: transform 0.3s ease;
 }
-
-.modal.show .modal-content {
-    transform: scale(1);
-}
-
-.dark-theme .modal-content {
-    background-color: #333; /* Un gris oscuro, no negro puro */
-    color: #fff;
-}
-
+.modal.show .modal-content { transform: scale(1); }
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--header-border);
 }
-
-.dark-theme .modal-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
+.modal-title { font-size: 1.5rem; font-weight: 600; }
 .close-modal {
-    background: none;
-    border: none;
-    font-size: 1.8rem; /* Un poco más grande para facilidad de click */
-    cursor: pointer;
-    color: #888;
-    transition: color 0.2s ease, transform 0.2s ease;
-    padding: 5px;
-    line-height: 1;
+    background: none; border: none; font-size: 1.8rem; cursor: pointer;
+    color: var(--text-color-muted, #888); transition: color 0.2s ease, transform 0.2s ease;
+    padding: 5px; line-height: 1;
 }
+.dark-theme .close-modal { color: var(--text-color-muted, #aaa); }
+.close-modal:hover { color: var(--text-color); transform: scale(1.1); }
+.dark-theme .close-modal:hover { color: #fff; }
 
-.close-modal:hover {
-    color: #333;
-    transform: scale(1.1);
-}
-
-.dark-theme .close-modal {
-    color: #aaa;
-}
-
-.dark-theme .close-modal:hover {
-    color: #fff;
-}
-
-.modal-body {
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    text-align: left; /* Asegura alineación izquierda, aunque ya estaba */
-}
-
+.modal-body { margin-bottom: 20px; }
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-label { display: block; margin-bottom: 8px; font-weight: 500; }
 .form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Añadido box-shadow a la transición */
-    background-color: #fff;
-    color: #333; /* Color de texto para light theme */
+    width: 100%; padding: 12px 15px; border: 1px solid var(--form-control-border);
+    border-radius: 8px; font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--form-control-bg); color: var(--form-control-text);
 }
-
-.dark-theme .form-control {
-    background-color: #444;
-    border-color: #555;
-    color: #fff;
-}
-
 .form-control:focus {
-    outline: none;
-    border-color: #4a90e2; /* Color de borde al enfocar */
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Sombra al enfocar */
+    outline: none; border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
-
-textarea.form-control {
-    min-height: 150px;
-    resize: vertical;
-}
-
+textarea.form-control { min-height: 150px; resize: vertical; }
 .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex; justify-content: flex-end; gap: 15px;
+    padding-top: 15px; border-top: 1px solid var(--header-border);
 }
-
-.dark-theme .modal-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .btn-cancelar {
-    background-color: #f2f2f2;
-    color: #333;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    background-color: var(--btn-cancelar-bg); color: var(--btn-cancelar-text);
+    border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease;
 }
-
-.dark-theme .btn-cancelar {
-    background-color: #555;
-    color: #fff;
-}
-
-.btn-cancelar:hover {
-    background-color: #e0e0e0;
-}
-
-.dark-theme .btn-cancelar:hover {
-    background-color: #666;
-}
-
+.btn-cancelar:hover { background-color: #e0e0e0; } /* Podría ser una variable también */
+.dark-theme .btn-cancelar:hover { background-color: #666; }
 .btn-guardar {
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    background-color: #4a90e2; color: white; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-guardar:hover { background-color: #357abd; transform: translateY(-2px); }
+.btn-eliminar-confirmado { /* Estilo para el botón de confirmar eliminación en el modal */
+    background-color: #e74c3c; color: white; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-eliminar-confirmado:hover { background-color: #c0392b; transform: translateY(-2px); }
+.dark-theme .btn-eliminar-confirmado { background-color: #ec7063; }
+.dark-theme .btn-eliminar-confirmado:hover { background-color: #e74c3c; }
+
+
+/* Cuadro para responder */
+.responder-container {
+    margin: 30px 0; padding: 20px; border-radius: 15px;
+    background-color: var(--responder-container-bg);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.responder-titulo {
+    font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; color: var(--text-color);
+}
+.responder-form { width: 100%; }
+.responder-textarea {
+    width: 100%; min-height: 120px; padding: 15px;
+    border: 1px solid var(--form-control-border);
+    border-radius: 8px; font-size: 1rem; margin-bottom: 15px; resize: vertical;
+    transition: border-color 0.2s ease;
+    background-color: var(--form-control-bg); color: var(--form-control-text);
+}
+.responder-textarea:focus { outline: none; border-color: #4a90e2; }
+.responder-btn {
+    background-color: #4a90e2; color: white; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.responder-btn:hover { background-color: #357abd; transform: translateY(-2px); }
+.responder-btn:active { transform: translateY(0); }
+.responder-btn i { font-size: 1.1rem; }
+
+/* Reacciones */
+.reacciones { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.reacciones-botones { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-reaccion {
+    background: none; border: 1px solid var(--btn-reaccion-border);
+    cursor: pointer; font-size: 1rem; border-radius: 20px; padding: 3px 10px;
+    display: flex; align-items: center; gap: 5px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* No transform para evitar salto */
+    color: var(--btn-reaccion-text, var(--text-color)); /* Fallback a text-color normal */
+}
+.dark-theme .btn-reaccion .reaccion-emoji { /* Para asegurar que el emoji como texto tome el color */
+     color: var(--btn-reaccion-text, #fff);
+}
+.btn-reaccion:hover {
+    background-color: var(--btn-reaccion-hover-bg);
+}
+.btn-reaccion.active {
+    background-color: rgba(74, 144, 226, 0.1); border-color: #4a90e2; color: #4a90e2;
+}
+.dark-theme .btn-reaccion.active {
+    background-color: rgba(74, 144, 226, 0.2); border-color: #4a90e2; color: #69a5e9;
+}
+.reaccion-emoji { font-size: 0.85rem; }
+.reaccion-count { font-size: 0.8rem; min-width: 16px; text-align: center; font-weight: bold; }
+
+
+/* Botón Volver Arriba */
+.btn-volver-arriba {
+    position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+    border-radius: 50%; background: #4a90e2; color: white; display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3); opacity: 0; visibility: hidden;
+    transition: all 0.3s ease; z-index: 100; border: none; font-size: 1.2rem;
+}
+.btn-volver-arriba.visible { opacity: 1; visibility: visible; }
+.btn-volver-arriba:hover {
+    transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    background-color: #357abd;
 }
 
-.btn-guardar:hover {
-    background-color: #357abd;
+/* Botón Ver Más Respuestas */
+.btn-ver-mas { /* Aplicado a #btn-ver-mas-respuestas */
+    background-color: var(--btn-ver-mas-bg);
+    color: var(--btn-ver-mas-text);
+    border: 1px solid var(--btn-ver-mas-border);
+    border-radius: 8px; padding: 10px 15px; margin-top: 15px; margin-bottom: 20px;
+    cursor: pointer; font-weight: 600; transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+}
+.btn-ver-mas:hover {
+    background-color: #e6f2ff; /* Light theme hover */
     transform: translateY(-2px);
 }
-
-/* Cuadro para responder a preguntas */
-.responder-container {
-    margin: 30px 0;
-    padding: 20px;
-    border-radius: 15px;
-    background-color: #fff;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.dark-theme .btn-ver-mas:hover {
+    background-color: #333; /* Dark theme hover */
 }
+.btn-ver-mas i { transition: transform 0.3s ease; }
+.btn-ver-mas:hover i { transform: translateY(2px); }
 
-.dark-theme .responder-container {
-    background-color: #2a2a2a;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+
+/* Botones Editar/Eliminar Respuestas */
+.respuesta-admin { display: flex; gap: 10px; }
+.btn-editar-respuesta, .btn-eliminar-respuesta {
+    display: flex; align-items: center; background: none; border: 1px solid;
+    border-radius: 20px; padding: 5px 10px; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s ease;
 }
+.btn-editar-respuesta { color: #4a90e2; border-color: #4a90e2; }
+.btn-eliminar-respuesta { color: #e74c3c; border-color: #e74c3c; }
+.btn-editar-respuesta:hover { background-color: rgba(74, 144, 226, 0.1); transform: translateY(-2px); }
+.btn-eliminar-respuesta:hover { background-color: rgba(231, 76, 60, 0.1); transform: translateY(-2px); }
+.dark-theme .btn-editar-respuesta { color: #69a5e9; border-color: #69a5e9; }
+.dark-theme .btn-eliminar-respuesta { color: #ec7063; border-color: #ec7063; }
+.dark-theme .btn-editar-respuesta:hover { background-color: rgba(74, 144, 226, 0.2); }
+.dark-theme .btn-eliminar-respuesta:hover { background-color: rgba(231, 76, 60, 0.2); }
+.btn-editar-respuesta i, .btn-eliminar-respuesta i { margin-right: 5px; }
 
-.responder-titulo {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #333;
+
+/* Notificaciones Toast */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%); /* Empieza arriba, fuera de vista */
+    padding: 12px 25px;
+    border-radius: 25px; /* Pill shape */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 9999; /* Muy alto */
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* Efecto de entrada con rebote */
+    font-size: 0.95rem;
+    font-weight: 500;
+    min-width: 250px; /* Ancho mínimo */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra el texto si no hay icono */
+    gap: 8px;
 }
-
-.dark-theme .responder-titulo {
-    color: #fff;
+.notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Se desliza a su posición */
 }
+.notification.success { background-color: #4CAF50; color: white; }
+.notification.error { background-color: #e74c3c; color: white; }
+.notification.info { background-color: #3498db; color: white; }
 
-.responder-form {
-    width: 100%;
+
+/* Preguntas Anteriores (nuevos estilos para la lista) */
+.preguntas-anteriores {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--header-border);
 }
-
-.responder-textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    margin-bottom: 15px;
-    resize: vertical;
-    transition: border-color 0.2s ease;
-    background-color: #fff; /* Explicit background for light theme */
-    color: #333; /* Explicit text color for light theme */
+.preguntas-anteriores h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
 }
-
-.dark-theme .responder-textarea {
-    background-color: #333;
-    border-color: #444;
-    color: #fff;
+/* .pregunta-card se reutiliza para las anteriores, pero ajustamos texto y fecha */
+.pregunta-texto-anterior { /* Clase específica para el texto de preguntas en la lista de anteriores */
+    font-size: 1.1rem; /* Un poco más pequeño */
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 8px;
 }
-
-.responder-textarea:focus {
-    outline: none;
-    border-color: #4a90e2;
+.pregunta-fecha-anterior {
+    font-size: 0.8rem;
+    color: var(--text-color-muted, #888);
+    margin-bottom: 10px;
 }
+.dark-theme .pregunta-fecha-anterior { color: var(--text-color-muted, #bbb); }
 
-.responder-btn {
-    background-color: #4a90e2;
+.btn-ver-pregunta-completa {
+    background-color: var(--primary-color, #8A2BE2);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
-
-.responder-btn:hover {
-    background-color: #357abd;
-    transform: translateY(-2px);
+.btn-ver-pregunta-completa:hover {
+    background-color: var(--accent-color, #BA55D3);
 }
+.btn-ver-pregunta-completa i { font-size: 1rem; }
 
-.responder-btn:active {
-    transform: translateY(0);
-}
-
-.responder-btn i {
-    font-size: 1.1rem;
-}
-
-/* Estilos para las reacciones */
-.reacciones {
-    display: flex;
-    justify-content: space-between; /* Esto es para el contenedor general de reacciones, si hay algo más además de los botones */
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.reacciones-botones {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap; /* Permite que los botones de reacción pasen a la siguiente línea si no caben */
-}
-
-.btn-reaccion {
-    background: none;
-    border: 1px solid rgba(0,0,0,0.1);
-    cursor: pointer;
-    font-size: 1rem; 
-    border-radius: 20px;
-    padding: 3px 10px; /* Ajustado para mejor proporción */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.2s ease;
-}
-
-.dark-theme .btn-reaccion {
-    border-color: rgba(255,255,255,0.1);
-    color: #ddd; /* Color de texto para emojis/contador en dark theme */
-}
-.dark-theme .btn-reaccion .reaccion-emoji {
-    color: #fff; /* Si el emoji es un caracter de fuente, para que se vea bien */
-}
-
-
-.btn-reaccion:hover {
-    transform: scale(1.05);
-    background-color: rgba(0,0,0,0.05);
-}
-
-.dark-theme .btn-reaccion:hover {
-    background-color: rgba(255,255,255,0.05);
-}
-
-.btn-reaccion.active {
-    background-color: rgba(74, 144, 226, 0.1);
-    border-color: #4a90e2;
-    color: #4a90e2; /* Color de texto cuando está activo */
-}
-
-.dark-theme .btn-reaccion.active {
-    background-color: rgba(74, 144, 226, 0.2);
-    border-color: #4a90e2;
-    color: #69a5e9; /* Un azul más claro para dark theme activo */
-}
-
-.reaccion-emoji {
-    font-size: 0.85rem; 
-}
-
-.reaccion-count {
-    font-size: 0.8rem; 
-    min-width: 16px; 
-    text-align: center;
-    font-weight: bold;
-}
-
-/* Estilos para el botón de volver arriba */
-/* NOTA: JavaScript debe añadir la clase .visible cuando se haga scroll */
-.btn-volver-arriba {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #4a90e2;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 100; /* Asegurar que esté sobre la mayoría del contenido pero debajo del modal/menú */
-    border: none;
-    font-size: 1.2rem; /* Para el ícono interno que DEBES añadir en el HTML, ej: <i class="fas fa-arrow-up"></i> */
-}
-
-.btn-volver-arriba.visible { /* Esta clase la añade JS */
-    opacity: 1;
-    visibility: visible;
-}
-
-.btn-volver-arriba:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    background-color: #357abd; /* Color más oscuro al pasar el mouse */
-}
-
-/* Estilos para el botón de ver más respuestas */
-/* NOTA: Asegúrate de tener solo UN botón para "ver más" en tu HTML/JS */
-.btn-ver-mas {
-    background-color: #f0f8ff;
-    color: #4a90e2;
-    border: 1px solid #4a90e2;
-    border-radius: 8px;
-    padding: 10px 15px;
-    margin-top: 15px; /* Espacio arriba */
-    margin-bottom: 20px; /* Espacio abajo */
-    cursor: pointer;
+/* Botón para cargar más preguntas anteriores */
+.btn-cargar-mas { /* Para #btn-cargar-mas-preguntas */
+    display: block; /* Para que ocupe el ancho y permita margen auto */
+    width: fit-content; /* Se ajusta al contenido */
+    margin: 30px auto; /* Centrado */
+    padding: 10px 20px;
+    font-size: 1rem;
     font-weight: 600;
-    transition: all 0.2s ease;
-    display: flex; /* Asegurar que es flex para alinear el ícono */
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%; /* Ocupa todo el ancho disponible */
-}
-
-.dark-theme .btn-ver-mas {
-    background-color: #2a2a2a;
-    color: #4a90e2; /* Mantener el color del texto, es un color de acción */
-    border-color: #4a90e2; /* Mantener el color del borde */
-}
-
-.btn-ver-mas:hover {
-    background-color: #e6f2ff;
-    transform: translateY(-2px);
-}
-
-.dark-theme .btn-ver-mas:hover {
-    background-color: #333; /* Oscurecer un poco el fondo */
-}
-
-.btn-ver-mas i {
-    transition: transform 0.3s ease;
-}
-
-.btn-ver-mas:hover i {
-    transform: translateY(2px); /* Animación sutil del ícono */
-}
-
-/* Estilos para los botones de editar y eliminar respuestas (parte de .respuesta-admin) */
-.respuesta-admin { /* Contenedor de los botones de editar/eliminar DENTRO de una respuesta */
-    display: flex; /* Por defecto, los botones estarán en fila */
-    gap: 10px;
-}
-
-.btn-editar-respuesta,
-.btn-eliminar-respuesta {
-    display: flex;
-    align-items: center;
-    background: none;
-    border: 1px solid; /* El color se define abajo */
-    border-radius: 20px;
-    padding: 5px 10px;
-    font-size: 0.9rem;
+    color: var(--primary-color, #8A2BE2);
+    background-color: transparent;
+    border: 2px solid var(--primary-color, #8A2BE2);
+    border-radius: 25px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
-
-.btn-editar-respuesta {
-    color: #4a90e2;
-    border-color: #4a90e2;
+.btn-cargar-mas:hover {
+    background-color: var(--primary-color, #8A2BE2);
+    color: white;
+    box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3);
 }
-
-.btn-eliminar-respuesta {
-    color: #e74c3c;
-    border-color: #e74c3c;
-}
-
-.btn-editar-respuesta:hover {
-    background-color: rgba(74, 144, 226, 0.1);
-    transform: translateY(-2px);
-}
-
-.btn-eliminar-respuesta:hover {
-    background-color: rgba(231, 76, 60, 0.1);
-    transform: translateY(-2px);
-}
-
-.dark-theme .btn-editar-respuesta {
-    color: #69a5e9; /* Azul más claro para dark theme */
-    border-color: #69a5e9;
-}
-.dark-theme .btn-eliminar-respuesta {
-    color: #ec7063; /* Rojo más claro para dark theme */
-    border-color: #ec7063;
-}
+.btn-cargar-mas i { margin-right: 8px; }
 
 
-.dark-theme .btn-editar-respuesta:hover {
-    background-color: rgba(74, 144, 226, 0.2);
-}
-
-.dark-theme .btn-eliminar-respuesta:hover {
-    background-color: rgba(231, 76, 60, 0.2);
-}
-
-.btn-editar-respuesta i,
-.btn-eliminar-respuesta i {
-    margin-right: 5px;
-}
-
-/* Estilos responsivos */
+/* Estilos Responsivos */
 @media (max-width: 768px) {
-    .main-content.active {
-        margin-left: 0; /* En móvil, el contenido principal no se desplaza cuando el menú está abierto si el menú se superpone */
+    body.menu-open .main-content {
+        margin-left: 0; /* En móvil, el contenido principal no se desplaza */
     }
-    /* Si el menú en móvil debe empujar el contenido, esta regla debe ser .main-content.active { margin-left: var(--side-menu-width, 250px); } */
-    
-    .respuesta-item.hidden {
-        display: none; /* Para la funcionalidad de "ver más respuestas" si oculta items */
+    .main-content {
+        padding-top: 60px; /* Menos padding arriba en móvil */
     }
-    
-    /* CORRECCIÓN 4: Hacer respuestas más "largas" (más anchas) reduciendo padding */
-    .respuesta-item {
-        padding: 15px; /* Padding reducido para móviles */
+    .preguntas-container {
+        padding: 15px 10px;
+        width: 100%; /* Ocupa más pantalla */
     }
+    .pregunta-actual, .respuesta-item {
+        margin-bottom: 15px;
+    }
+    .pregunta-card, .respuesta-item { /* Reducir padding general para más espacio de contenido */
+        padding: 15px;
+    }
+    .pregunta-texto { font-size: 1.15rem; }
+    .respuesta-contenido { font-size: 1rem; }
 
-    /* CORRECCIÓN 5: Layout de acciones de respuesta en móvil */
     .respuesta-acciones {
-        flex-direction: row; /* Emojis y botones admin en la misma fila */
-        justify-content: space-between; /* Emojis a la izquierda, botones admin a la derecha */
-        align-items: center; /* Alineación vertical */
-        gap: 15px; /* Espacio entre grupo de emojis y grupo de botones admin */
+        flex-direction: column; /* Emojis arriba, botones admin abajo */
+        align-items: flex-start; /* Alinear todo a la izquierda */
+        gap: 15px;
     }
-    
     .reacciones-botones {
-        /* No necesita width: 100% aquí, se ajustará a su contenido */
-        /* justify-content: space-between; /* Esto es para los botones de reacción *entre sí*, puede quedar */
-        flex-grow: 1; /* Permite que tome el espacio disponible si es necesario */
+        width: 100%; /* Ocupar ancho */
+        justify-content: flex-start; /* Alinear botones de reacción a la izquierda */
     }
-
-    .respuesta-admin { /* Contenedor de botones editar/eliminar en respuestas */
-        flex-direction: row; /* Botones editar/eliminar uno al lado del otro */
-        align-items: center; /* Alineación vertical de los botones editar/eliminar */
-        gap: 8px; /* Espacio entre botón editar y eliminar */
-        /* margin-left: auto; /* No es necesario si .respuesta-acciones tiene justify-content: space-between */
+    .respuesta-admin {
+        width: 100%;
+        justify-content: flex-end; /* Alinear botones editar/eliminar a la derecha */
     }
-    
-    .btn-editar-respuesta,
-    .btn-eliminar-respuesta {
-        width: auto; /* Ancho automático según el contenido */
-        justify-content: center; /* Centrar contenido si el botón es más ancho que el texto/icono */
-        padding: 5px 8px; /* Ajustar padding si es necesario para tamaño */
-        font-size: 0.85rem; /* Ligeramente más pequeño en móvil */
+    .btn-editar-respuesta, .btn-eliminar-respuesta {
+        padding: 5px 8px;
+        font-size: 0.85rem;
     }
-     .btn-editar-respuesta i, /* Ocultar texto y dejar solo iconos en móvil si se prefiere */
-    .btn-eliminar-respuesta i {
-        /* margin-right: 0; */ /* Si se oculta el texto */
-    }
-    /* Ejemplo: para ocultar texto y dejar solo icono:
-    .btn-editar-respuesta span, .btn-eliminar-respuesta span { display: none; }
-    .btn-editar-respuesta i, .btn-eliminar-respuesta i { margin-right: 0; }
-    */
 }
 
 @media (max-width: 480px) {
-    /* Ajustes adicionales para pantallas muy pequeñas si son necesarios */
-    .pregunta-texto {
-        font-size: 1.1rem;
-    }
-    .respuesta-contenido {
-        font-size: 1rem;
-    }
-    .reacciones-botones {
-        gap: 5px; /* Menor espacio entre botones de reacción */
-    }
-    .btn-reaccion {
-        padding: 2px 8px;
-        font-size: 0.9rem;
-    }
-    .reaccion-emoji {
-        font-size: 0.8rem;
-    }
-    .reaccion-count {
-        font-size: 0.75rem;
-    }
+    .pregunta-texto { font-size: 1.05rem; }
+    .respuesta-contenido { font-size: 0.95rem; }
+    .reacciones-botones { gap: 5px; }
+    .btn-reaccion { padding: 2px 8px; font-size: 0.9rem; }
+    .reaccion-emoji { font-size: 0.8rem; }
+    .reaccion-count { font-size: 0.75rem; }
+
+    .modal-content { padding: 20px; }
+    .modal-title { font-size: 1.3rem; }
+    .form-control { padding: 10px 12px; font-size: 0.95rem; }
+    textarea.form-control { min-height: 120px; }
+    .btn-cancelar, .btn-guardar, .btn-eliminar-confirmado { padding: 8px 15px; font-size: 0.9rem; }
+    .nueva-pregunta-btn { padding: 10px 20px; font-size: 1rem; }
 }
