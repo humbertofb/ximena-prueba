@@ -4,23 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preguntas y Respuestas - Nuestro Espacio</title>
-    <link rel="stylesheet" href="../css/style.css"> <!-- Estilos generales y de tema -->
-    <link rel="stylesheet" href="../css/themes.css"> <!-- Si tienes variables de tema aquí -->
-    <link rel="stylesheet" href="../css/boton.css"> <!-- Si es específico para botones globales -->
-    <link rel="stylesheet" href="../css/preguntas.css"> <!-- Estilos específicos de esta página -->
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/themes.css">
+    <link rel="stylesheet" href="../css/boton.css">
+    <link rel="stylesheet" href="../css/preguntas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK v9 con compat -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
 <body>
     <!-- Overlay para cuando el menú está abierto -->
     <div id="overlay" class="overlay"></div>
     
-    <!-- Contenido principal (visible después del login) -->
-    <div id="main-content" class="main-content">
+    <!-- Contenido principal -->
+    <!-- auth.js se encargará de añadir/quitar la clase 'hidden' basado en el estado de autenticación -->
+    <div id="main-content" class="main-content hidden"> 
         <!-- Botón de menú de hamburguesa -->
         <div class="menu-button" id="menu-button">
             <div class="hamburger">
@@ -47,13 +45,14 @@
 
         <!-- Switcher de tema -->
         <div class="theme-switch-wrapper">
-            <label for="theme-switch" class="switch"> <!-- Cambiado ID a theme-switch para evitar colisión con el de KDramas si es global -->
+            <label for="theme-switch" class="switch">
                 <input id="theme-switch" type="checkbox" />
                 <span class="slider"></span>
                 <span class="decoration"></span>
             </label>
         </div>
         
+        <!-- Contenido de la página de preguntas -->
         <main class="content">
             <section class="preguntas-container">
                 <h1>Pregunta del Día</h1>
@@ -67,6 +66,7 @@
                 
                 <div id="pregunta-actual" class="pregunta-actual">
                     <!-- La pregunta se cargará dinámicamente -->
+                    <!-- Si no hay usuario, auth.js ocultará main-content, o preguntas.js podría mostrar un mensaje aquí -->
                 </div>
                 
                 <div id="respuestas-container" class="respuestas-container">
@@ -79,35 +79,22 @@
         </main>
     </div>
 
-    <!-- Pantalla de login (asumo que esta parte está en style.css o un CSS global) -->
-    <div id="login-screen" class="login-screen hidden">
-        <div class="login-container">
-            <h1>Bienvenido</h1>
-            <p>Inicia sesión para continuar</p>
-            <form id="login-form" class="auth-form">
-                <div class="form-group"><label for="login-email">Correo</label><input type="email" id="login-email" required></div>
-                <div class="form-group"><label for="login-password">Contraseña</label><input type="password" id="login-password" required></div>
-                <button type="submit" class="btn-primary">Iniciar sesión</button>
-                <p class="form-link">¿No tienes cuenta? <a href="#" id="show-register">Regístrate</a></p>
-            </form>
-            <form id="register-form" class="auth-form hidden">
-                <div class="form-group"><label for="register-email">Correo</label><input type="email" id="register-email" required></div>
-                <div class="form-group"><label for="register-password">Contraseña</label><input type="password" id="register-password" required></div>
-                <div class="form-group"><label for="register-confirm-password">Confirmar</label><input type="password" id="register-confirm-password" required></div>
-                <button type="submit" class="btn-primary">Registrarse</button>
-                <p class="form-link">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión</a></p>
-            </form>
-            <div id="auth-error" class="auth-error"></div>
-        </div>
-    </div>
+    <!-- YA NO NECESITAMOS LA SECCIÓN #login-screen AQUÍ -->
+    <!-- <div id="login-screen" class="login-screen"> ... </div> -->
 
-    <!-- El botón "Volver arriba" se añadirá por JS si no existe, pero puedes tener un placeholder si prefieres -->
-    <!-- <button class="btn-volver-arriba"><i class="fas fa-arrow-up"></i></button> -->
+    <!-- El botón "Volver arriba" se añadirá por JS -->
 
+    <!-- JavaScript Files -->
     <script src="../firebase/config.js"></script>
-    <script src="../js/menu.js"></script> <!-- Asumo que este es el menu.js global -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
     <script src="../js/theme-switcher.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/preguntas.js"></script> <!-- Este es el que modificaremos -->
+    <script src="../js/menu.js"></script>
+    <script src="../js/auth.js"></script> <!-- auth.js SIGUE SIENDO IMPORTANTE -->
+    <script src="../js/preguntas.js"></script>
 </body>
 </html>
