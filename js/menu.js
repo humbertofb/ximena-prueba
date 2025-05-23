@@ -1,93 +1,84 @@
+// menu.js
 document.addEventListener('DOMContentLoaded', function() {
     const menuButton = document.getElementById('menu-button');
     const overlay = document.getElementById('overlay');
     const body = document.body;
-    const menuLinks = document.querySelectorAll('.side-menu .menu-items a'); // Más específico
+    const sideMenu = document.getElementById('side-menu'); // Referencia al menú
+    const menuLinks = sideMenu ? sideMenu.querySelectorAll('.menu-items a') : []; // Solo si sideMenu existe
+    const mainContent = document.getElementById('main-content');
 
-    // 1. Abrir/Cerrar Menú con botón y overlay
-    if (menuButton) {
+    if (menuButton && sideMenu && overlay) { // Asegurarse que todos los elementos existen
         menuButton.addEventListener('click', toggleMenu);
-    }
-    if (overlay) {
         overlay.addEventListener('click', closeMenu);
+    } else {
+        console.warn("Elementos del menú (botón, sideMenu o overlay) no encontrados. El menú no funcionará.");
     }
 
     function toggleMenu() {
         body.classList.toggle('menu-open');
-        // Si quieres que el contenido principal se desplace en desktop:
-        const mainContent = document.getElementById('main-content');
-        if (mainContent && window.innerWidth > 768) { // Ajusta el breakpoint si es necesario
-            mainContent.classList.toggle('active', body.classList.contains('menu-open'));
+        if (mainContent) { // Solo modificar si mainContent existe
+            // Solo activar el desplazamiento si el menú se está abriendo y es desktop
+            const menuIsOpen = body.classList.contains('menu-open');
+            const isDesktop = window.innerWidth > 768; // O tu breakpoint
+
+            if (menuIsOpen && isDesktop) {
+                mainContent.classList.add('active');
+            } else {
+                mainContent.classList.remove('active'); // Quitar si se cierra o es móvil
+            }
         }
     }
 
     function closeMenu() {
         body.classList.remove('menu-open');
-        const mainContent = document.getElementById('main-content');
-        if (mainContent && window.innerWidth > 768) {
+        if (mainContent) {
             mainContent.classList.remove('active');
         }
     }
 
-    // 2. Resaltar enlace activo y cerrar menú al hacer clic en enlace
+    // Resaltar enlace activo y cerrar menú al hacer clic en enlace
     const currentLocation = window.location.pathname;
     const currentOrigin = window.location.origin;
 
     menuLinks.forEach(link => {
-        // Normalizar href del enlace para comparación precisa
-        const linkUrl = new URL(link.href, currentOrigin); // Asegura que sea una URL absoluta
+        const linkUrl = new URL(link.href, currentOrigin);
         const linkPath = linkUrl.pathname;
-        const linkHash = linkUrl.hash; // Considerar hashes si son relevantes para "páginas"
-
-        // Lógica para determinar si es la página actual
-        // Compara pathname. Si es la raíz, verifica contra 'index.html' también.
+        
         let isCurrentPage = (currentLocation === linkPath);
-        if (currentLocation === '/' && linkPath.endsWith('index.html')) {
-            isCurrentPage = true;
+        if ((currentLocation === '/' || currentLocation.endsWith('index.html')) && 
+            (linkPath.endsWith('index.html') || linkPath === '/')) {
+            // Normalizar para que / y /index.html se traten igual para el enlace de inicio
+            const normCurrent = currentLocation.endsWith('index.html') ? currentLocation : currentLocation + (currentLocation.endsWith('/') ? 'index.html' : '/index.html');
+            const normLink = linkPath.endsWith('index.html') ? linkPath : linkPath + (linkPath.endsWith('/') ? 'index.html' : '/index.html');
+            if (normCurrent.includes(normLink) || normLink.includes(normCurrent)){ // Hacerlo más flexible
+                 isCurrentPage = true;
+            }
         }
-        if (currentLocation.endsWith('index.html') && linkPath === '/') {
-             isCurrentPage = true;
+         // Casos especiales como preguntas.html
+        if (currentLocation.includes(linkPath.substring(linkPath.lastIndexOf('/') + 1)) && linkPath.substring(linkPath.lastIndexOf('/') + 1) !== 'index.html' && linkPath !== '/') {
+           isCurrentPage = true;
         }
-        // Si tu logout es un '#' o javascript:void(0), no lo marques como activo
+
+
         if (link.getAttribute('href') === '#' || link.getAttribute('href').startsWith('javascript:')) {
             isCurrentPage = false;
         }
         
-        // Aplicar/Quitar clase 'active'
         if (isCurrentPage) {
+            // Primero quitar 'active' de todos los demás
+            menuLinks.forEach(el => el.classList.remove('active'));
             link.classList.add('active');
-        } else {
-            link.classList.remove('active');
         }
+        // No necesitas un 'else remove' aquí si ya lo haces arriba para todos.
 
-        // Cerrar menú al hacer clic en un enlace (excepto si es un ancla en la misma página)
         link.addEventListener('click', function(e) {
-            const isSamePageAnchor = linkPath === currentLocation && linkHash !== '';
-            const isLogoutButton = link.id === 'logout-button'; // Asumiendo que tu botón de logout tiene este ID
-
-            // No cerrar si es un ancla en la misma página y el menú ya está abierto en desktop (opcional)
-            // Cerrar siempre en móvil, o si navega a otra página.
-            // Si el logout es un simple '#', siempre cerramos.
-            if (!isSamePageAnchor || window.innerWidth < 768 || isLogoutButton || link.getAttribute('href') === '#') {
-                // Solo cerrar si el enlace no es el botón de logout que podría tener su propia lógica de modal
-                // o si es una navegación real.
-                if (link.getAttribute('href') !== '#' || isLogoutButton) { // Evita cerrar por enlaces tipo ancla '#' sin destino
-                     // No cerrar si el enlace es el botón de logout que necesita permanecer para confirmación, etc.
-                     // A menos que el logout SÍ navegue inmediatamente. Es una decisión de UX.
-                    if (link.id !== 'logout-button' || !link.getAttribute('href').startsWith('javascript:')) { // Ajusta esta lógica si el logout tiene un modal
-                        closeMenu();
-                    }
+            // Si es un enlace que efectivamente navega (no es solo #)
+            if (link.getAttribute('href') && link.getAttribute('href') !== '#') {
+                 // Cerrar menú en móvil o si el menú no debe permanecer abierto (decisión de UX)
+                if (window.innerWidth < 768 || !link.classList.contains('no-close-menu')) {
+                     closeMenu();
                 }
             }
         });
     });
-
-    // Asegúrate que el desplazamiento del contenido principal se maneje
-    // en conjunto con la clase 'menu-open' en el body.
-    // Tu CSS debería tener algo como:
-    // @media (min-width: 769px) {
-    //     body.menu-open #main-content.active { /* O solo body.menu-open #main-content si 'active' no es necesaria */
-    //         margin-left: var(--side-menu-width);
-    //     }
-    // }
 });
