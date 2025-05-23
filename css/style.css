@@ -1,20 +1,18 @@
-/* Variables globales */
+/* style.css */
+
+/* Variables globales de estructura y marca (si no cambian con tema) */
 :root {
-    /* Colores base */
-    --primary-color: #8a2be2; /* Morado */
-    --secondary-color: #ff3b3b; /* Rojo */
-    --accent-color: #3a86ff; /* Azul */
-    --text-color: #333;
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --border-color: #e1e1e1;
-    
+    /* Colores de marca (si son fijos y no parte del tema claro/oscuro) */
+    /* Si cambian, definirlos en themes.css :root y themes.css body.dark-theme */
+    /* --brand-primary: #8a2be2; */ /* Ejemplo, si este morado es fijo */
+
     /* Tamaños */
-    --side-menu-width: 50%;
+    --side-menu-width-mobile: 85%; /* Para móviles */
+    --side-menu-width-desktop: 320px; /* Para desktop */
     --header-height: 60px;
     
     /* Transiciones */
-    --transition-speed: 0.3s;
+    --transition-speed: 0.3s; /* Ya lo tienes */
 }
 
 /* Estilos generales */
@@ -26,100 +24,54 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--body-bg-color); /* CONSUME DE THEMES.CSS */
+    color: var(--text-color);           /* CONSUME DE THEMES.CSS */
     transition: background-color var(--transition-speed), color var(--transition-speed);
     min-height: 100vh;
 }
 
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 /* Pantalla de login */
 .login-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    /* ... */
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); /* Usa variables de tema */
 }
-
 .login-container {
-    background-color: var(--card-bg);
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    width: 90%;
-    max-width: 400px;
+    background-color: var(--card-bg-color); /* Usa variable de tema */
+    /* ... */
 }
-
 .login-container h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
+    color: var(--primary-color); /* Usa variable de tema */
+    /* ... */
 }
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
 .form-group input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
+    border: 1px solid var(--border-color); /* Usa variable de tema */
+    /* ... */
 }
-
 .btn {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color var(--transition-speed);
+    background-color: var(--primary-color); /* Usa variable de tema */
+    /* ... */
 }
-
-.btn-primary {
-    width: 100%;
-    margin-top: 1rem;
-}
-
 .btn:hover {
-    background-color: #7823c9;
-}
-
-.error-message {
-    color: var(--secondary-color);
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.9rem;
+    background-color: color-mix(in srgb, var(--primary-color) 85%, black); /* oscurecer un poco */
 }
 
 /* Contenido principal */
 .main-content {
     position: relative;
     min-height: 100vh;
+    transition: margin-left var(--transition-speed); /* Para el desplazamiento del menú */
 }
 
-/* Botón del menú */
+/* ----- MENÚ HAMBURGUESA Y OVERLAY ----- */
 .menu-button {
     position: fixed;
     top: 1rem;
     left: 1rem;
-    z-index: 1000;
+    z-index: 1010; /* Encima del overlay, contenido, pero debajo de modales */
     cursor: pointer;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Usa variable de tema */
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -128,56 +80,12 @@ body {
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
+.hamburger { /* ... sin cambios ... */ }
+.hamburger span { /* ... sin cambios ... */ }
+body.menu-open .hamburger span:nth-child(1) { top: 8px; transform: rotate(135deg); }
+body.menu-open .hamburger span:nth-child(2) { opacity: 0; left: -60px; }
+body.menu-open .hamburger span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
 
-.hamburger {
-    width: 24px;
-    height: 18px;
-    position: relative;
-    transform: rotate(0deg);
-    transition: 0.5s ease-in-out;
-}
-
-.hamburger span {
-    display: block;
-    position: absolute;
-    height: 3px;
-    width: 100%;
-    background: white;
-    border-radius: 9px;
-    opacity: 1;
-    left: 0;
-    transform: rotate(0deg);
-    transition: 0.25s ease-in-out;
-}
-
-.hamburger span:nth-child(1) {
-    top: 0px;
-}
-
-.hamburger span:nth-child(2) {
-    top: 8px;
-}
-
-.hamburger span:nth-child(3) {
-    top: 16px;
-}
-
-.menu-open .hamburger span:nth-child(1) {
-    top: 8px;
-    transform: rotate(135deg);
-}
-
-.menu-open .hamburger span:nth-child(2) {
-    opacity: 0;
-    left: -60px;
-}
-
-.menu-open .hamburger span:nth-child(3) {
-    top: 8px;
-    transform: rotate(-135deg);
-}
-
-/* Overlay para cuando el menú está abierto */
 .overlay {
     position: fixed;
     top: 0;
@@ -185,303 +93,92 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 900;
+    z-index: 900; /* Debajo del menú y botón del menú */
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-speed), visibility var(--transition-speed);
 }
-
-.menu-open .overlay {
+body.menu-open .overlay {
     opacity: 1;
     visibility: visible;
 }
 
-/* Menú lateral */
 .side-menu {
     position: fixed;
     top: 0;
     left: -100%;
-    width: var(--side-menu-width);
+    width: var(--side-menu-width-mobile); /* Ancho para móvil por defecto */
     height: 100vh;
-    background-color: var(--card-bg);
-    z-index: 1000;
+    background-color: var(--card-bg-color); /* Usa variable de tema */
+    z-index: 1000; /* Encima del overlay */
     transition: left var(--transition-speed);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
 }
-
-.menu-open .side-menu {
+body.menu-open .side-menu {
     left: 0;
 }
-
 .menu-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-    color: white;
+    /* Usa variables de tema o un gradiente que funcione bien en ambos */
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%); 
+    color: white; /* El texto del header del menú suele ser blanco */
     text-align: center;
 }
-
-.menu-items {
-    padding: 1rem 0;
-}
-
+.menu-items { padding: 1rem 0; }
 .menu-items a {
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    color: var(--text-color);
+    color: var(--text-color); /* Usa variable de tema */
     text-decoration: none;
     font-weight: 500;
     transition: background-color var(--transition-speed);
 }
-
 .menu-items a i {
     margin-right: 0.8rem;
     width: 20px;
     text-align: center;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Usa variable de tema */
 }
-
 .menu-items a:hover, .menu-items a.active {
-    background-color: rgba(138, 43, 226, 0.1);
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent); /* color primario con opacidad */
 }
 
-/* Contenido */
+
+/* ---- DESPLAZAMIENTO DEL CONTENIDO PRINCIPAL CON MENÚ ABIERTO (Desktop) ---- */
+@media (min-width: 769px) { /* O tu breakpoint preferido, ej: 768px */
+    .side-menu {
+        width: var(--side-menu-width-desktop);
+    }
+    body.menu-open .main-content.active { /* Si usas .active en main-content */
+        margin-left: var(--side-menu-width-desktop);
+    }
+    /* Alternativa: Si no quieres usar .active en main-content:
+    body.menu-open .main-content {
+        margin-left: var(--side-menu-width-desktop);
+    }
+    */
+}
+
+
+/* Contenido de la página de inicio (index.html) */
 .content {
-    padding: 6rem 1.5rem 2rem;
+    padding: 6rem 1.5rem 2rem; /* Ajusta padding-top si el header es fijo */
     max-width: 1200px;
     margin: 0 auto;
 }
-
-/* Sección de bienvenida */
-.welcome-section {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
 .welcome-section h1 {
-    font-size: 2.2rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    color: var(--primary-color); /* Usa variable de tema */
 }
-
 .subtitle {
-    font-size: 1.2rem;
-    color: var(--secondary-color);
-    margin-bottom: 2rem;
+    color: var(--secondary-color); /* Usa variable de tema */
 }
+/* ... resto de style.css usando variables de themes.css donde sea apropiado ... */
 
-/* Carrusel */
-.carousel {
-    position: relative;
-    margin-bottom: 2rem;
-    height: 200px;
-}
-
-.carousel-item {
-    display: none;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transition: opacity 0.5s ease;
-}
-
-.carousel-item.active {
-    display: block;
-    opacity: 1;
-}
-
-.quote-card {
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-left: 5px solid var(--primary-color);
-}
-
-.quote-card p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    font-style: italic;
-}
-
-.carousel-controls {
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.carousel-control {
-    background-color: transparent;
-    border: none;
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color var(--transition-speed);
-}
-
-.carousel-control:hover {
-    background-color: rgba(138, 43, 226, 0.1);
-}
-
-/* Responsive */
-@media (min-width: 768px) {
-    .quick-access-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    :root {
-        --side-menu-width: 320px;
-    }
-    
-    .content {
-        padding-top: 4rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .menu-button {
-        width: 45px;
-        height: 45px;
-    }
-    
-    .welcome-section h1 {
-        font-size: 1.8rem;
-    }
-    
-    .quote-card p {
-        font-size: 1rem;
-    }
-    
-    :root {
-        --side-menu-width: 85%;
-    }
-}
-
-/* Estilo para el nuevo botón de tema */
-.theme-switch-wrapper {
+.theme-switch-wrapper { /* Ya lo tienes, está bien */
     position: fixed;
     top: 1rem;
     right: 1rem;
-    z-index: 1000;
-}
-
-.form-switch {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 14px;
-}
-
-.form-switch a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.form-switch a:hover {
-    text-decoration: underline;
-}
-
-.error-message {
-    color: #e74c3c;
-    text-align: center;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-/* Estilos para la sección de galería de imágenes */
-.image-gallery {
-    padding: 30px 0;
-}
-
-.image-gallery h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: var(--primary-color);
-    font-size: 1.8rem;
-}
-
-.gallery-container {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    position: relative;
-    overflow: hidden;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.gallery-slide-container {
-    width: 100%;
-    height: 0;
-    padding-bottom: 75%; /* Relación de aspecto 4:3 */
-    position: relative;
-    overflow: hidden;
-}
-
-.gallery-slides {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.gallery-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.gallery-slide.active {
-    opacity: 1;
-    z-index: 1;
-}
-
-.gallery-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-.placeholder-text {
-    color: rgba(0, 0, 0, 0.7);
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 20px;
-}
-
-/* Responsive para la galería */
-@media (max-width: 480px) {
-    .gallery-slide-container {
-        padding-bottom: 85%;
-    }
-    
-    .placeholder-text {
-        font-size: 1.2rem;
-    }
+    z-index: 1005; /* Ligeramente por debajo del botón de menú si se solapan, o ajústalo */
 }
