@@ -1,119 +1,128 @@
-/* Tema Claro (por defecto) */
+/* themes.css */
+
+/* TEMA CLARO POR DEFECTO */
 :root {
-    --primary-color: #8a2be2; /* Morado */
-    --secondary-color: #ff3b3b; /* Rojo */
-    --accent-color: #3a86ff; /* Azul */
-    --text-color: #333333;
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --border-color: #e1e1e1;
+    /* Colores principales de la marca */
+    --primary-color: #8a2be2;       /* Morado principal (usado en style.css) */
+    --secondary-color: #ff3b3b;     /* Rojo (usado en style.css) */
+    --accent-color: #3a86ff;        /* Azul (usado en style.css) */
+
+    /* Colores base para el tema */
+    --text-color: #333333;          /* Color de texto principal */
+    --text-color-muted: #777777;    /* Color de texto secundario/apagado (fechas, etc.) */
+    --body-bg-color: #f8f9fa;       /* Fondo del body */
+    
+    /* Fondos de componentes */
+    --card-bg-color: #ffffff;             /* Fondo general de tarjetas, menú lateral */
+    --pregunta-card-bg-color: #ffffff;    /* Fondo específico para tarjeta de pregunta (puede ser igual a card-bg) */
+    --respuesta-bg-color: #f0f8ff;        /* Fondo para items de respuesta (AliceBlue) */
+    --responder-container-bg-color: #ffffff; /* Fondo para el contenedor de "Tu respuesta" */
+    --modal-content-bg-color: #ffffff;    /* Fondo del contenido de los modales */
+    --form-control-bg-color: #ffffff;     /* Fondo de inputs, textareas */
+    --btn-cancelar-bg-color: #f2f2f2;     /* Fondo botón cancelar modal */
+
+    /* Colores de bordes */
+    --border-color: #e1e1e1;                      /* Borde genérico */
+    --header-section-border-color: rgba(0,0,0,0.1); /* Borde para cabeceras de pregunta/modal/respuesta-acciones */
+    --pregunta-card-border-left-color: #f8a5c2;   /* Borde lateral rosa para pregunta */
+    --respuesta-item-border-left-color: #4a90e2;  /* Borde lateral azul para respuesta */
+    --form-control-border-color: #dddddd;         /* Borde de inputs, textareas */
+
+    /* Colores de texto específicos */
+    --form-control-text-color: #333333;
+    --btn-cancelar-text-color: #333333;
+    --btn-reaccion-text-color: #333333;     /* Texto/emoji en botón de reacción */
+    --btn-ver-mas-text-color: #4a90e2;     /* Texto en botón "ver más" */
+    --link-color: var(--primary-color);    /* Color general para enlaces */
+
+    /* Colores de botones de reacción */
+    --btn-reaccion-border-color: rgba(0,0,0,0.1);
+    --btn-reaccion-hover-bg-color: rgba(0,0,0,0.05);
+    --btn-reaccion-active-bg-color: rgba(74, 144, 226, 0.1);
+    --btn-reaccion-active-border-color: #4a90e2;
+    --btn-reaccion-active-text-color: #4a90e2;
+
+    /* Botón "Ver más" */
+    --btn-ver-mas-bg-color: #f0f8ff;
+    --btn-ver-mas-border-color: #4a90e2;
+
+    /* Sombras */
     --shadow-color: rgba(0, 0, 0, 0.1);
+
+    /* Transiciones (ya definidas en style.css, pero pueden estar aquí también) */
+    --transition-speed: 0.3s;
 }
 
-/* Tema Oscuro - Definición base */
-:root.dark-theme,
-.dark-theme {
-    --primary-color: #b069ff; /* Morado más claro para mejor contraste */
-    --secondary-color: #ff6b6b; /* Rojo más claro */
-    --accent-color: #6ba5ff; /* Azul más claro */
+/* TEMA OSCURO */
+body.dark-theme { /* Aplicamos directamente al body con la clase */
+    --primary-color: #b069ff;    
+    --secondary-color: #ff6b6b;  
+    --accent-color: #6ba5ff;     
+
     --text-color: #f0f0f0;
-    --bg-color: #1a1a1a;
-    --card-bg: #2c2c2c;
+    --text-color-muted: #bbbbbb;
+    --body-bg-color: #1a1a1a; 
+    
+    --card-bg-color: #2c2c2c; 
+    --pregunta-card-bg-color: #272727; /* Ligeramente diferente para destacar */
+    --respuesta-bg-color: #252525; 
+    --responder-container-bg-color: #2c2c2c;
+    --modal-content-bg-color: #333333;
+    --form-control-bg-color: #404040;
+    --btn-cancelar-bg-color: #555555;
+
     --border-color: #444444;
+    --header-section-border-color: rgba(255,255,255,0.1);
+    --pregunta-card-border-left-color: #c6426e; 
+    --respuesta-item-border-left-color: #6ba5ff; 
+    --form-control-border-color: #555555;
+    
+    --form-control-text-color: #f0f0f0;
+    --btn-cancelar-text-color: #f0f0f0;
+    --btn-reaccion-text-color: #dddddd;
+    --btn-ver-mas-text-color: #6ba5ff;
+    --link-color: var(--primary-color);
+
+    --btn-reaccion-border-color: rgba(255,255,255,0.1);
+    --btn-reaccion-hover-bg-color: rgba(255,255,255,0.08);
+    --btn-reaccion-active-bg-color: rgba(107, 165, 255, 0.2); /* Azul claro de accent-color */
+    --btn-reaccion-active-border-color: var(--accent-color);
+    --btn-reaccion-active-text-color: var(--accent-color);
+
+    --btn-ver-mas-bg-color: #252525;
+    --btn-ver-mas-border-color: #6ba5ff;
+    
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* Aplicación de colores base cuando el tema oscuro está activo */
-.dark-theme {
-    background-color: var(--bg-color);
+/* Aplicación general de tema oscuro para elementos comunes (OPCIONAL si se usan variables en todos lados) */
+/* Puedes mantener algunas reglas si son para elementos fuera de preguntas.html y no usan variables aún */
+body.dark-theme {
+    background-color: var(--body-bg-color);
     color: var(--text-color);
 }
 
-.dark-theme .card,
-.dark-theme .quote-card,
-.dark-theme .login-container,
-.dark-theme .quick-access-item {
-    background-color: var(--card-bg);
+body.dark-theme .card, /* Si tienes una clase .card genérica */
+body.dark-theme .quote-card,
+body.dark-theme .login-container
+/* ...otros elementos globales ... */ {
+    background-color: var(--card-bg-color);
     border-color: var(--border-color);
+    box-shadow: 0 4px 15px var(--shadow-color);
 }
 
-/* Tema Oscuro - Elementos específicos */
-.dark-theme .notification-content {
-    background-color: #333;
-    color: #f0f0f0;
+body.dark-theme .menu-items a:hover, 
+body.dark-theme .menu-items a.active {
+    background-color: rgba(180, 105, 255, 0.15); /* Ejemplo, podría ser una variable */
 }
 
-.dark-theme .notification-icon {
-    color: #ff6b6b; /* Versión más clara del rojo */
+body.dark-theme .menu-header {
+    /* Usa var(--primary-color) y var(--card-bg-color) o colores fijos si prefieres */
+    background: linear-gradient(135deg, var(--primary-color) 0%, #2c2c2c 100%); 
 }
 
-.dark-theme .close-notification {
-    color: #f0f0f0;
-}
-
-.dark-theme .close-notification:hover {
-    color: #fff;
-}
-
-/* Mejorar contraste de las ventanas emergentes */
-.dark-theme .user-dropdown {
-    background-color: #333;
-    border: 1px solid #444;
-}
-
-.dark-theme .user-dropdown a {
-    color: #f0f0f0;
-}
-
-.dark-theme .user-dropdown a:hover {
-    background-color: #444;
-    color: var(--primary-color);
-}
-
-/* Añadir estilo para el contador en el menú de usuario */
-.user-stat {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-}
-
-.user-stat i {
-    margin-right: 10px;
-    color: var(--secondary-color);
-}
-
-.dark-theme .user-stat {
-    color: #f0f0f0;
-    border-bottom-color: #444;
-}
-
-/* Ajustes específicos para modo oscuro */
-.dark-theme .quote-card {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.dark-theme .login-container,
-.dark-theme .quick-access-item,
-.dark-theme .days-counter {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-.dark-theme .menu-items a:hover, 
-.dark-theme .menu-items a.active {
-    background-color: rgba(180, 105, 255, 0.15);
-}
-
-/* Tema para el menú en modo oscuro */
-.dark-theme .menu-header {
-    background: linear-gradient(135deg, #8a2be2 0%, #2c2c2c 100%);
-}
-
-/* Animación de transición entre temas */
+/* Transiciones (ya están en style.css, pueden ser redundantes aquí) */
 body, html {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
-
-.card, .menu-items a, .quote-card, .days-counter, .login-container, .quick-access-item, .user-dropdown {
-    transition: background-color 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
-}
+/* ... otras transiciones ... */
