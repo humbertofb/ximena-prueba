@@ -3,66 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuestro Espacio</title>
+    <title>Nuestro Espacio - Inicio</title> <!-- Cambia el título según necesites -->
+
+    <!-- CSS Files -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/themes.css">
-    <link rel="stylesheet" href="css/boton.css"> <!-- Nuevo CSS para el botón -->
+    <link rel="stylesheet" href="css/boton.css">
+    <!-- <link rel="stylesheet" href="css/gallery.css">  Si tienes estilos específicos para la galería en index -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
 <body>
     <!-- Overlay para cuando el menú está abierto -->
     <div id="overlay" class="overlay"></div>
     
-    <!-- Pantalla de login -->
-    <div id="login-screen" class="login-screen">
-        <div class="login-container">
-            <h2>Bienvenido a Nuestro Espacio</h2>
-            
-            <!-- Se eliminaron los tabs de Login/Registro para evitar duplicidad -->
-            
-            <!-- Formulario de login -->
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Correo Electrónico</label>
-                    <input type="email" id="login-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Contraseña</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                <p class="form-switch">¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a></p>
-            </form>
-            
-            <!-- Formulario de registro -->
-            <form id="register-form" class="hidden">
-                <div class="form-group">
-                    <label for="register-email">Correo Electrónico</label>
-                    <input type="email" id="register-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-password">Contraseña</label>
-                    <input type="password" id="register-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="register-confirm-password">Confirmar Contraseña</label>
-                    <input type="password" id="register-confirm-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Crear Cuenta</button>
-                <p class="form-switch">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión aquí</a></p>
-            </form>
-            
-            <p id="auth-error" class="error-message"></p>
-        </div>
-    </div>
-
     <!-- Contenido principal (visible después del login) -->
-    <div id="main-content" class="main-content hidden">
+    <div id="main-content" class="main-content hidden"> <!-- Empieza oculto si el login es lo primero -->
         <!-- Botón de menú de hamburguesa -->
         <div class="menu-button" id="menu-button">
             <div class="hamburger">
@@ -75,76 +30,121 @@
         <!-- Menú lateral -->
         <div class="side-menu" id="side-menu">
             <div class="menu-header">
-                <h2>Te Quiero ❤️</h2>
+                <h2>Te Quiero ❤️</h2> <!-- O tu título de menú -->
             </div>
             <nav class="menu-items">
-                <a href="index.html" class="active"><i class="fas fa-home"></i> Inicio</a>
+                <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
                 <a href="pages/preguntas.html"><i class="fas fa-question-circle"></i> Preguntas y Respuestas</a>
-                <a href="pages/frases.html"><i class="fas fa-quote-right"></i> Frases</a>
-                <a href="pages/kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a>
-                <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a>
-                <!-- Se eliminó la sección de cumpleaños -->
+                <a href="pages/frases.html"><i class="fas fa-quote-right"></i> Frases</a> <!-- Asumiendo que tienes frases.html en pages/ -->
+                <a href="pages/kdramas.html"><i class="fas fa-tv"></i> K-Dramas</a> <!-- Asumiendo que tienes kdramas.html en pages/ -->
+                <a href="pages/trivias.html"><i class="fas fa-gamepad"></i> Trivias</a> <!-- Asumiendo que tienes trivias.html en pages/ -->
                 <a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
             </nav>
         </div>
 
-        <!-- Nuevo botón para el switcher de tema (reemplazando el botón de usuario) -->
+        <!-- Switcher de tema -->
         <div class="theme-switch-wrapper">
-            <label for="switch" class="switch">
-                <input id="switch" type="checkbox" />
+            <label for="theme-switch" class="switch">
+                <input id="theme-switch" type="checkbox" />
                 <span class="slider"></span>
                 <span class="decoration"></span>
             </label>
         </div>
         
-        <!-- Contenido de la página principal -->
+        <!-- Contenido específico de la página de inicio -->
         <main class="content">
             <section class="welcome-section">
-                <h1>Bienvenido a Nuestro Espacio</h1>
-                <p class="subtitle">Un lugar solo para nosotros</p>
-                
-                <!-- Carrusel de frases e imágenes -->
-                <div class="carousel">
-                    <div class="carousel-item active">
-                        <div class="quote-card">
-                            <p>"A veces, pequeños momentos se convierten en los mejores recuerdos."</p>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="quote-card">
-                            <p>"La distancia es solo una prueba para saber qué tan lejos puede viajar el amor."</p>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="quote-card">
-                            <p>"Cada día te elijo a ti."</p>
-                        </div>
-                    </div>
-                    <div class="carousel-controls">
-                        <button class="carousel-control" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
-                        <button class="carousel-control" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
-                    </div>
+                <h1>Bienvenid@ a Nuestro Espacio</h1>
+                <p class="subtitle">Un lugar especial solo para nosotros.</p>
+            </section>
+
+            <!-- Aquí puedes poner tu carrusel de frases, galería, etc. -->
+            <!-- Ejemplo de sección para el carrusel (adapta a tu HTML real) -->
+            <div class="carousel">
+                <div class="carousel-item active">
+                    <div class="quote-card"><p>"Frase inspiradora 1..."</p></div>
                 </div>
-            
-            <!-- Sección de galería de imágenes -->
+                <div class="carousel-item">
+                    <div class="quote-card"><p>"Frase inspiradora 2..."</p></div>
+                </div>
+                <!-- Más items del carrusel -->
+                <div class="carousel-controls">
+                    <button class="carousel-control" id="prevQuote"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-control" id="nextQuote"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Ejemplo de sección para galería (adapta a tu HTML real) -->
             <section class="image-gallery">
-                <h2>Nuestra Galería</h2>
+                <h2>Nuestros Momentos</h2>
                 <div class="gallery-container">
                     <div class="gallery-slide-container">
                         <div class="gallery-slides">
-                            <!-- Aquí se cargarán las imágenes con JavaScript -->
+                            <!-- Las imágenes se cargarán aquí por JS (gallery.js) -->
+                            <div class="placeholder-text">Cargando imágenes...</div>
                         </div>
                     </div>
                 </div>
             </section>
+            
+            <!-- ... Otro contenido que tengas en tu index.html ... -->
+
         </main>
     </div>
 
+    <!-- Pantalla de login -->
+    <div id="login-screen" class="login-screen"> <!-- No empieza oculta, auth.js la oculta si hay user -->
+        <div class="login-container">
+            <h2>Bienvenido</h2> <!-- O tu título de login -->
+            <p>Inicia sesión para continuar</p>
+            
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Correo electrónico</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                <p class="form-link">¿No tienes cuenta? <a href="#" id="show-register">Regístrate</a></p>
+            </form>
+            
+            <form id="register-form" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="register-email">Correo electrónico</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirmar contraseña</label>
+                    <input type="password" id="register-confirm-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+                <p class="form-link">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión</a></p>
+            </form>
+            
+            <div id="auth-error" class="error-message"></div> <!-- Para mensajes de error de auth -->
+        </div>
+    </div>
+
+    <!-- JavaScript Files (al final del body) -->
     <script src="firebase/config.js"></script>
-    <script src="js/menu.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
     <script src="js/theme-switcher.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/gallery.js"></script>
+    <script src="js/menu.js"></script>        <!-- El menú global -->
+    <script src="js/auth.js"></script>        <!-- Manejo de autenticación -->
+    <script src="js/index.js"></script>       <!-- Lógica específica de index.html (si la tienes para carrusel, etc.) -->
+    <!-- <script src="js/gallery.js"></script> --> <!-- Si tienes una galería y su lógica está en gallery.js -->
+    <!-- <script src="js/main.js"></script> -->   <!-- Si main.js es un script con funciones de utilidad o globales -->
 </body>
 </html>
