@@ -1,222 +1,57 @@
-/* Estilos generales */
+/* preguntas.css - ACTUALIZADO PARA USAR VARIABLES GLOBALES DE themes.css */
+
+/* Estilos generales (body ya está en style.css y themes.css) */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    line-height: 1.6;
-    background-color: var(--body-bg, #f5f5f5); /* Usar variables de themes.css o style.css */
-    color: var(--text-color, #333);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
+/* EL BODY YA ESTÁ ESTILIZADO POR style.css y themes.css */
+/* NO HAY DEFINICIONES LOCALES DE .light-theme / .dark-theme aquí */
 
-/* Temas (asegúrate que estas variables estén definidas en themes.css o style.css) */
-/* .light-theme se aplica al body */
-.light-theme {
-    --body-bg: #f5f5f5;
-    --text-color: #333;
-    --card-bg: #fff;
-    --card-bg-alt: #f9f9f9; /* Para pregunta-card */
-    --respuesta-bg: #f0f8ff; /* AliceBlue */
-    --respuesta-border: #4a90e2;
-    --pregunta-border-alt: #f8a5c2; /* Rosa claro para borde pregunta */
-    --modal-content-bg: #fff;
-    --form-control-bg: #fff;
-    --form-control-border: #ddd;
-    --form-control-text: #333;
-    --btn-cancelar-bg: #f2f2f2;
-    --btn-cancelar-text: #333;
-    --btn-reaccion-border: rgba(0,0,0,0.1);
-    --btn-reaccion-hover-bg: rgba(0,0,0,0.05);
-    --header-border: rgba(0,0,0,0.1);
-    --responder-container-bg: #fff;
-    --btn-ver-mas-bg: #f0f8ff;
-    --btn-ver-mas-text: #4a90e2;
-    --btn-ver-mas-border: #4a90e2;
-}
-
-/* .dark-theme se aplica al body */
-.dark-theme {
-    --body-bg: #2d2d2d;
-    --text-color: #fff;
-    --card-bg: #3a3a3a; /* Ligeramente más claro que el fondo */
-    --card-bg-alt: #2d2d2d; /* Mismo que fondo para pregunta-card */
-    --respuesta-bg: #2a2a2a;
-    --respuesta-border: #4a90e2;
-    --pregunta-border-alt: #c6426e; /* Rosa oscuro para borde pregunta */
-    --modal-content-bg: #333;
-    --form-control-bg: #444;
-    --form-control-border: #555;
-    --form-control-text: #fff;
-    --btn-cancelar-bg: #555;
-    --btn-cancelar-text: #fff;
-    --btn-reaccion-border: rgba(255,255,255,0.1);
-    --btn-reaccion-text: #ddd; /* Para emoji y contador */
-    --btn-reaccion-hover-bg: rgba(255,255,255,0.05);
-    --header-border: rgba(255,255,255,0.1);
-    --responder-container-bg: #2a2a2a;
-    --btn-ver-mas-bg: #2a2a2a;
-    --btn-ver-mas-text: #4a90e2; /* Mantenemos color acción */
-    --btn-ver-mas-border: #4a90e2;
-}
-
-/* Botón del menú y Overlay (asumo que parte de esto puede estar en style.css o boton.css) */
-.menu-button {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1010; /* Encima del overlay y contenido, pero debajo de modales de notificación/acción */
-    cursor: pointer;
-    background-color: var(--primary-color, #8A2BE2);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.hamburger {
-    width: 24px;
-    height: 18px;
-    position: relative;
-    transform: rotate(0deg);
-    transition: 0.5s ease-in-out;
-}
-
-.hamburger span {
-    display: block;
-    position: absolute;
-    height: 3px;
-    width: 100%;
-    background: white;
-    border-radius: 9px;
-    opacity: 1;
-    left: 0;
-    transform: rotate(0deg);
-    transition: 0.25s ease-in-out;
-}
-
-.hamburger span:nth-child(1) { top: 0px; }
-.hamburger span:nth-child(2) { top: 8px; }
-.hamburger span:nth-child(3) { top: 16px; }
-
-body.menu-open .hamburger span:nth-child(1) { top: 8px; transform: rotate(135deg); }
-body.menu-open .hamburger span:nth-child(2) { opacity: 0; left: -60px; }
-body.menu-open .hamburger span:nth-child(3) { top: 8px; transform: rotate(-135deg); }
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 900; /* Debajo del menú */
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-}
-
-body.menu-open .overlay {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Menú lateral */
-.side-menu {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: var(--side-menu-width, 250px);
-    height: 100vh;
-    background-color: var(--card-bg, #fff);
-    z-index: 1000; /* Encima del overlay */
-    transition: left 0.3s;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-}
-
-body.menu-open .side-menu {
-    left: 0;
-}
-
-.menu-header {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color, #8A2BE2) 0%, var(--accent-color, #BA55D3) 100%);
-    color: white;
-    text-align: center;
-}
-.menu-items { padding: 1rem 0; }
-.menu-items a {
-    display: flex;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    color: var(--text-color, #333);
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.3s;
-}
-.menu-items a i {
-    margin-right: 0.8rem;
-    width: 20px;
-    text-align: center;
-    color: var(--primary-color, #8A2BE2);
-}
-.menu-items a:hover, .menu-items a.active {
-    background-color: rgba(138, 43, 226, 0.1); /* Color fijo o usar var(--primary-color-transparent) */
-}
-
-/* Contenido principal */
+/* Contenido principal (padding ya en style.css o preguntas.html > .content) */
 .main-content {
-    padding: 20px;
-    padding-top: 70px; /* Espacio para el botón de menú y switcher */
-    transition: margin-left 0.3s ease;
-    background-color: var(--body-bg); /* Asegura que el fondo del contenido cambie */
-    color: var(--text-color);
-}
-
-body.menu-open .main-content {
-    margin-left: var(--side-menu-width, 250px);
+    /* Este selector ya está en style.css, no necesita mucho aquí a menos que sea muy específico de preguntas */
+    /* padding-top: 70px; /* Lo gestiona .content en style.css */
+    background-color: var(--body-bg-color); /* Usa variable global */
+    color: var(--text-color);           /* Usa variable global */
 }
 
 /* Estilos para la página de preguntas */
 .preguntas-container {
     max-width: 800px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 20px; /* O heredar de .content */
 }
 
-.pregunta-actual { /* Contenedor de la pregunta principal */
+.pregunta-actual {
     margin-bottom: 30px;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px var(--shadow-color);
     transition: transform 0.3s ease;
-    background-color: var(--card-bg);
+    background-color: var(--card-bg-color); /* Contenedor principal de la pregunta actual */
 }
 .pregunta-actual:hover {
     transform: translateY(-5px);
 }
 
-.pregunta-card { /* Estilo base para CADA tarjeta de pregunta (principal o anterior) */
+.pregunta-card { /* Estilo para CADA tarjeta de pregunta (principal o anterior) */
     padding: 20px;
     border-radius: 15px; 
     position: relative;
-    border-left: 5px solid transparent;
-    background-color: var(--card-bg-alt);
-    border-left-color: var(--pregunta-border-alt);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra más sutil para cards individuales */
+    border-left: 5px solid var(--pregunta-card-border-left-color);
+    background-color: var(--pregunta-card-bg-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Sombra más sutil para cards internas */
     margin-bottom: 20px; /* Espacio entre preguntas en la lista de anteriores */
+    color: var(--text-color);
 }
-/* Específicos si la pregunta-card está DENTRO de pregunta-actual (si es la única hija) */
-.pregunta-actual .pregunta-card {
-    margin-bottom: 0; /* Sin margen si es la única hija directa */
-    box-shadow: none; /* La sombra ya está en .pregunta-actual */
+.pregunta-actual .pregunta-card { /* Si la card está DENTRO de pregunta-actual */
+    margin-bottom: 0;
+    box-shadow: none;
+    border-left-width: 0; /* El borde ya está en .pregunta-actual o no se necesita */
+    border-radius: 0; /* Redondeo ya en .pregunta-actual */
 }
 
 
@@ -226,63 +61,59 @@ body.menu-open .main-content {
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid var(--header-border);
+    border-bottom: 1px solid var(--header-section-border-color);
 }
-
 .pregunta-texto {
     font-size: 1.3rem;
     font-weight: 600;
     flex-grow: 1;
     line-height: 1.4;
-    color: var(--text-color);
+    color: var(--text-color); /* Heredado, pero explícito */
 }
-
 .pregunta-admin { display: flex; gap: 12px; }
 .btn-editar-pregunta, .btn-eliminar-pregunta {
     background: none; border: none; cursor: pointer; width: 40px; height: 40px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
     transition: all 0.2s ease; font-size: 1.2rem;
+    color: var(--text-color-muted); /* Color base para iconos */
 }
 .btn-editar-pregunta:hover, .btn-eliminar-pregunta:hover {
-    background-color: var(--btn-reaccion-hover-bg); /* Reutilizar variable */
+    background-color: var(--btn-reaccion-hover-bg-color);
     transform: scale(1.1);
 }
-.btn-editar-pregunta { color: #4a90e2; }
-.btn-eliminar-pregunta { color: #e74c3c; }
-.pregunta-fecha { font-size: 0.85rem; color: var(--text-color-muted, #888); } /* Nueva variable */
-.dark-theme .pregunta-fecha { color: var(--text-color-muted, #bbb); }
+.btn-editar-pregunta { color: var(--accent-color); } /* Azul para editar */
+.btn-eliminar-pregunta { color: var(--secondary-color); } /* Rojo para eliminar */
+
+.pregunta-fecha { font-size: 0.85rem; color: var(--text-color-muted); }
 
 
 /* Respuestas */
 .respuestas-container { margin-top: 30px; }
 .respuestas-container h2 { margin-bottom: 15px; color: var(--text-color); }
 .respuesta-item {
-    padding: 20px; /* Ajustado */
+    padding: 20px;
     border-radius: 15px;
-    margin-bottom: 20px; /* Ajustado */
-    border-left: 5px solid var(--respuesta-border);
-    background-color: var(--respuesta-bg);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border-left: 5px solid var(--respuesta-item-border-left-color);
+    background-color: var(--respuesta-bg-color);
+    box-shadow: 0 3px 10px var(--shadow-color);
     transition: all 0.3s ease;
-    color: var(--text-color); /* Hereda o especifica */
+    color: var(--text-color);
 }
-.dark-theme .respuesta-item { box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
 .respuesta-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 15px color-mix(in srgb, var(--shadow-color) 150%, transparent);
 }
-.dark-theme .respuesta-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.35); }
 
 .respuesta-header {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
 }
-.respuesta-autor { font-weight: 600; color: #4a90e2; } /* Mantener color para destacar */
-.respuesta-fecha { font-size: 0.85rem; color: var(--text-color-muted, #888); }
-.dark-theme .respuesta-fecha { color: var(--text-color-muted, #bbb); }
+.respuesta-autor { font-weight: 600; color: var(--accent-color); }
+.respuesta-fecha { font-size: 0.85rem; color: var(--text-color-muted); }
 .respuesta-contenido { margin-top: 10px; line-height: 1.5; font-size: 1.1rem; }
 .respuesta-acciones {
     display: flex; justify-content: space-between; align-items: center;
-    margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--header-border);
+    margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--header-section-border-color);
 }
 
 /* Botón Nueva Pregunta */
@@ -294,7 +125,7 @@ body.menu-open .main-content {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: inline-flex;
     align-items: center; justify-content: center; gap: 10px;
 }
-.dark-theme .nueva-pregunta-btn { background: linear-gradient(135deg, #388E3C, #689F38); }
+body.dark-theme .nueva-pregunta-btn { background: linear-gradient(135deg, #388E3C, #689F38); }
 .nueva-pregunta-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .nueva-pregunta-btn:active { transform: translateY(0); }
 .nueva-pregunta-btn i { font-size: 1.2rem; }
@@ -302,7 +133,7 @@ body.menu-open .main-content {
 /* Modales (general) */
 .modal {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); z-index: 1100; /* Encima del menu-button */
+    background-color: rgba(0, 0, 0, 0.6); z-index: 1100; 
     align-items: center; justify-content: center; opacity: 0; visibility: hidden;
     transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
@@ -311,7 +142,7 @@ body.menu-open .main-content {
     transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
 .modal-content {
-    background-color: var(--modal-content-bg); color: var(--text-color);
+    background-color: var(--modal-content-bg-color); color: var(--text-color);
     border-radius: 15px; padding: 25px; width: 90%; max-width: 600px;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); position: relative;
     max-height: 90vh; overflow-y: auto; transform: scale(0.95);
@@ -320,81 +151,93 @@ body.menu-open .main-content {
 .modal.show .modal-content { transform: scale(1); }
 .modal-header {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--header-border);
+    margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--header-section-border-color);
 }
 .modal-title { font-size: 1.5rem; font-weight: 600; }
 .close-modal {
     background: none; border: none; font-size: 1.8rem; cursor: pointer;
-    color: var(--text-color-muted, #888); transition: color 0.2s ease, transform 0.2s ease;
+    color: var(--text-color-muted); transition: color 0.2s ease, transform 0.2s ease;
     padding: 5px; line-height: 1;
 }
-.dark-theme .close-modal { color: var(--text-color-muted, #aaa); }
-.close-modal:hover { color: var(--text-color); transform: scale(1.1); }
-.dark-theme .close-modal:hover { color: #fff; }
+.close-modal:hover { 
+    color: var(--text-color); /* En dark theme, --text-color es claro */
+    transform: scale(1.1); 
+}
 
 .modal-body { margin-bottom: 20px; }
 .form-group { margin-bottom: 20px; text-align: left; }
 .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
 .form-control {
-    width: 100%; padding: 12px 15px; border: 1px solid var(--form-control-border);
+    width: 100%; padding: 12px 15px; border: 1px solid var(--form-control-border-color);
     border-radius: 8px; font-size: 1rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    background-color: var(--form-control-bg); color: var(--form-control-text);
+    background-color: var(--form-control-bg-color); color: var(--form-control-text-color);
 }
 .form-control:focus {
-    outline: none; border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    outline: none; border-color: var(--accent-color); /* Azul para focus */
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 textarea.form-control { min-height: 150px; resize: vertical; }
 .modal-footer {
     display: flex; justify-content: flex-end; gap: 15px;
-    padding-top: 15px; border-top: 1px solid var(--header-border);
+    padding-top: 15px; border-top: 1px solid var(--header-section-border-color);
 }
 .btn-cancelar {
-    background-color: var(--btn-cancelar-bg); color: var(--btn-cancelar-text);
+    background-color: var(--btn-cancelar-bg-color); color: var(--btn-cancelar-text-color);
     border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500;
-    cursor: pointer; transition: all 0.2s ease;
+    cursor: pointer; transition: background-color 0.2s ease;
 }
-.btn-cancelar:hover { background-color: #e0e0e0; } /* Podría ser una variable también */
-.dark-theme .btn-cancelar:hover { background-color: #666; }
-.btn-guardar {
-    background-color: #4a90e2; color: white; border: none; padding: 10px 20px;
+.btn-cancelar:hover { 
+    background-color: color-mix(in srgb, var(--btn-cancelar-bg-color) 85%, black); /* oscurece/aclara según tema */
+}
+.btn-guardar { /* Botón principal de acción en modal */
+    background-color: var(--accent-color); color: white; /* Usa el azul de acento */
+    border: none; padding: 10px 20px;
     border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
 }
-.btn-guardar:hover { background-color: #357abd; transform: translateY(-2px); }
-.btn-eliminar-confirmado { /* Estilo para el botón de confirmar eliminación en el modal */
-    background-color: #e74c3c; color: white; border: none; padding: 10px 20px;
+.btn-guardar:hover { 
+    background-color: color-mix(in srgb, var(--accent-color) 85%, black); 
+    transform: translateY(-2px); 
+}
+.btn-eliminar-confirmado { /* Botón de eliminar en modal de confirmación */
+    background-color: var(--secondary-color); color: white; /* Usa el rojo secundario */
+    border: none; padding: 10px 20px;
     border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
 }
-.btn-eliminar-confirmado:hover { background-color: #c0392b; transform: translateY(-2px); }
-.dark-theme .btn-eliminar-confirmado { background-color: #ec7063; }
-.dark-theme .btn-eliminar-confirmado:hover { background-color: #e74c3c; }
+.btn-eliminar-confirmado:hover { 
+    background-color: color-mix(in srgb, var(--secondary-color) 85%, black); 
+    transform: translateY(-2px); 
+}
 
 
 /* Cuadro para responder */
-.responder-container {
+.responder-container { /* Ya estaba, pero para referencia */
     margin: 30px 0; padding: 20px; border-radius: 15px;
-    background-color: var(--responder-container-bg);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    background-color: var(--responder-container-bg-color);
+    box-shadow: 0 4px 15px var(--shadow-color); /* Usar var(--shadow-color) */
 }
+
 .responder-titulo {
     font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; color: var(--text-color);
 }
 .responder-form { width: 100%; }
 .responder-textarea {
     width: 100%; min-height: 120px; padding: 15px;
-    border: 1px solid var(--form-control-border);
+    border: 1px solid var(--form-control-border-color);
     border-radius: 8px; font-size: 1rem; margin-bottom: 15px; resize: vertical;
     transition: border-color 0.2s ease;
-    background-color: var(--form-control-bg); color: var(--form-control-text);
+    background-color: var(--form-control-bg-color); color: var(--form-control-text-color);
 }
-.responder-textarea:focus { outline: none; border-color: #4a90e2; }
+.responder-textarea:focus { outline: none; border-color: var(--accent-color); } /* Usa --accent-color global */
 .responder-btn {
-    background-color: #4a90e2; color: white; border: none; padding: 10px 20px;
+    background-color: var(--accent-color); color: white; border: none; padding: 10px 20px;
     border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
     display: inline-flex; align-items: center; gap: 8px;
 }
-.responder-btn:hover { background-color: #357abd; transform: translateY(-2px); }
+.responder-btn:hover { 
+    background-color: color-mix(in srgb, var(--accent-color) 85%, black); 
+    transform: translateY(-2px); 
+}
 .responder-btn:active { transform: translateY(0); }
 .responder-btn i { font-size: 1.1rem; }
 
@@ -402,32 +245,28 @@ textarea.form-control { min-height: 150px; resize: vertical; }
 .reacciones { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 .reacciones-botones { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-reaccion {
-    background: none; border: 1px solid var(--btn-reaccion-border);
+    background: none; border: 1px solid var(--btn-reaccion-border-color);
+    color: var(--btn-reaccion-text-color);
     cursor: pointer; font-size: 1rem; border-radius: 20px; padding: 3px 10px;
     display: flex; align-items: center; gap: 5px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* No transform para evitar salto */
-    color: var(--btn-reaccion-text, var(--text-color)); /* Fallback a text-color normal */
-}
-.dark-theme .btn-reaccion .reaccion-emoji { /* Para asegurar que el emoji como texto tome el color */
-     color: var(--btn-reaccion-text, #fff);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 .btn-reaccion:hover {
-    background-color: var(--btn-reaccion-hover-bg);
+    background-color: var(--btn-reaccion-hover-bg-color);
 }
 .btn-reaccion.active {
-    background-color: rgba(74, 144, 226, 0.1); border-color: #4a90e2; color: #4a90e2;
+    background-color: var(--btn-reaccion-active-bg-color); 
+    border-color: var(--btn-reaccion-active-border-color); 
+    color: var(--btn-reaccion-active-text-color);
 }
-.dark-theme .btn-reaccion.active {
-    background-color: rgba(74, 144, 226, 0.2); border-color: #4a90e2; color: #69a5e9;
-}
-.reaccion-emoji { font-size: 0.85rem; }
-.reaccion-count { font-size: 0.8rem; min-width: 16px; text-align: center; font-weight: bold; }
+.reaccion-emoji { font-size: 0.85rem; } /* El color lo toma de .btn-reaccion */
+.reaccion-count { font-size: 0.8rem; min-width: 16px; text-align: center; font-weight: bold; } /* El color lo toma de .btn-reaccion */
 
 
 /* Botón Volver Arriba */
 .btn-volver-arriba {
     position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
-    border-radius: 50%; background: #4a90e2; color: white; display: flex;
+    border-radius: 50%; background: var(--accent-color); color: white; display: flex;
     align-items: center; justify-content: center; cursor: pointer;
     box-shadow: 0 3px 10px rgba(0,0,0,0.3); opacity: 0; visibility: hidden;
     transition: all 0.3s ease; z-index: 100; border: none; font-size: 1.2rem;
@@ -435,24 +274,21 @@ textarea.form-control { min-height: 150px; resize: vertical; }
 .btn-volver-arriba.visible { opacity: 1; visibility: visible; }
 .btn-volver-arriba:hover {
     transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    background-color: #357abd;
+    background-color: color-mix(in srgb, var(--accent-color) 85%, black);
 }
 
 /* Botón Ver Más Respuestas */
 .btn-ver-mas { /* Aplicado a #btn-ver-mas-respuestas */
-    background-color: var(--btn-ver-mas-bg);
-    color: var(--btn-ver-mas-text);
-    border: 1px solid var(--btn-ver-mas-border);
+    background-color: var(--btn-ver-mas-bg-color);
+    color: var(--btn-ver-mas-text-color);
+    border: 1px solid var(--btn-ver-mas-border-color);
     border-radius: 8px; padding: 10px 15px; margin-top: 15px; margin-bottom: 20px;
     cursor: pointer; font-weight: 600; transition: all 0.2s ease;
     display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
 }
 .btn-ver-mas:hover {
-    background-color: #e6f2ff; /* Light theme hover */
+    background-color: color-mix(in srgb, var(--btn-ver-mas-bg-color) 90%, var(--text-color) 5%); /* aclara u oscurece sutilmente */
     transform: translateY(-2px);
-}
-.dark-theme .btn-ver-mas:hover {
-    background-color: #333; /* Dark theme hover */
 }
 .btn-ver-mas i { transition: transform 0.3s ease; }
 .btn-ver-mas:hover i { transform: translateY(2px); }
@@ -461,18 +297,21 @@ textarea.form-control { min-height: 150px; resize: vertical; }
 /* Botones Editar/Eliminar Respuestas */
 .respuesta-admin { display: flex; gap: 10px; }
 .btn-editar-respuesta, .btn-eliminar-respuesta {
-    display: flex; align-items: center; background: none; border: 1px solid;
+    display: flex; align-items: center; background: none; border: 1px solid; /* color definido abajo */
     border-radius: 20px; padding: 5px 10px; font-size: 0.9rem;
     cursor: pointer; transition: all 0.2s ease;
 }
-.btn-editar-respuesta { color: #4a90e2; border-color: #4a90e2; }
-.btn-eliminar-respuesta { color: #e74c3c; border-color: #e74c3c; }
-.btn-editar-respuesta:hover { background-color: rgba(74, 144, 226, 0.1); transform: translateY(-2px); }
-.btn-eliminar-respuesta:hover { background-color: rgba(231, 76, 60, 0.1); transform: translateY(-2px); }
-.dark-theme .btn-editar-respuesta { color: #69a5e9; border-color: #69a5e9; }
-.dark-theme .btn-eliminar-respuesta { color: #ec7063; border-color: #ec7063; }
-.dark-theme .btn-editar-respuesta:hover { background-color: rgba(74, 144, 226, 0.2); }
-.dark-theme .btn-eliminar-respuesta:hover { background-color: rgba(231, 76, 60, 0.2); }
+.btn-editar-respuesta { color: var(--accent-color); border-color: var(--accent-color); }
+.btn-eliminar-respuesta { color: var(--secondary-color); border-color: var(--secondary-color); }
+
+.btn-editar-respuesta:hover { 
+    background-color: color-mix(in srgb, var(--accent-color) 10%, transparent); 
+    transform: translateY(-2px); 
+}
+.btn-eliminar-respuesta:hover { 
+    background-color: color-mix(in srgb, var(--secondary-color) 10%, transparent); 
+    transform: translateY(-2px); 
+}
 .btn-editar-respuesta i, .btn-eliminar-respuesta i { margin-right: 5px; }
 
 
@@ -484,7 +323,7 @@ textarea.form-control { min-height: 150px; resize: vertical; }
     transform: translateX(-50%) translateY(-150%); /* Empieza arriba, fuera de vista */
     padding: 12px 25px;
     border-radius: 25px; /* Pill shape */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px var(--shadow-color); /* Usa variable de tema */
     z-index: 9999; /* Muy alto */
     opacity: 0;
     transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); /* Efecto de entrada con rebote */
@@ -496,44 +335,44 @@ textarea.form-control { min-height: 150px; resize: vertical; }
     align-items: center;
     justify-content: center; /* Centra el texto si no hay icono */
     gap: 8px;
+    color: white; /* Texto de notificación siempre blanco para buen contraste con fondos de color */
 }
 .notification.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0); /* Se desliza a su posición */
 }
-.notification.success { background-color: #4CAF50; color: white; }
-.notification.error { background-color: #e74c3c; color: white; }
-.notification.info { background-color: #3498db; color: white; }
+.notification.success { background-color: #4CAF50; } /* Verde éxito (color fijo o variable si lo tienes) */
+.notification.error { background-color: var(--secondary-color); } /* Rojo error (usa variable de tema) */
+.notification.info { background-color: var(--accent-color); } /* Azul info (usa variable de tema) */
 
 
 /* Preguntas Anteriores (nuevos estilos para la lista) */
 .preguntas-anteriores {
     margin-top: 40px;
     padding-top: 20px;
-    border-top: 1px solid var(--header-border);
+    border-top: 1px solid var(--header-section-border-color); /* Usa variable de tema */
 }
 .preguntas-anteriores h2 {
     font-size: 1.5rem;
     margin-bottom: 20px;
-    color: var(--text-color);
+    color: var(--text-color); /* Usa variable de tema */
 }
 /* .pregunta-card se reutiliza para las anteriores, pero ajustamos texto y fecha */
 .pregunta-texto-anterior { /* Clase específica para el texto de preguntas en la lista de anteriores */
     font-size: 1.1rem; /* Un poco más pequeño */
     font-weight: 500;
-    color: var(--text-color);
+    color: var(--text-color); /* Usa variable de tema */
     margin-bottom: 8px;
 }
 .pregunta-fecha-anterior {
     font-size: 0.8rem;
-    color: var(--text-color-muted, #888);
+    color: var(--text-color-muted); /* Usa variable de tema */
     margin-bottom: 10px;
 }
-.dark-theme .pregunta-fecha-anterior { color: var(--text-color-muted, #bbb); }
 
 .btn-ver-pregunta-completa {
-    background-color: var(--primary-color, #8A2BE2);
-    color: white;
+    background-color: var(--primary-color); /* Usa el morado principal de tema */
+    color: white; /* Texto blanco para contraste */
     border: none;
     padding: 8px 15px;
     border-radius: 5px;
@@ -545,7 +384,7 @@ textarea.form-control { min-height: 150px; resize: vertical; }
     gap: 8px;
 }
 .btn-ver-pregunta-completa:hover {
-    background-color: var(--accent-color, #BA55D3);
+    background-color: color-mix(in srgb, var(--primary-color) 85%, black); /* Oscurece un poco */
 }
 .btn-ver-pregunta-completa i { font-size: 1rem; }
 
@@ -557,54 +396,49 @@ textarea.form-control { min-height: 150px; resize: vertical; }
     padding: 10px 20px;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color, #8A2BE2);
+    color: var(--primary-color); /* Usa variable de tema */
     background-color: transparent;
-    border: 2px solid var(--primary-color, #8A2BE2);
+    border: 2px solid var(--primary-color); /* Usa variable de tema */
     border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 .btn-cargar-mas:hover {
-    background-color: var(--primary-color, #8A2BE2);
-    color: white;
-    box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3);
+    background-color: var(--primary-color); /* Usa variable de tema */
+    color: white; /* Texto blanco para contraste */
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--primary-color) 30%, transparent); /* Sombra con color de tema */
 }
 .btn-cargar-mas i { margin-right: 8px; }
 
 
-/* Estilos Responsivos */
+/* Estilos Responsivos (sin cambios mayores aquí, ya estaban bien) */
 @media (max-width: 768px) {
-    body.menu-open .main-content {
-        margin-left: 0; /* En móvil, el contenido principal no se desplaza */
-    }
-    .main-content {
-        padding-top: 60px; /* Menos padding arriba en móvil */
-    }
+    /* El main-content.active ya no es necesario aquí si menu.js no lo aplica en móvil */
     .preguntas-container {
         padding: 15px 10px;
-        width: 100%; /* Ocupa más pantalla */
+        width: 100%; 
     }
     .pregunta-actual, .respuesta-item {
         margin-bottom: 15px;
     }
-    .pregunta-card, .respuesta-item { /* Reducir padding general para más espacio de contenido */
+    .pregunta-card, .respuesta-item {
         padding: 15px;
     }
     .pregunta-texto { font-size: 1.15rem; }
     .respuesta-contenido { font-size: 1rem; }
 
     .respuesta-acciones {
-        flex-direction: column; /* Emojis arriba, botones admin abajo */
-        align-items: flex-start; /* Alinear todo a la izquierda */
+        flex-direction: column; 
+        align-items: flex-start; 
         gap: 15px;
     }
     .reacciones-botones {
-        width: 100%; /* Ocupar ancho */
-        justify-content: flex-start; /* Alinear botones de reacción a la izquierda */
+        width: 100%; 
+        justify-content: flex-start; 
     }
     .respuesta-admin {
         width: 100%;
-        justify-content: flex-end; /* Alinear botones editar/eliminar a la derecha */
+        justify-content: flex-end; 
     }
     .btn-editar-respuesta, .btn-eliminar-respuesta {
         padding: 5px 8px;
